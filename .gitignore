@@ -1,0 +1,15 @@
+Ignore/
+*.pptx
+*.ppt
+*.odt
+BSR/
+*.tgz
+*solution*
+solution/
+_data/
+*.pyc
+.ipynb*
+*.zip
+blood-cells/
+*.jpg
+*.JPEG
