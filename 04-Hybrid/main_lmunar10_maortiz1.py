@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Feb 19 11:49:21 2019
+Created on Thu Feb 21 19:02:23 2019
 
-@author: m_ana
+@author: ma.ortiz1-l.munar10
 """
+
+#!/usr/bin/python3
 
 import zipfile
 #import ipdb 
 import requests    
-import tarfile
+
 import os
 import cv2
 import scipy.io
 from random import *
 import numpy as np
-import imutils
 
 from subprocess import call
-import timeit
-import pickle
-#import ipdb
+import imutils
+
 import matplotlib.pyplot as plt
 from PIL import ImageFont, ImageDraw, Image
 from xlrd import open_workbook
@@ -31,7 +31,38 @@ if not os.path.isdir(os.path.join(os.getcwd(),'img')):
    zip_ref = zipfile.ZipFile('img.zip', 'r')
    zip_ref.extractall()
    zip_ref.close()
-   
+
+#reading images
+low=cv2.imread(os.path.join("img/", "garfield.jpg"))
+lowc=cv2.resize(low,(512,512))
+#lowc = cv2.cvtColor(lowc, cv2.COLOR_BGR2RGB)
+high=cv2.imread(os.path.join("img/", "junior.jpg"))
+highc=cv2.resize(high,(512,512))
+#highc= cv2.cvtColor(highc, cv2.COLOR_BGR2RGB)
+
+
+#high pass filter to image 1
+highblur = cv2.GaussianBlur(highc,(35,35),15)
+highblur = cv2.subtract(highc,highblur)
+
+#low pass filter to image 2
+lowblur = cv2.GaussianBlur(lowc,(35,35),15)
+#adding to create hybrid image
+final = cv2.add(highblur,lowblur)
+#resizing to obtain 
+final=cv2.resize(final,(8192,8192))
+cv2.imwrite('hybrid.jpg',final)
+
+
+plt.imshow(final)
+plt.show()
+plt.axis('off')
+print('Image with final result of hybrid was save with the name hybrid.jpg if visualition couldnt didn''t occur')
+
+
+
+
+
 low=cv2.imread(os.path.join("img/", "junior.jpg"))
 side1=cv2.resize(low,(2048,2048))
 side1 = cv2.cvtColor(side1, cv2.COLOR_BGR2RGB)
@@ -109,33 +140,8 @@ plt.imshow(beg)
 plt.axis('off')
 plt.show()
 beg = cv2.cvtColor(beg, cv2.COLOR_BGR2RGB) 
-cv2.imwrite('pru1.jpg',beg)
+cv2.imwrite('blending.jpg',beg)
+print('Image with final result of blending was save with the name blending.jpg if visualition didn''t occur')
 
-#
-#import numpy as np
-#import matplotlib.pyplot as plt
-#
-#from skimage import data
-#from skimage.transform import pyramid_gaussian
-#
-#
-#image = joinH[0]
-#rows, cols, dim = image.shape
-##pyramid = tuple(pyramid_gaussian(image, downscale=2, multichannel=True))
-#pyramid=joinH
-#composite_image = np.zeros((rows, cols + cols // 2, 3), dtype=np.double)
-#
-#composite_image[:rows, :cols, :] = pyramid[0]
-#
-#i_row = 0
-#for p in pyramid[1:]:
-#    n_rows, n_cols = p.shape[:2]
-#    composite_image[i_row:i_row + n_rows, cols:cols + n_cols] = p
-#    i_row += n_rows
-#
-#
-#cv2.imwrite('comp.JPEG',composite_image)
-#
-##plt.imshow(composite_image)
-#
+
 
