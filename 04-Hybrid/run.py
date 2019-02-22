@@ -1,11 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 21 19:02:23 2019
-
-@author: ma.ortiz1-l.munar10
-"""
-
-#!/usr/bin/python3
+#!/usr/bin/ipython3
 
 import zipfile
 #import ipdb 
