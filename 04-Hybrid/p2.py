@@ -136,6 +136,6 @@ cv2.imwrite('pru1.jpg',beg)
 #
 #cv2.imwrite('comp.JPEG',composite_image)
 #
-##plt.imshow(composite_image)
+#plt.imshow(composite_image)
 #
 

@@ -29,10 +29,10 @@ if not os.path.isdir(os.path.join(os.getcwd(),'img')):
 
 low=cv2.imread(os.path.join("img/", "garfield.jpg"))
 lowc=cv2.resize(low,(512,512))
-#lowc = cv2.cvtColor(lowc, cv2.COLOR_BGR2RGB)
+lowc = cv2.cvtColor(lowc, cv2.COLOR_BGR2RGB)
 high=cv2.imread(os.path.join("img/", "junior.jpg"))
 highc=cv2.resize(high,(512,512))
-#highc= cv2.cvtColor(highc, cv2.COLOR_BGR2RGB)
+highc= cv2.cvtColor(highc, cv2.COLOR_BGR2RGB)
 
 
 
@@ -48,30 +48,30 @@ cv2.imwrite('final.jpg',final)
 plt.imshow(final)
 plt.show()
 
-#from skimage import data
-#from skimage.transform import pyramid_gaussian
-#image = final
-#rows, cols, dim = image.shape
-#pyramid = tuple(pyramid_gaussian(image, downscale=2, multichannel=True,max_layer=-1))
-##pyramid=jpinR
-#composite_image = np.zeros((rows, cols + cols // 2, 3), dtype=np.double)
-#
-#composite_image[:rows, :cols, :] = pyramid[0]
-#
-#i_row = 0
-#for p,k in zip(pyramid[1:],range(1,len(pyramid))):
-#    n_rows, n_cols = p.shape[:2]
-#    composite_image[i_row:i_row + n_rows, cols:cols + n_cols] = p
-#    i_row += n_rows
-#    
-#    
-#composite_image= cv2.cvtColor(composite_image, cv2.COLOR_BGR2RGB)
-#cv2.imwrite('piramidet.jpg',composite_image)
+from skimage import data
+from skimage.transform import pyramid_gaussian
+image = final
+rows, cols, dim = image.shape
+pyramid = tuple(pyramid_gaussian(image, downscale=2, multichannel=True,max_layer=-1))
+#pyramid=jpinR
+composite_image = np.zeros((rows, cols + cols // 2, 3), dtype=np.double)
 
-#fig, ax = plt.subplots()
-#ax.imshow(composite_image)
-#plt.show()
-#plt.axis('off')
+composite_image[:rows, :cols, :] = pyramid[0]
+
+i_row = 0
+for p,k in zip(pyramid[1:],range(1,len(pyramid))):
+    n_rows, n_cols = p.shape[:2]
+    composite_image[i_row:i_row + n_rows, cols:cols + n_cols] = p
+    i_row += n_rows
+    
+    
+composite_image= cv2.cvtColor(composite_image, cv2.COLOR_BGR2RGB)
+cv2.imwrite('piramidet.jpg',composite_image)
+
+fig, ax = plt.subplots()
+ax.imshow(composite_image)
+plt.show()
+plt.axis('off')
 #AG=[final]
 #w=final.shape[1]
 #factor=2
