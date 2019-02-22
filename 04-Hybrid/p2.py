@@ -111,31 +111,31 @@ plt.show()
 beg = cv2.cvtColor(beg, cv2.COLOR_BGR2RGB) 
 cv2.imwrite('pru1.jpg',beg)
 
-#
-#import numpy as np
-#import matplotlib.pyplot as plt
-#
-#from skimage import data
-#from skimage.transform import pyramid_gaussian
-#
-#
-#image = joinH[0]
-#rows, cols, dim = image.shape
-##pyramid = tuple(pyramid_gaussian(image, downscale=2, multichannel=True))
-#pyramid=joinH
-#composite_image = np.zeros((rows, cols + cols // 2, 3), dtype=np.double)
-#
-#composite_image[:rows, :cols, :] = pyramid[0]
-#
-#i_row = 0
-#for p in pyramid[1:]:
-#    n_rows, n_cols = p.shape[:2]
-#    composite_image[i_row:i_row + n_rows, cols:cols + n_cols] = p
-#    i_row += n_rows
-#
-#
-#cv2.imwrite('comp.JPEG',composite_image)
-#
-#plt.imshow(composite_image)
-#
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from skimage import data
+from skimage.transform import pyramid_gaussian
+
+
+image = AG[0]
+rows, cols, dim = image.shape
+#pyramid = tuple(pyramid_gaussian(image, downscale=2, multichannel=True))
+pyramid=AG
+composite_image = np.zeros((rows, cols + cols // 2, 3), dtype=np.double)
+
+composite_image[:rows, :cols, :] = pyramid[0]
+
+i_row = 0
+for p in pyramid[1:]:
+    n_rows, n_cols = p.shape[:2]
+    composite_image[i_row:i_row + n_rows, cols:cols + n_cols] = p
+    i_row += n_rows
+
+
+cv2.imwrite('comp.JPEG',composite_image)
+
+plt.imshow(composite_image)
+
 

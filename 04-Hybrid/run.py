@@ -36,11 +36,11 @@ highc= cv2.cvtColor(highc, cv2.COLOR_BGR2RGB)
 
 
 
-highblur = cv2.GaussianBlur(highc,(35,35),15)
+highblur = cv2.GaussianBlur(highc,(35,35),110)
 highblur = cv2.subtract(highc,highblur)
 
 
-lowblur = cv2.GaussianBlur(lowc,(35,35),15)
+lowblur = cv2.GaussianBlur(lowc,(35,35),50)
 final = cv2.add(highblur,lowblur)
 final=cv2.resize(final,(8192,8192))
 cv2.imwrite('final.jpg',final)
@@ -64,9 +64,9 @@ for p,k in zip(pyramid[1:],range(1,len(pyramid))):
     composite_image[i_row:i_row + n_rows, cols:cols + n_cols] = p
     i_row += n_rows
     
-    
-composite_image= cv2.cvtColor(composite_image, cv2.COLOR_BGR2RGB)
-cv2.imwrite('piramidet.jpg',composite_image)
+#    
+#composite_image= cv2.cvtColor(composite_image, cv2.COLOR_BGR2RGB)
+#cv2.imwrite('piramidet.jpg',composite_image)
 
 fig, ax = plt.subplots()
 ax.imshow(composite_image)

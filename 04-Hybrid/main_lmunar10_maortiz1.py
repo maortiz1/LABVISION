@@ -42,11 +42,11 @@ highc=cv2.resize(high,(512,512))
 
 
 #high pass filter to image 1
-highblur = cv2.GaussianBlur(highc,(35,35),15)
+highblur = cv2.GaussianBlur(highc,(35,35),110)
 highblur = cv2.subtract(highc,highblur)
 
 #low pass filter to image 2
-lowblur = cv2.GaussianBlur(lowc,(35,35),15)
+lowblur = cv2.GaussianBlur(lowc,(35,35),50)
 #adding to create hybrid image
 final = cv2.add(highblur,lowblur)
 #resizing to obtain 
