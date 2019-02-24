@@ -49,10 +49,10 @@ if not os.path.isdir(os.path.join(os.getcwd(),'cifar-10-batches-py')):
 
 dictTrain = cifar10.load_cifar10(meta='cifar-10-batches-py', mode=1)
 dictTest = cifar10.load_cifar10(meta='cifar-10-batches-py',mode='test')
-numTrain=0.001#porcentaje de imagenes que se van a tomar para el train
+numTrain=0.01#porcentaje de imagenes que se van a tomar para el train
 
 imagesTrain,labelsTrain = cifar10.get_data(dictTrain,sliced=numTrain)
-imagesTest,labelTest = cifar10.get_data(dictTest,sliced=1)
+imagesTest,labelTest = cifar10.get_data(dictTest,sliced=0.01)
 
 
 # Obtain concatenated matrices of random pixels
@@ -75,7 +75,7 @@ for j in range(0,len(imagesTest)):
     
     
 
-k = 16*8
+k = 15
 
 fb = fbCreate(support=2, startSigma=0.6) # fbCreate(**kwargs, vis=True) for visualization
 
@@ -123,20 +123,37 @@ def inter(x,y):
         return d
 print("clasificando")
 #KNN - con chi2
+strKNN = datetime.now()
 kn=KNeighborsClassifier(n_neighbors=50,metric=distchi)
 kn=kn.fit(histTrain,labelsTrain)
 result=kn.predict(histTrain)
 aca= accuracy_score(labelsTrain,result)
 c=confusion_matrix(labelsTrain,result)
-
+endt = datetime.now() -strKNN
+secondsKNN=endt.total_seconds()
 #RandomForest
+
+strF=datetime.now()
 clf = RandomForestClassifier(n_estimators=30, max_features=0.5)
 clf.fit(histTrain,labelsTrain)
 result2=clf.predict(histTest)
 aca2= accuracy_score(labelTest,result2)
+endF=datetime.now() - strF
+secondsFo=endF.total_seconds()
 
-#print datetime.now() - start
+endT=datetime.now() - start
+secod = endT.total_seconds()
+notaexp='NOTA'
 print(aca)
 print(aca2)
-
-
+now=datetime.now()
+File = open('%i-%i-%i-%i.txt'%(now.month, now.day, now.hour ,now.minute),'a+')
+File.write('Train: '+str(aca)+'\n')
+File.write('Test: '+ str(aca2)+'\n')
+File.write('Time: '+str(secod)+'\n')  
+File.write('Time KNN: '+ str(secondsKNN)+'\n')   
+File.write('Time Random Forests: '+ str(secondsFo)+'\n')
+File.write('Number of Train Images: ' + str(len(imagesTrain))+'\n')
+File.write('Number of Test Images: ' + str(len(imagesTest))+'\n')
+File.write('Note: '+notaexp+'\n')
+File.close()
