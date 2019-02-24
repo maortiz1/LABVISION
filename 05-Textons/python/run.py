@@ -49,7 +49,7 @@ if not os.path.isdir(os.path.join(os.getcwd(),'cifar-10-batches-py')):
 
 dictTrain = cifar10.load_cifar10(meta='cifar-10-batches-py', mode=1)
 dictTest = cifar10.load_cifar10(meta='cifar-10-batches-py',mode='test')
-numTrain=0.01#porcentaje de imagenes que se van a tomar para el train
+numTrain=0.001#porcentaje de imagenes que se van a tomar para el train
 
 imagesTrain,labelsTrain = cifar10.get_data(dictTrain,sliced=numTrain)
 imagesTest,labelTest = cifar10.get_data(dictTest,sliced=1)
@@ -108,7 +108,35 @@ for j in range (0,len(imagesTest)):
     actTmap=assignTextons(fbRun(fb,imagesTest[j,:,:]),textons.transpose())
     tmapTest.append(actTmap)
     histTest.append(histc(actTmap.flatten(), np.arange(k)))
+#Metric functions
+#Chi-squared distance metric
+def distchi(x,y):
+	import numpy as np
+	np.seterr(divide='ignore', invalid='ignore')
+	d=np.sum(((x-y)**2)/(x+y)) 
+	return d
+#Intersection kernel metric
+def inter(x,y):
+        import numpy as np
+        min=np.minimum(x,y)
+        d=1-np.sum(min)
+        return d
+print("clasificando")
+#KNN - con chi2
+kn=KNeighborsClassifier(n_neighbors=50,metric=distchi)
+kn=kn.fit(histTrain,labelsTrain)
+result=kn.predict(histTrain)
+aca= accuracy_score(labelsTrain,result)
+c=confusion_matrix(labelsTrain,result)
 
+#RandomForest
+clf = RandomForestClassifier(n_estimators=30, max_features=0.5)
+clf.fit(histTrain,labelsTrain)
+result2=clf.predict(histTest)
+aca2= accuracy_score(labelTest,result2)
 
+#print datetime.now() - start
+print(aca)
+print(aca2)
 
 
