@@ -53,7 +53,7 @@ numTrain=0.01#porcentaje de imagenes que se van a tomar para el train
 
 imagesTrain,labelsTrain = cifar10.get_data(dictTrain,sliced=numTrain)
 imagesTest,labelTest = cifar10.get_data(dictTest,sliced=0.01)
-
+print('Label  and Data already loaded')
 
 # Obtain concatenated matrices of random pixels
 
@@ -80,10 +80,10 @@ k = 15
 fb = fbCreate(support=2, startSigma=0.6) # fbCreate(**kwargs, vis=True) for visualization
 
 filterResponses = fbRun(fb,train)
-
+print('Filter responses created')
 #Computer textons from filter
 mapT, textons = computeTextons(filterResponses, k)
-
+print('Computed textones done')
 #Load more images
 
 
@@ -101,6 +101,7 @@ for j in range(0,len(imagesTrain)):
     actTmap=assignTextons(fbRun(fb,imagesTrain[j,:,:]),textons.transpose())
     tmapTrain.append(actTmap)
     histTrain.append(histc(actTmap.flatten(), np.arange(k)))
+    print('Image %d'%(j)+'from train already textones assign')
     
 tmapTest = []
 histTest=[]
@@ -108,6 +109,7 @@ for j in range (0,len(imagesTest)):
     actTmap=assignTextons(fbRun(fb,imagesTest[j,:,:]),textons.transpose())
     tmapTest.append(actTmap)
     histTest.append(histc(actTmap.flatten(), np.arange(k)))
+    print('Image %d'%(j)+' from test already textones assign')
 #Metric functions
 #Chi-squared distance metric
 def distchi(x,y):
@@ -123,6 +125,7 @@ def inter(x,y):
         return d
 print("clasificando")
 #KNN - con chi2
+print('KNN starting')
 strKNN = datetime.now()
 kn=KNeighborsClassifier(n_neighbors=50,metric=distchi)
 kn=kn.fit(histTrain,labelsTrain)
@@ -131,8 +134,9 @@ aca= accuracy_score(labelsTrain,result)
 c=confusion_matrix(labelsTrain,result)
 endt = datetime.now() -strKNN
 secondsKNN=endt.total_seconds()
+print('KNN ending')
 #RandomForest
-
+print('RF starting')
 strF=datetime.now()
 clf = RandomForestClassifier(n_estimators=30, max_features=0.5)
 clf.fit(histTrain,labelsTrain)
@@ -140,6 +144,7 @@ result2=clf.predict(histTest)
 aca2= accuracy_score(labelTest,result2)
 endF=datetime.now() - strF
 secondsFo=endF.total_seconds()
+print('RF ending')
 
 endT=datetime.now() - start
 secod = endT.total_seconds()
