@@ -13,3 +13,6 @@ _data/
 blood-cells/
 *.jpg
 *.JPEG
+cifar-10-batches-py/
+*.tar.gz
+*.tar

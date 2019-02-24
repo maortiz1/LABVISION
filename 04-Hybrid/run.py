@@ -9,6 +9,7 @@ import cv2
 import scipy.io
 from random import *
 import numpy as np
+import cifar10.py
 
 from subprocess import call
 import imutils
