@@ -207,4 +207,4 @@ File.close()
 
 
 with open('data', 'wb') as f:
-    pickle.dump([fb,ACAresultrain,cMTrain,c1,aca,mapT, textons,acaResul2train,aca2,c,cMtrain2, tmapTrain,histTrain,tmapTrain,histTrain],f)
+    pickle.dump([fb,ACAresultrain,cMTrain,c1,aca,mapT, textons,acaResul2train,aca2,c,cMtrain2, tmapTrain,histTrain,tmapTrain,histTrain,imagesTrain,labelsTrain,imagesTest,labelTest],f)
