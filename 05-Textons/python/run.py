@@ -104,7 +104,7 @@ for j in range(0,len(imagesTest)):
 
 
 
-k = 20
+k = 144
 sinit=datetime.now();
 #fb = fbCreate(support=1, startSigma=0.6) # fbCreate(**kwargs, vis=True) for visualization
 fb = fbCreate(support=1, startSigma=0.6)
@@ -207,4 +207,4 @@ File.close()
 
 
 with open('data', 'wb') as f:
-    pickle.dump([fb,ACAresultrain,cMTrain,c1,aca,mapT, textons,acaResul2train,aca2,c,cMtrain2, tmapTrain,histTrain,tmapTrain,histTrain,imagesTrain,labelsTrain,imagesTest,labelTest],f)
+    pickle.dump([fb,ACAresultrain,cMTrain,c1,aca,mapT, textons,acaResul2train,aca2,c,cMtrain2, tmapTrain,histTrain,tmapTest,histTest,imagesTrain,labelsTrain,imagesTest,labelTest,result2],f)
