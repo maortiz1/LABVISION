@@ -16,8 +16,8 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      def debugImg(rawData):
        toShow = np.zeros((rawData.shape), dtype=np.uint8)
        cv2.normalize(rawData, toShow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-       cv2.imwrite('img', toShow)
-     
+#       cv2.imwrite('img', toShow)
+
      #resize if it is hierarchical
      if clusteringMethod=='hierarchical':       
        rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
@@ -50,6 +50,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        from sklearn import mixture
        feat = img.reshape(height*width,3)
        gmm = mixture.GaussianMixture(n_components=numberOfClusters).fit_predict(feat)
+       
        segmentation = np.reshape(gmm,(height,width))
 
      elif clusteringMethod == "hierarchical":
