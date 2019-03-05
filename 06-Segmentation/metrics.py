@@ -1,5 +1,4 @@
-
-
+#!/usr/bin/ipython3
 
 def imshow(img, seg, title='Image'):
     import matplotlib.pyplot as plt
