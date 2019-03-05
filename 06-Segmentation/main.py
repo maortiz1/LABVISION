@@ -1,5 +1,5 @@
 #!/usr/bin/ipython3
-
+import ipdb 
 def imshow(img, seg, title='Image'):
     import matplotlib.pyplot as plt
     plt.imshow(img, cmap=plt.get_cmap('gray'))
@@ -20,68 +20,20 @@ def groundtruth(img_file):
 def check_dataset(folder):
     import os
     import zipfile
+    import requests  
     if not os.path.isdir(folder):
      url='http://157.253.196.67/BSDS_small.zip'
      r=requests.get(url,allow_redirects=True)
      open('BSDS_small.zip','wb').write(r.content) 
      zip_ref = zipfile.ZipFile('BSDS_small.zip', 'r')
      zip_ref.extractall()
-     zip_ref.close()
-     
-def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfClusters):
-    import pandas as pd
-    import numpy as np
-    from sklearn.cluster import KMeans
-    from sklearn.preprocessing import LabelEncoder
-    from sklearn.preprocessing import MinMaxScaler
-    import seaborn as sns
-    import matplotlib.pyplot as plt   
-    from skimage import io, color
-    import cv2
-    
-    # normalizing function
-    def debugImg(rawData):
-      toShow = np.zeros((rawData.shape), dtype=np.uint8)
-      cv2.normalize(rawData, toShow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-      cv2.imwrite('img', toShow)
-    
-    #resize if it is hierarchical
-    if clusteringMethod == "hierarchical"       
-      rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
-      height = np.size(rgbImage, 0)
-      width = np.size(rgbImage, 1)
-    else
-      height = np.size(rgbImage, 0)
-      width = np.size(rgbImage, 1)
-    
-    #change to the specified color space
-    if colorSpace == "lab"
-      img = color.rgb2lab(rgbImage)    
-      debugImg(img) 
-    elif colorSpace == "hsv"
-       img = color.rgb2hsv(rgbImage) 
-       debugImg(img) 
-    elif colorSpace == "rgb+xy"
-    elif colorSpace == "lab+xy"
-    elif colorSpace == "hsv+xy"
-    else
-      img = rgbImage
-    
-    #proceed to the specified clustering method
-    if clusteringMethod == "kmeans"
-      kmeans = KMeans(n_clusters=numberOfClusters).fit(img)
-    elif clusteringMethod == "gmm"
-      gmm = mixture.GaussianMixture( n_components=params[numberOfClusters]).fit(img)
-    elif clusteringMethod == "hierarchical"
-    else
-    
-    
-    
-    return segmentation
+     zip_ref.close()  
 
 if __name__ == '__main__':
     import argparse
     import imageio
+    import os
+    import cv2
     from Segment import segmentByClustering 
     parser = argparse.ArgumentParser()
 
@@ -91,10 +43,11 @@ if __name__ == '__main__':
     parser.add_argument('--img_file', type=str, required=True)
 	
     opts = parser.parse_args()
-
     check_dataset(opts.img_file.split('/')[0])
-
-    img = imageio.imread(opts.img_file)
+    import numpy as np
+    img = imageio.imread(os.path.join("BSDS_small/train/", opts.img_file))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     seg = segmentByClustering(rgbImage=img, colorSpace=opts.color, clusteringMethod=opts.method, numberOfClusters=opts.k)
+#    ipdb.set_trace()
     imshow(img, seg, title='Prediction')
     groundtruth(opts.img_file)
