@@ -14,7 +14,7 @@ def groundtruth(img_file):
     import scipy.io as sio
     img = imageio.imread(img_file)
     gt=sio.loadmat(img_file.replace('jpg', 'mat'))
-    segm=gt['groundTruth'][0,5][0][0]['Segmentation']
+    segm=gt['groundTruth'][0,1][0][0]['Segmentation']
     imshow(img, segm, title='Groundtruth')
     
 def check_dataset(folder):
@@ -33,7 +33,6 @@ if __name__ == '__main__':
     import argparse
     import imageio
     import os
-    import cv2
     from Segment import segmentByClustering 
     parser = argparse.ArgumentParser()
 
@@ -46,8 +45,7 @@ if __name__ == '__main__':
     check_dataset(opts.img_file.split('/')[0])
     import numpy as np
     img = imageio.imread(os.path.join("BSDS_small/train/", opts.img_file))
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     seg = segmentByClustering(rgbImage=img, colorSpace=opts.color, clusteringMethod=opts.method, numberOfClusters=opts.k)
 #    ipdb.set_trace()
     imshow(img, seg, title='Prediction')
-    groundtruth(opts.img_file)
+    groundtruth(os.path.join("BSDS_small/train/",opts.img_file))

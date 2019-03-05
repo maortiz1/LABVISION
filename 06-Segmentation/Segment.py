@@ -45,24 +45,18 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        feat = img.reshape(height*width,3)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(kmeans,(height,width))
-       print(segmentation)
-       plt.imshow(segmentation, cmap=plt.get_cmap('jet'))
-       plt.show()
+    
      elif clusteringMethod == "gmm":
        from sklearn import mixture
        feat = img.reshape(height*width,3)
        gmm = mixture.GaussianMixture(n_components=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(gmm,(height,width))
-       print(segmentation)
-       plt.imshow(segmentation, cmap=plt.get_cmap('jet'))
-       plt.show()
+
      elif clusteringMethod == "hierarchical":
        feat = img.reshape(height*width,3)
        clustering = AgglomerativeClustering(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(clustering,(height,width))
-       print(segmentation)
-       plt.imshow(segmentation, cmap=plt.get_cmap('jet'))
-       plt.show()
+
      else:
        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
        ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
@@ -90,7 +84,5 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        markers[unknown==255] = 0
        water = cv2.watershed(img,markers)
        segmentation = water 
-       print(segmentation)
-       plt.imshow(segmentation, cmap=plt.get_cmap('jet'))
-       plt.show()   
-       return segmentation
+  
+     return segmentation
