@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 pathImg=os.path.join('BSDS_small','train')
 img1= im.imread(os.path.join(pathImg,'12003.jpg'))
               
-seg = Segment.segmentByClustering(rgbImage=img1, colorSpace='rgb+xy', clusteringMethod='kmeans',numberOfClusters=4)
+seg = Segment.segmentByClustering(rgbImage=img1, colorSpace='rgb', clusteringMethod='kmeans',numberOfClusters=4)
 plt.figure()
 imshow(img1,seg,title='preduction')
 plt.figure()

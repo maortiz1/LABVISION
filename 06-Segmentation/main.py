@@ -16,6 +16,7 @@ def groundtruth(img_file):
     gt=sio.loadmat(img_file.replace('jpg', 'mat'))
     segm=gt['groundTruth'][0,1][0][0]['Segmentation']
     imshow(img, segm, title='Groundtruth')
+    return segm
     
 def check_dataset(folder):
     import os
@@ -34,6 +35,8 @@ if __name__ == '__main__':
     import imageio
     import os
     from Segment import segmentByClustering 
+    from jaccardMetric import metricJaccard
+    import matplotlib.pyplot as plt
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--color', type=str, default='rgb', choices=['rgb', 'lab', 'hsv', 'rgb+xy', 'lab+xy', 'hsv+xy']) # If you use more please add them to this list.
@@ -46,6 +49,13 @@ if __name__ == '__main__':
     import numpy as np
     img = imageio.imread(os.path.join("BSDS_small/train/", opts.img_file))
     seg = segmentByClustering(rgbImage=img, colorSpace=opts.color, clusteringMethod=opts.method, numberOfClusters=opts.k)
+    
 #    ipdb.set_trace()
     imshow(img, seg, title='Prediction')
-    groundtruth(os.path.join("BSDS_small/train/",opts.img_file))
+    g=groundtruth(os.path.join("BSDS_small/train/",opts.img_file))
+    mat,jac=metricJaccard(g,seg)
+    plt.imshow(mat)
+    plt.xlabel('Groundtruth')
+    plt.ylabel('Segmentation')
+    plt.title('Jaccard Index:'+str(jac))
+    plt.show()
