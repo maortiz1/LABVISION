@@ -7,6 +7,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      import matplotlib.pyplot as plt   
      from skimage import io, color
      import cv2
+     import ipdb
      from sklearn.cluster import AgglomerativeClustering
      
      # scale from 0 to 1 in colorspace
@@ -28,6 +29,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        width = np.size(rgbImage, 1)
      print (np.size(rgbImage, 0))
      print (np.size(rgbImage, 1))
+     
      #change to the specified color space
      if colorSpace == "lab":
        img = color.rgb2lab(rgbImage)    
@@ -61,7 +63,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      
      #proceed to the specified clustering method
      if clusteringMethod == "kmeans":
-       feat = img.reshape(height*width,5)
+       feat = img.reshape(height*width,1)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(kmeans,(height,width))
 
@@ -77,31 +79,40 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        segmentation = np.reshape(clustering,(height,width))
       
      else:
-       gray = img
-       ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-       # noise removal
-       kernel = np.ones((3,3),np.uint8)
-       opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
-       
-       # sure background area
-       sure_bg = cv2.dilate(opening,kernel,iterations=3)
-       
-       # Finding sure foreground area
-       dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
-       ret, sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
-       
-       # Finding unknown region
-       sure_fg = np.uint8(sure_fg)
-       unknown = cv2.subtract(sure_bg,sure_fg)
-       # Marker labelling
-       ret, markers = cv2.connectedComponents(sure_fg)
-       
-       # Add one to all labels so that sure background is not 0, but 1
-       markers = markers+1
-       
-       # Now, mark the region of unknown with zero
-       markers[unknown==255] = 0
-       water = cv2.watershed(img,markers)
-       segmentation = water 
+        from skimage import morphology
+        from skimage import feature
+        import skimage
+        img = color.rgb2gray(img)
+        sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+        sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+        # Compute gradient magnitude
+        grad_magn = np.sqrt(sobelx**2 + sobely**2)
+        # Put it in [0, 255] value range
+        grad_magn = 255*(grad_magn - np.min(grad_magn)) / (np.max(grad_magn) - np.min(grad_magn))
+        #ipdb.set_trace()
+        selem = morphology.disk(5)
+        opened = morphology.opening(img, selem)
+        eroded = morphology.erosion(img, selem)
+        opening_recon = morphology.reconstruction(seed=eroded, mask=img, method='dilation')
+        closed_opening = morphology.closing(opened, selem)
+        dilated_recon_dilation = morphology.dilation(opening_recon, selem)
+        recon_erosion_recon_dilation = morphology.reconstruction(dilated_recon_dilation,        opening_recon,method='erosion').astype(np.uint8)
+        
+        def imregionalmax(img, ksize=3):
+           filterkernel = np.ones((ksize, ksize)) # 8-connectivity
+           reg_max_loc = feature.peak_local_max(img,footprint=filterkernel, indices=False, exclude_border=0)
+           return reg_max_loc.astype(np.uint8)
+         # Mari aqui es donde se imponen los minimos
+        foreground_1 = imregionalmax(recon_erosion_recon_dilation, ksize=65)
+        fg_superimposed_1 = img.copy()
+        fg_superimposed_1[foreground_1 == 1] = 255
+        
+        _, labeled_fg = cv2.connectedComponents(foreground_1.astype(np.uint8))
+        labels = morphology.watershed(grad_magn, labeled_fg)
+        superimposed = img.copy()
+        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
+        superimposed[watershed_boundaries] = 255
+        superimposed[foreground_1] = 255
+        segmentation = labels
  
      return segmentation
