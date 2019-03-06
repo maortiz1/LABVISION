@@ -10,15 +10,13 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      import ipdb
      from sklearn.cluster import AgglomerativeClustering
      
-     # scale from 0 to 1 in colorspace
-     #rgbImage = rgbImage / 255.0;
-     
      # normalizing function
      def debugImg(rawData):
        toShow = np.zeros((rawData.shape), dtype=np.uint8)
        cv2.normalize(rawData, toShow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
        cv2.imwrite('img.jpg', toShow)
      print (type(rgbImage))
+     
      #resize if it is hierarchical
      if clusteringMethod=='hierarchical':       
        rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
@@ -27,9 +25,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      else:
        height = np.size(rgbImage, 0)
        width = np.size(rgbImage, 1)
-     print (np.size(rgbImage, 0))
-     print (np.size(rgbImage, 1))
-     
+   
      #change to the specified color space
      if colorSpace == "lab":
        img = color.rgb2lab(rgbImage)    
@@ -42,21 +38,20 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
       g = rgbImage[:,:,1]
       b = rgbImage[:,:,2]
       img_xyz = color.rgb2xyz(rgbImage)
-    #  x = img_xyz[:,:,0]
-     # y = img_xyz[:,:,1]
-      mat=np.zeros([height,width])      
-      count1 = 0
-      for i in range(0, height-1):
-        for j in range(0, width-1):
-          mat[i][j] = i/height
-      print(mat)
-      mat2=np.zeros([height,width])
-      for j in range(0, width-1):
-        for i in range(0, height-1):
-          mat2 [i][j] = j/width
-      img = np.concatenate((r,g,b, mat, mat2), axis=0)
+      x = img_xyz[:,:,0]
+      y = img_xyz[:,:,1]
+      img = np.concatenate((r,g,b, x, y), axis=0)
       
-   #  elif colorSpace == "lab+xy"
+     elif colorSpace == "lab+xy"
+      img_lab = color.rgb2lab(rgbImage)    
+      debugImg(img)
+      l = img_lab[:,:,0]
+      a = img_lab[:,:,1]
+      b = img_lab[:,:,2]
+      img_xyz = color.lab2xyz(img_lab)
+      x = img_xyz[:,:,0]
+      y = img_xyz[:,:,1]
+      img = np.concatenate((l,a,b, x, y), axis=0)
    #  elif colorSpace == "hsv+xy"
      else:
        img = rgbImage
