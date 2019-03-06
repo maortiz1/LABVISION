@@ -16,8 +16,8 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      def debugImg(rawData):
        toShow = np.zeros((rawData.shape), dtype=np.uint8)
        cv2.normalize(rawData, toShow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-#       cv2.imwrite('img', toShow)
-
+       cv2.imwrite('img.jpg', toShow)
+     print (type(rgbImage))
      #resize if it is hierarchical
      if clusteringMethod=='hierarchical':       
        rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
@@ -26,7 +26,8 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      else:
        height = np.size(rgbImage, 0)
        width = np.size(rgbImage, 1)
-     
+     print (np.size(rgbImage, 0))
+     print (np.size(rgbImage, 1))
      #change to the specified color space
      if colorSpace == "lab":
        img = color.rgb2lab(rgbImage)    
@@ -34,7 +35,25 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      elif colorSpace == "hsv":
         img = color.rgb2hsv(rgbImage) 
         debugImg(img) 
-   #  elif colorSpace == "rgb+xy"
+     elif colorSpace == "rgb+xy":
+      r = rgbImage[:,:,0]
+      g = rgbImage[:,:,1]
+      b = rgbImage[:,:,2]
+      img_xyz = color.rgb2xyz(rgbImage)
+    #  x = img_xyz[:,:,0]
+     # y = img_xyz[:,:,1]
+      mat=np.zeros([height,width])      
+      count1 = 0
+      for i in range(0, height-1):
+        for j in range(0, width-1):
+          mat[i][j] = i/height
+      print(mat)
+      mat2=np.zeros([height,width])
+      for j in range(0, width-1):
+        for i in range(0, height-1):
+          mat2 [i][j] = j/width
+      img = np.concatenate((r,g,b, mat, mat2), axis=0)
+      
    #  elif colorSpace == "lab+xy"
    #  elif colorSpace == "hsv+xy"
      else:
@@ -42,24 +61,23 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      
      #proceed to the specified clustering method
      if clusteringMethod == "kmeans":
-       feat = img.reshape(height*width,3)
+       feat = img.reshape(height*width,5)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(kmeans,(height,width))
-    
+
      elif clusteringMethod == "gmm":
        from sklearn import mixture
-       feat = img.reshape(height*width,3)
+       feat = img.reshape(height*width*5,1)
        gmm = mixture.GaussianMixture(n_components=numberOfClusters).fit_predict(feat)
-       
-       segmentation = np.reshape(gmm,(height,width))
+       segmentation = np.reshape(gmm,(height,width,5))
 
      elif clusteringMethod == "hierarchical":
        feat = img.reshape(height*width,3)
        clustering = AgglomerativeClustering(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(clustering,(height,width))
-
+      
      else:
-       gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+       gray = img
        ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
        # noise removal
        kernel = np.ones((3,3),np.uint8)
@@ -85,5 +103,5 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        markers[unknown==255] = 0
        water = cv2.watershed(img,markers)
        segmentation = water 
-  
+ 
      return segmentation
