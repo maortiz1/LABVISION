@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+
+#!/usr/bin/ipython3
 """
 Created on Tue Mar  5 12:49:03 2019
 
@@ -24,3 +25,4 @@ visualizer = KElbowVisualizer(kmeans, k=(2,20))
 
 visualizer.fit(feat)    # Fit the data to the visualizer
 visualizer.poof()    # Draw/show/poof the data
+

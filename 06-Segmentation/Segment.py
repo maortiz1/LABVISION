@@ -7,17 +7,16 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      import matplotlib.pyplot as plt   
      from skimage import io, color
      import cv2
+     import ipdb
      from sklearn.cluster import AgglomerativeClustering
-     
-     # scale from 0 to 1 in colorspace
-     #rgbImage = rgbImage / 255.0;
      
      # normalizing function
      def debugImg(rawData):
        toShow = np.zeros((rawData.shape), dtype=np.uint8)
        cv2.normalize(rawData, toShow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-#       cv2.imwrite('img', toShow)
-
+       cv2.imwrite('img.jpg', toShow)
+     print (type(rgbImage))
+     
      #resize if it is hierarchical
      if clusteringMethod=='hierarchical':       
        rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
@@ -26,7 +25,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      else:
        height = np.size(rgbImage, 0)
        width = np.size(rgbImage, 1)
-     
+   
      #change to the specified color space
      if colorSpace == "lab":
        img = color.rgb2lab(rgbImage)    
@@ -34,56 +33,81 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      elif colorSpace == "hsv":
         img = color.rgb2hsv(rgbImage) 
         debugImg(img) 
-   #  elif colorSpace == "rgb+xy"
-   #  elif colorSpace == "lab+xy"
+     elif colorSpace == "rgb+xy":
+      r = rgbImage[:,:,0]
+      g = rgbImage[:,:,1]
+      b = rgbImage[:,:,2]
+      img_xyz = color.rgb2xyz(rgbImage)
+      x = img_xyz[:,:,0]
+      y = img_xyz[:,:,1]
+      img = np.concatenate((r,g,b, x, y), axis=0)
+      
+     elif colorSpace == "lab+xy"
+      img_lab = color.rgb2lab(rgbImage)    
+      debugImg(img)
+      l = img_lab[:,:,0]
+      a = img_lab[:,:,1]
+      b = img_lab[:,:,2]
+      img_xyz = color.lab2xyz(img_lab)
+      x = img_xyz[:,:,0]
+      y = img_xyz[:,:,1]
+      img = np.concatenate((l,a,b, x, y), axis=0)
    #  elif colorSpace == "hsv+xy"
      else:
        img = rgbImage
      
      #proceed to the specified clustering method
      if clusteringMethod == "kmeans":
-       feat = img.reshape(height*width,3)
+       feat = img.reshape(height*width,1)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(kmeans,(height,width))
-    
+
      elif clusteringMethod == "gmm":
        from sklearn import mixture
-       feat = img.reshape(height*width,3)
+       feat = img.reshape(height*width*5,1)
        gmm = mixture.GaussianMixture(n_components=numberOfClusters).fit_predict(feat)
-       
-       segmentation = np.reshape(gmm,(height,width))
+       segmentation = np.reshape(gmm,(height,width,5))
 
      elif clusteringMethod == "hierarchical":
        feat = img.reshape(height*width,3)
        clustering = AgglomerativeClustering(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(clustering,(height,width))
-
+      
      else:
-       gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-       ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-       # noise removal
-       kernel = np.ones((3,3),np.uint8)
-       opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
-       
-       # sure background area
-       sure_bg = cv2.dilate(opening,kernel,iterations=3)
-       
-       # Finding sure foreground area
-       dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
-       ret, sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
-       
-       # Finding unknown region
-       sure_fg = np.uint8(sure_fg)
-       unknown = cv2.subtract(sure_bg,sure_fg)
-       # Marker labelling
-       ret, markers = cv2.connectedComponents(sure_fg)
-       
-       # Add one to all labels so that sure background is not 0, but 1
-       markers = markers+1
-       
-       # Now, mark the region of unknown with zero
-       markers[unknown==255] = 0
-       water = cv2.watershed(img,markers)
-       segmentation = water 
-  
+        from skimage import morphology
+        from skimage import feature
+        import skimage
+        img = color.rgb2gray(img)
+        sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+        sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+        # Compute gradient magnitude
+        grad_magn = np.sqrt(sobelx**2 + sobely**2)
+        # Put it in [0, 255] value range
+        grad_magn = 255*(grad_magn - np.min(grad_magn)) / (np.max(grad_magn) - np.min(grad_magn))
+        #ipdb.set_trace()
+        selem = morphology.disk(5)
+        opened = morphology.opening(img, selem)
+        eroded = morphology.erosion(img, selem)
+        opening_recon = morphology.reconstruction(seed=eroded, mask=img, method='dilation')
+        closed_opening = morphology.closing(opened, selem)
+        dilated_recon_dilation = morphology.dilation(opening_recon, selem)
+        recon_erosion_recon_dilation = morphology.reconstruction(dilated_recon_dilation,        opening_recon,method='erosion').astype(np.uint8)
+        
+        def imregionalmax(img, ksize=3):
+           filterkernel = np.ones((ksize, ksize)) # 8-connectivity
+           reg_max_loc = feature.peak_local_max(img,footprint=filterkernel, indices=False, exclude_border=0)
+           return reg_max_loc.astype(np.uint8)
+         # Mari aqui es donde se imponen los minimos
+        foreground_1 = imregionalmax(recon_erosion_recon_dilation, ksize=65)
+        fg_superimposed_1 = img.copy()
+        fg_superimposed_1[foreground_1 == 1] = 255
+        
+        _, labeled_fg = cv2.connectedComponents(foreground_1.astype(np.uint8))
+        labels = morphology.watershed(grad_magn, labeled_fg)
+        superimposed = img.copy()
+        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
+        superimposed[watershed_boundaries] = 255
+        superimposed[foreground_1] = 255
+        segmentation = labels
+ 
      return segmentation
