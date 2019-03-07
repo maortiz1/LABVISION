@@ -172,9 +172,10 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         else:         
             imagenW[img<posi[-numberOfClusters]]=mi
         
-        plt.figure()
+
         plt.imshow(imagenW)
         plt.title('imagenW')
+        plt.show()
 #        fg_superimposed_1[img]
         _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
         labels = morphology.watershed(grad_magn, labeled_fg)
