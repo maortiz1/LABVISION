@@ -171,12 +171,12 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         mi=np.amin(img)
         posi=np.arange(mi,m)
         print(posi)
-        if numberOfClusters>len(posi):
+        if 10*numberOfClusters>len(posi):
             imagenW[img<posi[-1]]=mi
             
             
         else:         
-            imagenW[img<posi[-numberOfClusters]]=mi
+            imagenW[img<posi[-10*numberOfClusters]]=mi
         
         plt.figure()
         plt.imshow(imagenW)
