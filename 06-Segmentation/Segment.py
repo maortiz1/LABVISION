@@ -139,6 +139,8 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         grad_magn = np.sqrt(sobelx**2 + sobely**2)
         # Put it in [0, 255] value range
         grad_magn = 255*(grad_magn - np.min(grad_magn)) / (np.max(grad_magn) - np.min(grad_magn))
+        import matplotlib.pyplot as plt
+        plt.imshow(grad_magn)
         #ipdb.set_trace()
 #        selem = morphology.disk(5)
 #        opened = morphology.opening(img, selem)
@@ -164,16 +166,18 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         posi=np.arange(mi,m)
         print(posi)
         if numberOfClusters>len(posi):
-            imagenW[img<posi[-1]]=0
+            imagenW[img<posi[-1]]=mi
             
             
         else:         
-            imagenW[img<posi[-numberOfClusters]]=0
+            imagenW[img<posi[-numberOfClusters]]=mi
         
-        
+        plt.figure()
+        plt.imshow(imagenW)
 #        fg_superimposed_1[img]
         _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
-        labels = morphology.watershed(imagenW)
+        labels = morphology.watershed(grad_magn, labeled_fg)
+        print(labels)
 #        superimposed = img.copy()
 #        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
 #        superimposed[watershed_boundaries] = 255
