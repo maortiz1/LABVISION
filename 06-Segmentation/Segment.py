@@ -138,7 +138,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         # Compute gradient magnitude
         grad_magn = np.sqrt(sobelx**2 + sobely**2)
         # Put it in [0, 255] value range
-        grad_magn = 255*(grad_magn - np.min(grad_magn)) / (np.max(grad_magn) - np.min(grad_magn))
+        grad_magn = 255*(img - np.min(img)) / (np.max(img) - np.min(img))
         print(grad_magn.shape)
         import matplotlib.pyplot as plt
         plt.imshow(grad_magn)
