@@ -161,7 +161,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
 #        fg_superimposed_1 = img.copy()
 #        fg_superimposed_1[foreground_1 == 1] = 255
         
-        imagenW = np.zeros(img)
+        imagenW = np.zeros(img.shape)
         m=np.amax(img)
         
         mi=np.amin(img)
