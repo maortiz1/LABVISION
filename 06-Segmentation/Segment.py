@@ -116,7 +116,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      print(img)
      debugImg(img)
      plt.imshow(img)
-     plt.show
+     plt.show()
      if clusteringMethod == "kmeans":
        feat = img.reshape(height*width,1)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
@@ -142,8 +142,10 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
         # Compute gradient magnitude
         grad_magn = np.sqrt(sobelx**2 + sobely**2)
+        debugImg(grad_magn)
         # Put it in [0, 255] value range
 #        grad_magn = 255*(img - np.min(img)) / (np.max(img) - np.min(img))
+        
         print(grad_magn.shape)
         import matplotlib.pyplot as plt
         plt.imshow(grad_magn)
@@ -165,18 +167,18 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
 #        fg_superimposed_1 = img.copy()
 #        fg_superimposed_1[foreground_1 == 1] = 255
         
-        imagenW = np.zeros(img.shape)
+        imagenW = np.ones(grad_magn.shape)*1
         m=np.amax(grad_magn)
         
         mi=np.amin(img)
-        posi=np.arange(mi,m)
+        posi=np.arange(0,255)
         print(posi)
         if 10*numberOfClusters>len(posi):
-            imagenW[grad_magn<posi[0]]=mi
+            imagenW[grad_magn<posi[0]]=0
             
             
         else:         
-            imagenW[grad_magn<posi[-10*numberOfClusters]]=mi
+            imagenW[grad_magn<posi[-numberOfClusters]]=0
         
         plt.figure()
         plt.imshow(imagenW)
