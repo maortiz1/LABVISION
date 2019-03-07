@@ -133,33 +133,34 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         from skimage import feature
         import skimage
 #        img = color.rgb2gray(img)
-        sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
-        sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+#        sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+#        sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
         # Compute gradient magnitude
         grad_magn = np.sqrt(sobelx**2 + sobely**2)
         # Put it in [0, 255] value range
         grad_magn = 255*(grad_magn - np.min(grad_magn)) / (np.max(grad_magn) - np.min(grad_magn))
         #ipdb.set_trace()
-        selem = morphology.disk(5)
-        opened = morphology.opening(img, selem)
-        eroded = morphology.erosion(img, selem)
-        opening_recon = morphology.reconstruction(seed=eroded, mask=img, method='dilation')
-        closed_opening = morphology.closing(opened, selem)
-        dilated_recon_dilation = morphology.dilation(opening_recon, selem)
-        recon_erosion_recon_dilation = morphology.reconstruction(dilated_recon_dilation,        opening_recon,method='erosion').astype(np.uint8)
+#        selem = morphology.disk(5)
+#        opened = morphology.opening(img, selem)
+#        eroded = morphology.erosion(img, selem)
+#        opening_recon = morphology.reconstruction(seed=eroded, mask=img, method='dilation')
+#        closed_opening = morphology.closing(opened, selem)
+#        dilated_recon_dilation = morphology.dilation(opening_recon, selem)
+#        recon_erosion_recon_dilation = morphology.reconstruction(dilated_recon_dilation,        opening_recon,method='erosion').astype(np.uint8)
         
         def imregionalmax(img, ksize=3):
            filterkernel = np.ones((ksize, ksize)) # 8-connectivity
            reg_max_loc = feature.peak_local_max(img,footprint=filterkernel, indices=False, exclude_border=0)
            return reg_max_loc.astype(np.uint8)
          # Mari aqui es donde se imponen los minimos
-        foreground_1 = imregionalmax(recon_erosion_recon_dilation, ksize=65)
-        fg_superimposed_1 = img.copy()
-        fg_superimposed_1[foreground_1 == 1] = 255
+#        foreground_1 = imregionalmax(recon_erosion_recon_dilation, ksize=65)
+#        fg_superimposed_1 = img.copy()
+#        fg_superimposed_1[foreground_1 == 1] = 255
         
-        imagenW = img.copy()
-        m=np.amax(img)
-        mi=np.amin(img)
+        imagenW = grad_magn.copy()
+        m=np.amax(grad_magn)
+        
+        mi=np.amin(grad_magn)
         posi=np.arange(mi,m)
         print(posi)
         if numberOfClusters>len(posi):
