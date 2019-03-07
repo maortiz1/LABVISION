@@ -139,6 +139,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         grad_magn = np.sqrt(sobelx**2 + sobely**2)
         # Put it in [0, 255] value range
         grad_magn = 255*(grad_magn - np.min(grad_magn)) / (np.max(grad_magn) - np.min(grad_magn))
+        print(grad_magn.shape)
         import matplotlib.pyplot as plt
         plt.imshow(grad_magn)
         #ipdb.set_trace()
@@ -173,7 +174,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
             imagenW[img<posi[-numberOfClusters]]=mi
         
 
-        plt.imshow(imagenW)
+        plt.imshow(grad_magn)
         plt.title('imagenW')
         plt.show()
 #        fg_superimposed_1[img]
