@@ -112,6 +112,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      #proceed to the specified clustering method
      f=img
      img=merge(f,xyimg)
+     debugImg(img)
      if clusteringMethod == "kmeans":
        feat = img.reshape(height*width,1)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
@@ -138,7 +139,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         # Compute gradient magnitude
         grad_magn = np.sqrt(sobelx**2 + sobely**2)
         # Put it in [0, 255] value range
-        grad_magn = 255*(img - np.min(img)) / (np.max(img) - np.min(img))
+#        grad_magn = 255*(img - np.min(img)) / (np.max(img) - np.min(img))
         print(grad_magn.shape)
         import matplotlib.pyplot as plt
         plt.imshow(grad_magn)
