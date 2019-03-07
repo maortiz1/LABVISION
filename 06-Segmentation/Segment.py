@@ -14,7 +14,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      def debugImg(rawData):
        toShow = np.zeros((rawData.shape), dtype=np.uint8)
        cv2.normalize(rawData, toShow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-       cv2.imwrite('img.jpg', toShow)
+#       cv2.imwrite('img.jpg', toShow)
      print (type(rgbImage))
      def xy(img):
        height = np.size(img, 0)
@@ -39,7 +39,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      else:
        height = np.size(rgbImage, 0)
        width = np.size(rgbImage, 1)
-   
+     img=rgbImage
      #change to the specified color space
      if colorSpace == "lab":
       img_lab = color.rgb2lab(rgbImage)    
@@ -111,7 +111,8 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      
      
      #proceed to the specified clustering method
-     img=merge(img,xyimg)
+     f=img
+     img=merge(f,xyimg)
      if clusteringMethod == "kmeans":
        feat = img.reshape(height*width,1)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)

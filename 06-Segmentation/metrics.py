@@ -71,5 +71,9 @@ plt.show()
 
 
 
+pathImg=os.path.join('BSDS_small','train')
+img1= im.imread(os.path.join(pathImg,'12003.jpg'))
+
+seg = Segment.segmentByClustering(rgbImage=img1, colorSpace='hsv+xy', clusteringMethod='gmm', numberOfClusters=4)
 
 
