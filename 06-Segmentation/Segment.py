@@ -113,6 +113,8 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      f=img
      img=merge(f,xyimg)
      debugImg(img)
+     plt.imshow(img)
+     plt.show
      if clusteringMethod == "kmeans":
        feat = img.reshape(height*width,1)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
@@ -175,11 +177,13 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
             imagenW[img<posi[-numberOfClusters]]=mi
         
 
-        plt.imshow(grad_magn)
+        plt.imshow(imagenW)
         plt.title('imagenW')
         plt.show()
 #        fg_superimposed_1[img]
         _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
+        plt.imshow(labeled_fg)
+        print(labeled_fg)
         labels = morphology.watershed(img, labeled_fg)
         print(labels)
 #        superimposed = img.copy()
