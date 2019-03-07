@@ -161,11 +161,13 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         m=np.amax(img)
         mi=np.amin(img)
         posi=np.arange(mi,m)
+        print(posi)
         if numberOfClusters>len(posi):
-            imagenW[posi[-1]]=0
+            imagenW[img<posi[-1]]=0
+            
             
         else:         
-            imagenW[posi[-k]]=0
+            imagenW[img<posi[-k]]=0
         
         
 #        fg_superimposed_1[img]
