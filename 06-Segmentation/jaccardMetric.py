@@ -69,3 +69,10 @@ ground=groundtruth(os.path.join(pathImg,'12003.jpg'))
 
 
 mat,jacc=metricJaccard(ground,segmentation)
+
+
+pathImg=os.path.join('BSDS_small','train')
+img= im.imread(os.path.join(pathImg,'12003.jpg'))
+height = np.size(img, 0)
+width = np.size(img, 1)
+
