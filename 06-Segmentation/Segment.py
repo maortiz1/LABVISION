@@ -9,14 +9,28 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      import cv2
      import ipdb
      from sklearn.cluster import AgglomerativeClustering
-     
+     xyimg=[]
      # normalizing function
      def debugImg(rawData):
        toShow = np.zeros((rawData.shape), dtype=np.uint8)
        cv2.normalize(rawData, toShow, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
        cv2.imwrite('img.jpg', toShow)
      print (type(rgbImage))
-     
+     def xy(img):
+       height = np.size(img, 0)
+       width = np.size(img, 1)
+       mat=np.zeros((height,width,2))
+       mat[::,::,1]=mat[::,::,1]+np.arange(width)[np.newaxis,:]
+       
+       mat[::,::,0]=mat[::,::,0]+np.arange(height)[:,np.newaxis]
+       return mat
+   
+    
+     def merge(img,xy):
+         im=np.sum(img,axis=-1)
+         xysum=np.sum(xy,axis=-1)
+         fin=np.add(im,xysum)/5
+         return fin
      #resize if it is hierarchical
      if clusteringMethod=='hierarchical':       
        rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
@@ -30,60 +44,64 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      if colorSpace == "lab":
       img_lab = color.rgb2lab(rgbImage)    
       debugImg(img_lab)
-      l = img_lab[:,:,0]
-      a = img_lab[:,:,1]
-      b = img_lab[:,:,2]
-      sum = l+a+b
-      sum = sum/3
-      img = sum
+#      l = img_lab[:,:,0]
+#      a = img_lab[:,:,1]
+#      b = img_lab[:,:,2]
+#      sum = l+a+b
+#      sum = sum/3
+      img =img_lab
      elif colorSpace == "hsv":
       img_hsv = color.rgb2hsv(rgbImage)    
       debugImg(img_hsv)
-      h = img_hsv[:,:,0]
-      s = img_hsv[:,:,1]
-      v = img_hsv[:,:,2]
-      sum = h+s+v
-      sum = sum/3
-      img = sum
-        
+#      h = img_hsv[:,:,0]
+#      s = img_hsv[:,:,1]
+#      v = img_hsv[:,:,2]
+#      sum = h+s+v
+#      sum = sum/3
+#      img = sum
+      img =img_hsv
      elif colorSpace == "rgb+xy":
       r = rgbImage[:,:,0]
       g = rgbImage[:,:,1]
       b = rgbImage[:,:,2]
-      img_xyz = color.rgb2xyz(rgbImage)
-      x = img_xyz[:,:,0]
-      y = img_xyz[:,:,1]
+#      img_xyz = color.rgb2xyz(rgbImage)
+#      x = img_xyz[:,:,0]
+#      y = img_xyz[:,:,1]
+      xyimg=xy(rgbImage)
       #img = np.concatenate((r,g,b, x, y), axis=0)
-      sum = r+g+b+x+y
-      sum = sum/5
-      img = sum
+#      sum = r+g+b+x+y
+#      sum = sum/5
+#      img = sum
       
      elif colorSpace == "lab+xy":
       img_lab = color.rgb2lab(rgbImage)    
       debugImg(img_lab)
-      l = img_lab[:,:,0]
-      a = img_lab[:,:,1]
-      b = img_lab[:,:,2]
-      img_xyz = color.lab2xyz(img_lab)
-      x = img_xyz[:,:,0]
-      y = img_xyz[:,:,1]
-      sum = l+a+b+x+y
-      sum = sum/5
-      #img = np.concatenate((l,a,b, x, y), axis=0)
-      img = sum
+#      l = img_lab[:,:,0]
+#      a = img_lab[:,:,1]
+#      b = img_lab[:,:,2]
+#      img_xyz = color.lab2xyz(img_lab)
+#      x = img_xyz[:,:,0]
+#      y = img_xyz[:,:,1]
+#      sum = l+a+b+x+y
+#      sum = sum/5
+#      #img = np.concatenate((l,a,b, x, y), axis=0)
+      img = img_lab
+      xyimg=xy(img_lab)
      elif colorSpace == "hsv+xy":
       img_hsv = color.rgb2hsv(rgbImage)    
       debugImg(img_hsv)
-      h = img_hsv[:,:,0]
-      s = img_hsv[:,:,1]
-      v = img_hsv[:,:,2]
-      img_xyz = color.hsv2xyz(img_hsv)
-      x = img_xyz[:,:,0]
-      y = img_xyz[:,:,1]
-      #img = np.concatenate((h,s,v, x, y), axis=0)
-      sum = h+s+v+x+y
-      sum = sum/5
-      img = sum
+#      h = img_hsv[:,:,0]
+#      s = img_hsv[:,:,1]
+#      v = img_hsv[:,:,2]
+#      img_xyz = color.hsv2xyz(img_hsv)
+#      x = img_xyz[:,:,0]
+#      y = img_xyz[:,:,1]
+#      #img = np.concatenate((h,s,v, x, y), axis=0)
+#      sum = h+s+v+x+y
+#      sum = sum/5
+#      img = sum
+      img=img_hsv
+      xyimg=xy(img)
      else:
        img = rgbImage
        img = color.rgb2gray(img)
@@ -93,6 +111,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      
      
      #proceed to the specified clustering method
+     img=merge(img,xyimg)
      if clusteringMethod == "kmeans":
        feat = img.reshape(height*width,1)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
