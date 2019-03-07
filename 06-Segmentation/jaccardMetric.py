@@ -42,30 +42,4 @@ def metricJaccard(groundtruth,segmentation):
     
     return [mat,jacc]
     
-    
-def groundtruth(img_file):
-    import scipy.io as sio
-    import imageio
-    img = imageio.imread(img_file)
-    gt=sio.loadmat(img_file.replace('jpg', 'mat'))
-    segm=gt['groundTruth'][0,1][0][0]['Segmentation']
-    imshow(img, segm, title='Groundtruth')
-    return segm
 
-
-
-import os
-import imageio as im
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
-pathImg=os.path.join('BSDS_small','train')
-img= im.imread(os.path.join(pathImg,'12003.jpg'))
-height = np.size(img, 0)
-width = np.size(img, 1)
-feat = img.reshape(height*width,3)
-kmeans = KMeans(n_clusters=8).fit_predict(feat)
-segmentation = np.reshape(kmeans,(height,width))
-ground=groundtruth(os.path.join(pathImg,'12003.jpg'))
-
-
-mat,jacc=metricJaccard(ground,segmentation)
