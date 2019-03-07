@@ -159,7 +159,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
 #        fg_superimposed_1 = img.copy()
 #        fg_superimposed_1[foreground_1 == 1] = 255
         
-        imagenW = grad_magn.copy()
+        imagenW = np.zeros(grad_magn.shape)
         m=np.amax(grad_magn)
         
         mi=np.amin(grad_magn)
@@ -174,6 +174,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         
         plt.figure()
         plt.imshow(imagenW)
+        plt.title('imagenW')
 #        fg_superimposed_1[img]
         _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
         labels = morphology.watershed(grad_magn, labeled_fg)
