@@ -20,9 +20,9 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        height = np.size(img, 0)
        width = np.size(img, 1)
        mat=np.zeros((height,width,2))
-       mat[::,::,1]=mat[::,::,1]+np.arange(width)[np.newaxis,:]
+       mat[::,::,1]=(mat[::,::,1]+np.arange(width)[np.newaxis,:])/width
        
-       mat[::,::,0]=mat[::,::,0]+np.arange(height)[:,np.newaxis]
+       mat[::,::,0]=(mat[::,::,0]+np.arange(height)[:,np.newaxis])/height
        return mat
    
     
