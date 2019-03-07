@@ -161,10 +161,10 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
 #        fg_superimposed_1 = img.copy()
 #        fg_superimposed_1[foreground_1 == 1] = 255
         
-        imagenW = np.zeros(grad_magn.shape)
-        m=np.amax(grad_magn)
+        imagenW = np.zeros(img)
+        m=np.amax(img)
         
-        mi=np.amin(grad_magn)
+        mi=np.amin(img)
         posi=np.arange(mi,m)
         print(posi)
         if numberOfClusters>len(posi):
@@ -180,7 +180,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         plt.show()
 #        fg_superimposed_1[img]
         _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
-        labels = morphology.watershed(grad_magn, labeled_fg)
+        labels = morphology.watershed(img, labeled_fg)
         print(labels)
 #        superimposed = img.copy()
 #        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
