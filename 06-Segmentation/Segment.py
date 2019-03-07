@@ -112,6 +112,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      #proceed to the specified clustering method
      f=img
      img=merge(f,xyimg)
+     print(img)
      debugImg(img)
      plt.imshow(img)
      plt.show
