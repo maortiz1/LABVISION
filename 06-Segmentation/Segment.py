@@ -103,7 +103,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
       xyimg=xy(img)
      else:
        img = rgbImage
-       img = color.rgb2gray(img)
+#       img = color.rgb2gray(img)
      # preparation to classifiers
      
      
