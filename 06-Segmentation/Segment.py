@@ -20,8 +20,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        height = np.size(img, 0)
        width = np.size(img, 1)
        mat=np.zeros((height,width,2))
-       mat[::,::,1]=(mat[::,::,1]+np.arange(width)[np.newaxis,:])/width
-       
+       mat[::,::,1]=(mat[::,::,1]+np.arange(width)[np.newaxis,:])/width       
        mat[::,::,0]=(mat[::,::,0]+np.arange(height)[:,np.newaxis])/height
        return mat
    
@@ -158,12 +157,25 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         fg_superimposed_1 = img.copy()
         fg_superimposed_1[foreground_1 == 1] = 255
         
-        _, labeled_fg = cv2.connectedComponents(foreground_1.astype(np.uint8))
+        imagenW = img.copy()
+        m=np.amax(img)
+        mi=np.amin(img)
+        posi=np.arange(mi,m)
+        if numberOfClusters>len(posi):
+            imageW[posi[-1]]=0
+            
+        else:         
+            imageW[posi[-k]]=0
+        
+        
+#        fg_superimposed_1[img]
+        _, labeled_fg = cv2.connectedComponents(imageW.astype(np.uint8))
         labels = morphology.watershed(grad_magn, labeled_fg)
-        superimposed = img.copy()
-        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
-        superimposed[watershed_boundaries] = 255
-        superimposed[foreground_1] = 255
+#        superimposed = img.copy()
+#        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
+#        superimposed[watershed_boundaries] = 255
+#        superimposed[foreground_1] = 255
         segmentation = labels
+        
  
      return segmentation
