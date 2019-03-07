@@ -132,7 +132,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         from skimage import morphology
         from skimage import feature
         import skimage
-        img = color.rgb2gray(img)
+#        img = color.rgb2gray(img)
         sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
         sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
         # Compute gradient magnitude
