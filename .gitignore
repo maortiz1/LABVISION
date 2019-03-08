@@ -18,3 +18,4 @@ cifar-10-batches-py/
 *.tar
 *.txt
 BSDS_small/
+05-Textons/python/data
