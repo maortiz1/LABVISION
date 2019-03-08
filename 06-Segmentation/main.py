@@ -47,12 +47,12 @@ if __name__ == '__main__':
     opts = parser.parse_args()
     check_dataset(opts.img_file.split('/')[0])
     import numpy as np
-    img = imageio.imread(os.path.join("BSDS_small/train/", opts.img_file))
+    img = imageio.imread(os.path.join(opts.img_file)
     seg = segmentByClustering(rgbImage=img, colorSpace=opts.color, clusteringMethod=opts.method, numberOfClusters=opts.k)
     
 #    ipdb.set_trace()
     imshow(img, seg, title='Prediction')
-    g=groundtruth(os.path.join("BSDS_small/train/",opts.img_file))
+    g=groundtruth(opts.img_file)
     mat,jac=metricJaccard(g,seg)
     plt.imshow(mat)
     plt.xlabel('Groundtruth')
