@@ -1,4 +1,5 @@
 #!/usr/bin/ipython3
+from minima import imimposemin
 def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfClusters):
    #module importation
      import pandas as pd
@@ -162,7 +163,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
            filterkernel = np.ones((ksize, ksize)) # 8-connectivity
            reg_max_loc = feature.peak_local_max(img,footprint=filterkernel, indices=False, exclude_border=0)
            return reg_max_loc.astype(np.uint8)
-         # Mari aqui es donde se imponen los minimos
+         
 #        foreground_1 = imregionalmax(recon_erosion_recon_dilation, ksize=65)
 #        fg_superimposed_1 = img.copy()
 #        fg_superimposed_1[foreground_1 == 1] = 255
