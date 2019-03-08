@@ -47,7 +47,7 @@ if __name__ == '__main__':
     opts = parser.parse_args()
     check_dataset(opts.img_file.split('/')[0])
     import numpy as np
-    img = imageio.imread(os.path.join(opts.img_file)
+    img = imageio.imread(opts.img_file)
     seg = segmentByClustering(rgbImage=img, colorSpace=opts.color, clusteringMethod=opts.method, numberOfClusters=opts.k)
     
 #    ipdb.set_trace()
