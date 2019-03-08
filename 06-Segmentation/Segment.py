@@ -33,7 +33,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
          return fin
      #resize if it is hierarchical
      if clusteringMethod=='hierarchical':       
-       rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
+#       rgbImage = cv2.resize(rgbImage, (0,0), fx=0.5, fy=0.5) 
        height = np.size(rgbImage, 0)
        width = np.size(rgbImage, 1)
      else:
@@ -132,8 +132,10 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      elif clusteringMethod == "hierarchical":
        feat = img.reshape(height*width,1)
        clustering = AgglomerativeClustering(n_clusters=numberOfClusters).fit_predict(feat)
-       segmentation = np.reshape(clustering,(height,width))
-      
+       segmentation = (np.reshape(clustering,(height,width)))
+       print(clustering)
+       print(type(clustering[0][0]))
+#       segmentation=cv2.resize(segmentation, None, fx = 2, fy = 2, interpolation = cv2.INTER_CUBIC)  
      else:
         from skimage import morphology
         from skimage import feature
@@ -144,56 +146,34 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         # Compute gradient magnitude
         grad_magn = np.sqrt(sobelx**2 + sobely**2)
         debugImg(grad_magn)
-        # Put it in [0, 255] value range
-#        grad_magn = 255*(img - np.min(img)) / (np.max(img) - np.min(img))
+
         
-        print(grad_magn.shape)
         import matplotlib.pyplot as plt
-        plt.imshow(grad_magn)
-        #ipdb.set_trace()
-#        selem = morphology.disk(5)
-#        opened = morphology.opening(img, selem)
-#        eroded = morphology.erosion(img, selem)
-#        opening_recon = morphology.reconstruction(seed=eroded, mask=img, method='dilation')
-#        closed_opening = morphology.closing(opened, selem)
-#        dilated_recon_dilation = morphology.dilation(opening_recon, selem)
-#        recon_erosion_recon_dilation = morphology.reconstruction(dilated_recon_dilation,        opening_recon,method='erosion').astype(np.uint8)
-        
-        def imregionalmax(img, ksize=3):
-           filterkernel = np.ones((ksize, ksize)) # 8-connectivity
-           reg_max_loc = feature.peak_local_max(img,footprint=filterkernel, indices=False, exclude_border=0)
-           return reg_max_loc.astype(np.uint8)
-         
-#        foreground_1 = imregionalmax(recon_erosion_recon_dilation, ksize=65)
-#        fg_superimposed_1 = img.copy()
-#        fg_superimposed_1[foreground_1 == 1] = 255
-        
-        imagenW = np.ones(grad_magn.shape)*1
-        m=np.amax(grad_magn)
-        
-        mi=np.amin(img)
-        posi=np.arange(0,255)
-        print(posi)
 
-        if numberOfClusters>len(posi):
-            imagenW[grad_magn<posi[0]]=mi
-            
-            
-        else:         
-            imagenW[grad_magn<posi[-numberOfClusters]]=mi
 
-        
-        plt.figure()
-        plt.imshow(imagenW)
-        plt.title('imagenW')
-        plt.show()
-#        fg_superimposed_1[img]
-        _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
+
+        imagenW=grad_magn
+
+        found=1000000
+        minimum=found
+        while(found>numberOfClusters): 
+            imagenW=morphology.h_minima(grad_magn,found)
+            _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
+            labels = morphology.watershed(grad_magn, labeled_fg)
+            found=len(np.unique(labels))
+            if found==minimum:
+              found=numberOfClusters
+            if minimum>found:
+              minimum=found
+
+            
+
         plt.figure()
         plt.imshow(labeled_fg)
         print(labeled_fg)
-        labels = morphology.watershed(grad_magn, labeled_fg)
-        print(labels)
+
+
+
 #        superimposed = img.copy()
 #        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
 #        superimposed[watershed_boundaries] = 255
