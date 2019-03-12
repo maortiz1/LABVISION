@@ -19,3 +19,4 @@ cifar-10-batches-py/
 *.txt
 BSDS_small/
 05-Textons/python/data
+*.mat

@@ -18,20 +18,27 @@ if not os.path.isdir(os.path.join(os.getcwd(),'BSR')):
     tar.close
 
 # go through database and apply segmentation method
-filenames=os.listdir("BSR/BSDS500/data/images/train/")
+filenames=os.listdir("BSR/BSDS500/data/images/test/")
 #ipdb.set_trace()
-K = np.array([2,3]) # K numbers to segmentate
+K = np.arange(1,20) # K numbers to segmentate
 #for i in filenames:
 i = "100075.jpg"
-count = 0
-concat = np.empty((1,np.size(K)), dtype=object)
-temp=cv2.imread(os.path.join("BSR/BSDS500/data/images/train/", i))
-for j in K:   
-   seg = segmentByClustering(rgbImage=temp, colorSpace='rgb', clusteringMethod='kmeans', numberOfClusters=j)
-   #ipdb.set_trace()   
-   concat[0,count] = seg
-   count = count+1
+os.mkdir(os.path.join('BSR','kmeans'))
 
 
-sio.savemat('i.mat', {'segs':concat})
+for filenam in filenames:
+ temp=cv2.imread(os.path.join("BSR/BSDS500/data/images/test/", filenam))
+ concat = np.empty((1,np.size(K)), dtype=object)
+ count = 0
+ for j in K:   
+    seg = segmentByClustering(rgbImage=temp, colorSpace='rgb', clusteringMethod='kmeans', numberOfClusters=j)
+    #ipdb.set_trace()   
+    concat[0,count] = seg
+    count = count+1
+    print('K=%d , method=kmeans'%(j))
+ filenam2,ext =os.path.splitext(filenam)  
+
+ sio.savemat(os.path.join('BSR','kmeans','%s.mat'%(filenam)), {'segs':concat})
+ print('%s.mat'%(filenam))
+ 
 
