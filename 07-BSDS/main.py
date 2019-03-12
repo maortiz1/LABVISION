@@ -38,7 +38,7 @@ for filenam in filenames:
     print('K=%d , method=kmeans'%(j))
  filenam2,ext =os.path.splitext(filenam)  
 
- sio.savemat(os.path.join('BSR','kmeans','%s.mat'%(filenam)), {'segs':concat})
- print('%s.mat'%(filenam))
+ sio.savemat(os.path.join('BSR','kmeans','%s.mat'%(filenam2)), {'segs':concat})
+ print('%s.mat'%(filenam2))
  
 
