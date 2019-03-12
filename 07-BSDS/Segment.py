@@ -1,5 +1,5 @@
 #!/usr/bin/ipython3
-from minima import imimposemin
+import ipdb
 def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfClusters):
    #module importation
      import pandas as pd
@@ -36,6 +36,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
        height = np.size(rgbImage, 0)
        width = np.size(rgbImage, 1)
      else:
+      # ipdb.set_trace()
        height = np.size(rgbImage, 0)
        width = np.size(rgbImage, 1)
      img=rgbImage
@@ -129,13 +130,6 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         plt.figure()
         plt.imshow(labeled_fg)
         print(labeled_fg)
-
-
-
-#        superimposed = img.copy()
-#        watershed_boundaries = skimage.segmentation.find_boundaries(labels)
-#        superimposed[watershed_boundaries] = 255
-#        superimposed[foreground_1] = 255
         segmentation = labels
         
  
