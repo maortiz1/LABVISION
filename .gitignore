@@ -2,14 +2,7 @@ Ignore/
 *.pptx
 *.ppt
 *.odt
-07-BSDS/BSR/BSDS500
-07-BSDS/BSR/documentation
-07-BSDS/BSR/kmeanshsv
-07-BSDS/BSR/grouping
-07-BSDS/BSR/kmeans
-07-BSDS/BSR/gmmlab
-07-BSDS/BSR/labgmm
-07-BSDS/BSR/watershedrgb
+07-BSDS/BSR/BSDS500/
 *.tgz
 *solution*
 solution/
