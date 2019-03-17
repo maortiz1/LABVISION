@@ -21,13 +21,15 @@ if not os.path.isdir(os.path.join(os.getcwd(),'BSR')):
 # go through database and apply segmentation method
 filenames=os.listdir("BSR/BSDS500/data/images/test/")
 #ipdb.set_trace()
-K = np.arange(2,40) # K numbers to segmentate
+K = range(2,411,8)# K numbers to segmentate
 #for i in filenames:
 i = "100075.jpg"
-os.mkdir(os.path.join('BSR','kmeanshsv'))
+os.mkdir(os.path.join('BSR','kmeanshsv411'))
+
+    
 
 
-for filenam in filenames:
+def trypal(filenam):
   filenam2,ext =os.path.splitext(filenam) 
   if ext=='.jpg':
      temp=cv2.imread(os.path.join("BSR/BSDS500/data/images/test/", filenam))          
@@ -38,10 +40,11 @@ for filenam in filenames:
         #ipdb.set_trace()   
         concat[0,count] = seg
         count = count+1
-        print('K=%d , method=kmean'%(j))
+        print('K=%d , method=kmeanhsv, img=%s '%(j,filenam))
      filenam2,ext =os.path.splitext(filenam)  
      
-     sio.savemat(os.path.join('BSR','kmeanshsv','%s.mat'%(filenam2)), {'segs':concat})
+     sio.savemat(os.path.join('BSR','kmeanshsv411','%s.mat'%(filenam2)), {'segs':concat})
      print('%s.mat'%(filenam2))
- 
 
+
+Parallel(n_jobs=10) (delayed(trypal)(filenam) for filenam in filenames)

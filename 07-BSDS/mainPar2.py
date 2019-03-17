@@ -24,24 +24,24 @@ filenames=os.listdir("BSR/BSDS500/data/images/test/")
 K = np.arange(2,40) # K numbers to segmentate
 #for i in filenames:
 i = "100075.jpg"
-os.mkdir(os.path.join('BSR','kmeanshsv'))
+os.mkdir(os.path.join('BSR','labgmm'))
 
-
-for filenam in filenames:
+def trypal(filenam):
   filenam2,ext =os.path.splitext(filenam) 
   if ext=='.jpg':
      temp=cv2.imread(os.path.join("BSR/BSDS500/data/images/test/", filenam))          
      concat = np.empty((1,np.size(K)), dtype=object)
      count = 0
      for j in K:   
-        seg = segmentByClustering(rgbImage=temp, colorSpace='hsv', clusteringMethod='kmeans', numberOfClusters=j)
+        seg = segmentByClustering(rgbImage=temp, colorSpace='hsv', clusteringMethod='gmm', numberOfClusters=j)
         #ipdb.set_trace()   
         concat[0,count] = seg
         count = count+1
-        print('K=%d , method=kmean'%(j))
+        print('K=%d , method=watershedrgb, img=%s '%(j,filenam))
      filenam2,ext =os.path.splitext(filenam)  
      
-     sio.savemat(os.path.join('BSR','kmeanshsv','%s.mat'%(filenam2)), {'segs':concat})
+     sio.savemat(os.path.join('BSR','labgmm','%s.mat'%(filenam2)), {'segs':concat})
      print('%s.mat'%(filenam2))
- 
 
+
+Parallel(n_jobs=10) (delayed(trypal)(filenam) for filenam in filenames)

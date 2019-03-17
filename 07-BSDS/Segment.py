@@ -76,18 +76,18 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
      
      #proceed to the specified clustering method
      f=img
-     img=merge(f,xyimg)
+#     img=merge(f,xyimg)
 
      debugImg(img)
 
      if clusteringMethod == "kmeans":
-       feat = img.reshape(height*width,1)
+       feat = img.reshape(height*width,3)
        kmeans = KMeans(n_clusters=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(kmeans,(height,width))
 
      elif clusteringMethod == "gmm":
        from sklearn import mixture
-       feat = img.reshape(height*width,1)
+       feat = img.reshape(height*width,3)
        gmm = mixture.GaussianMixture(n_components=numberOfClusters).fit_predict(feat)
        segmentation = np.reshape(gmm,(height,width))
 
@@ -101,7 +101,7 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
         from skimage import morphology
         from skimage import feature
         import skimage
-#        img = color.rgb2gray(img)
+        img = color.rgb2gray(img)
         sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
         sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
         # Compute gradient magnitude
@@ -112,24 +112,27 @@ def segmentByClustering( rgbImage, colorSpace, clusteringMethod, numberOfCluster
 
 
         imagenW=grad_magn
+        
+        imagenW=grad_magn
 
-        found=1000000
+        found=100000
         minimum=found
-        while(found>numberOfClusters): 
-            imagenW=morphology.h_minima(grad_magn,found)
+        while(minimum!=numberOfClusters): 
+            imagenW=morphology.h_maxima(grad_magn,found)
             _, labeled_fg = cv2.connectedComponents(imagenW.astype(np.uint8))
+            print(len(np.unique(labeled_fg)))
             labels = morphology.watershed(grad_magn, labeled_fg)
-            found=len(np.unique(labels))
-            if found==minimum:
-              found=numberOfClusters
-            if minimum>found:
-              minimum=found
-
+            
+            found=found-1;
+            minimum=len(np.unique(labels))
+            print(minimum)
+ 
+            
             
 
-        plt.figure()
-        plt.imshow(labeled_fg)
-        print(labeled_fg)
+#        plt.figure()
+#        plt.imshow(labeled_fg)
+#        print(labeled_fg)
         segmentation = labels
         
  
