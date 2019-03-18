@@ -16,7 +16,8 @@ blood-cells/
 cifar-10-batches-py/
 *.tar.gz
 *.tar
-*.txt
+05-Textos/python/*.txt
+
 BSDS_small/
 05-Textons/python/data
 *.mat
