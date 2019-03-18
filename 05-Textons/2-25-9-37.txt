@@ -1,0 +1,8 @@
+ACA KNN: 0.48325
+ACA RF: 0.35
+Time: 1451.924122
+Time KNN: 367.742273
+Time Random Forests: 3.514852
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: RF=MaxFeatures:1; KNN=Neig:3,Metric:distchi

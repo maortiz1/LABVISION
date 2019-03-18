@@ -1,0 +1,8 @@
+ACA KNN: 0.369875
+ACA RF: 0.3405
+Time: 1689.704793
+Time KNN: 572.765985
+Time Random Forests: 2.435581
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: RF=60; KNN=60

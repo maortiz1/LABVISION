@@ -1,0 +1,15 @@
+Time dowloading database= 2.7e-05
+Time computing time of textons=296.191512
+Time Assign Textons= 155.058879
+KNN Confussion Train
+[[  0   1   0   0   0   0 101   0   0   0]
+ [  0   0   0   0   0   0 111   0   0   1]
+ [  0   0   0   0   0   0  99   0   0   0]
+ [  0   0   0   0   0   0  92   0   0   0]
+ [  0   0   0   0   0   0  99   0   0   0]
+ [  0   0   0   0   0   0  85   0   0   0]
+ [  0   0   0   0   0   0 107   0   0   0]
+ [  0   0   0   0   0   0 102   0   0   0]
+ [  0   0   0   0   0   0  99   0   0   0]
+ [  0   2   0   0   0   0 100   0   0   1]]
+ACA KNN Train

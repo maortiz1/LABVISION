@@ -1,0 +1,110 @@
+ACA KNN: 0.1109
+ACA RF: 0.3325
+Time: 876.397961
+Time KNN: 5.681615
+Time Random Forests: 3.786224
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 1, forest=0.1
+END
+
+ACA KNN: 0.1101
+ACA RF: 0.335
+Time: 889.60738
+Time KNN: 6.291216
+Time Random Forests: 6.917981
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 2, forest=0.2
+END
+
+ACA KNN: 0.1188
+ACA RF: 0.3329
+Time: 904.294384
+Time KNN: 6.287378
+Time Random Forests: 8.399424
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 3, forest=0.3
+END
+
+ACA KNN: 0.1303
+ACA RF: 0.3282
+Time: 925.204707
+Time KNN: 6.337917
+Time Random Forests: 14.572195
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 4, forest=0.5
+END
+
+ACA KNN: 0.1247
+ACA RF: 0.3289
+Time: 947.669419
+Time KNN: 6.324269
+Time Random Forests: 16.14025
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 5, forest=0.6
+END
+
+ACA KNN: 0.1191
+ACA RF: 0.3338
+Time: 964.006859
+Time KNN: 6.39157
+Time Random Forests: 9.945675
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 10, forest=5
+END
+
+ACA KNN: 0.0973
+ACA RF: 0.3267
+Time: 988.026268
+Time KNN: 6.346192
+Time Random Forests: 17.673
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 20, forest=10
+END
+
+ACA KNN: 0.1
+ACA RF: 0.2391
+Time: 1024.841984
+Time KNN: 9.67621
+Time Random Forests: 27.139297
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 60, forest=16
+END
+
+ACA KNN: 0.1
+ACA RF: 0.3161
+Time: 1062.201365
+Time KNN: 16.56747
+Time Random Forests: 20.79169
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 100, forest=0.8
+END
+
+ACA KNN: 0.1
+ACA RF: 0.2819
+Time: 1106.622859
+Time KNN: 20.451547
+Time Random Forests: 23.969734
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 140, forest=0.9
+END
+
+ACA KNN: 0.1
+ACA RF: 0.3316
+Time: 1137.769805
+Time KNN: 27.386029
+Time Random Forests: 3.760714
+Number of Train Images: 8000
+Number of Test Images: 10000
+Note: neighbors = 200, forest=1
+END
+

@@ -1,0 +1,70 @@
+ACA KNN: 0.2077
+ACA RF: 0.2099
+Time: 411.621019
+Time KNN: 36.830281
+Time Random Forests: 0.221506
+Number of Train Images: 1000
+Number of Test Images: 10000
+Note: K = 5
+END
+
+ACA KNN: 0.2435
+ACA RF: 0.2507
+Time: 656.492496
+Time KNN: 71.969142
+Time Random Forests: 0.305951
+Number of Train Images: 1000
+Number of Test Images: 10000
+Note: K = 10
+END
+
+ACA KNN: 0.2693
+ACA RF: 0.2979
+Time: 970.546991
+Time KNN: 73.628553
+Time Random Forests: 0.382515
+Number of Train Images: 1000
+Number of Test Images: 10000
+Note: K = 16
+END
+
+ACA KNN: 0.2133
+ACA RF: 0.3434
+Time: 1361.63964
+Time KNN: 107.114562
+Time Random Forests: 0.715598
+Number of Train Images: 1000
+Number of Test Images: 10000
+Note: K = 48
+END
+
+ACA KNN: 0.1927
+ACA RF: 0.3584
+Time: 1767.381716
+Time KNN: 112.934665
+Time Random Forests: 0.861887
+Number of Train Images: 1000
+Number of Test Images: 10000
+Note: K = 64
+END
+
+ACA KNN: 0.133
+ACA RF: 0.3632
+Time: 2204.073095
+Time KNN: 120.998849
+Time Random Forests: 0.990414
+Number of Train Images: 1000
+Number of Test Images: 10000
+Note: K = 80
+END
+
+ACA KNN: 0.1223
+ACA RF: 0.3619
+Time: 2871.441821
+Time KNN: 138.493956
+Time Random Forests: 1.449888
+Number of Train Images: 1000
+Number of Test Images: 10000
+Note: K = 144
+END
+

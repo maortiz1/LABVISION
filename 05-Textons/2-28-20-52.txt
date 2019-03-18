@@ -1,0 +1,3 @@
+Time dowloading database= 3.8e-05
+Time computing time of textons=291.809887
+Time Assign Textons= 153.068263
