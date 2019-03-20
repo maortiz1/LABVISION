@@ -1,4 +1,4 @@
-function phow_caltech101()
+function phow_caltech101(numimg,prefix)
 % PHOW_CALTECH101 Image classification in the Caltech-101 dataset
 %   This program demonstrates how to use VLFeat to construct an image
 %   classifier on the Caltech-101 data. The classifier uses PHOW
@@ -54,8 +54,8 @@ function phow_caltech101()
 conf.calDir = 'data/caltech-101' ;
 conf.dataDir = 'data/' ;
 conf.autoDownloadData = true ;
-conf.numTrain = 15 ;
-conf.numTest = 15 ;
+conf.numTrain = numimg;
+conf.numTest = numimg ;
 conf.numClasses = 102 ;
 conf.numWords = 600 ;
 conf.numSpatialX = [2 4] ;
@@ -70,8 +70,8 @@ conf.svm.solver = 'sdca' ;
 conf.svm.biasMultiplier = 1 ;
 conf.phowOpts = {'Step', 3} ;
 conf.clobber = false ;
-conf.tinyProblem = true ;
-conf.prefix = 'baseline' ;
+conf.tinyProblem = false ;
+conf.prefix = prefix ;
 conf.randSeed = 1 ;
 
 if conf.tinyProblem
@@ -118,6 +118,7 @@ end
 % --------------------------------------------------------------------
 %                                                           Setup data
 % --------------------------------------------------------------------
+tic
 classes = dir(conf.calDir) ;
 classes = classes([classes.isdir]) ;
 classes = {classes(3:conf.numClasses+2).name} ;
@@ -253,15 +254,17 @@ idx = sub2ind([length(classes), length(classes)], ...
               imageClass(selTest), imageEstClass(selTest)) ;
 confus = zeros(length(classes)) ;
 confus = vl_binsum(confus, ones(size(idx)), idx) ;
-
+timeEx=toc
+disp(timeEx)
 % Plots
-figure(1) ; clf;
-subplot(1,2,1) ;
-imagesc(scores(:,[selTrain selTest])) ; title('Scores') ;
-set(gca, 'ytick', 1:length(classes), 'yticklabel', classes) ;
-subplot(1,2,2) ;
-imagesc(confus) ;
-title(sprintf('Confusion matrix (%.2f %% accuracy)', ...
-              100 * mean(diag(confus)/conf.numTest) )) ;
-print('-depsc2', [conf.resultPath '.ps']) ;
-save([conf.resultPath '.mat'], 'confus', 'conf') ;
+%figure(1) ; clf;
+%subplot(1,2,1) ;
+%imagesc(scores(:,[selTrain selTest])) ; title('Scores') ;
+%set(gca, 'ytick', 1:length(classes), 'yticklabel', classes) ;
+%subplot(1,2,2) ;
+%imagesc(confus) ;
+%title(sprintf('Confusion matrix (%.2f %% accuracy)', 100 * mean(diag(confus)/conf.numTest) )) ;
+aca=100 * mean(diag(confus)/conf.numTest);
+disp(aca)
+%print('-depsc2', [conf.resultPath '.ps']) ;
+save([conf.resultPath '.mat'], 'confus', 'conf','timeEx','aca','scores') ;
