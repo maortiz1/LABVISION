@@ -1,4 +1,4 @@
-function phow_caltech101(numimg,prefix,c)
+function phow_caltech101(numimg,prefix,c,numspatialX)
 % PHOW_CALTECH101 Image classification in the Caltech-101 dataset
 %   This program demonstrates how to use VLFeat to construct an image
 %   classifier on the Caltech-101 data. The classifier uses PHOW
@@ -58,8 +58,8 @@ conf.numTrain = numimg;
 conf.numTest = numimg ;
 conf.numClasses = 102 ;
 conf.numWords = 600 ;
-conf.numSpatialX = [2 4] ;
-conf.numSpatialY = [2 4] ;
+conf.numSpatialX = numspatialX ;
+conf.numSpatialY =  numspatialX;
 conf.quantizer = 'kdtree' ;
 conf.svm.C = c;
 

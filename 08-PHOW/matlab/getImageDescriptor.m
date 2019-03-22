@@ -27,8 +27,10 @@ for i = 1:length(model.numSpatialX)
   % combined quantization
   bins = sub2ind([model.numSpatialY(i), model.numSpatialX(i), numWords], ...
                  binsy,binsx,binsa) ;
+
   hist = zeros(model.numSpatialY(i) * model.numSpatialX(i) * numWords, 1) ;
   hist = vl_binsum(hist, ones(size(bins)), bins) ;
+
   hists{i} = single(hist / sum(hist)) ;
 end
 hist = cat(1,hists{:}) ;

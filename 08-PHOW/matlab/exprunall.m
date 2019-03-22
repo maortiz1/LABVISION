@@ -1,7 +1,8 @@
-c=[0.01;0.1;1;0.001;10;100;1000;0.00001]
+numS=[[4 2];[4 8];[2 4];[9 4]]
 
-for i=1:1:length(c)
-  s=sprintf('img_c_%f',c(i));
+for i=1:1:length(numS)
+  ac= numS(i,1:2);
+  s=sprintf('iprueb%d-%d',ac);
   disp(s)
-  phow_caltech(15,s,c(i))
+  phow_caltech(15,s,10,ac)
 end
