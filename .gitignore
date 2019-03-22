@@ -17,15 +17,13 @@ cifar-10-batches-py/
 *.tar.gz
 *.tar
 05-Textos/python/*.txt
-
 BSDS_small/
 05-Textons/python/data
 *.mat
 *.png
 *.jpg
-
 08-PHOW/imageNet200
 vlfeat-0.9.21/
 08-PHOW/matlab/data
-09-HOG/LabHOG/data/
-
+09-HOG/LabHOG/data
+LabHOG.zip
