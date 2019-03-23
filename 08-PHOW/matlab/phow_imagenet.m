@@ -1,4 +1,4 @@
-function phow_imagenet(numimg,prefix,c,numspatialX)
+function phow_imagenet()
 % PHOW_CALTECH101 Image classification in the Caltech-101 dataset
 %   This program demonstrates how to use VLFeat to construct an image
 %   classifier on the Caltech-101 data. The classifier uses PHOW
@@ -51,17 +51,17 @@ function phow_imagenet(numimg,prefix,c,numspatialX)
 % This file is part of the VLFeat library and is made available under
 % the terms of the BSD license (see the COPYING file).
 
-conf.calDir = 'imageNet200/train/' ;
+conf.calDir = 'imageNet/imageNet200' ;
 conf.dataDir = 'imageNet/' ;
 conf.autoDownloadData = true ;
-conf.numTrain = numimg;
-conf.numTest = numimg ;
-conf.numClasses = 102 ;
+conf.numTrain = 50;
+conf.numTest = 50 ;
+conf.numClasses = 200 ;
 conf.numWords = 600 ;
-conf.numSpatialX = numspatialX ;
-conf.numSpatialY =  numspatialX;
+conf.numSpatialX = [4 2] ;
+conf.numSpatialY =  [4 2];
 conf.quantizer = 'kdtree' ;
-conf.svm.C = c;
+conf.svm.C = 10;
 
 conf.svm.solver = 'sdca' ;
 %conf.svm.solver = 'sgd' ;
@@ -71,7 +71,7 @@ conf.svm.biasMultiplier = 1 ;
 conf.phowOpts = {'Step', 3} ;
 conf.clobber = false ;
 conf.tinyProblem = false ;
-conf.prefix = prefix;
+conf.prefix = 'imagenet';
 conf.randSeed = 1 ;
 
 if conf.tinyProblem
@@ -93,47 +93,68 @@ rand('state',conf.randSeed) ;
 vl_twister('state',conf.randSeed) ;
 
 % --------------------------------------------------------------------
-%                                            Download Caltech-101 data
+%                                            Download ImageNet200
 % --------------------------------------------------------------------
 
-if ~exist(conf.calDir, 'dir') || ...
-   (~exist(fullfile(conf.calDir, 'airplanes'),'dir') && ...
-    ~exist(fullfile(conf.calDir, '101_ObjectCategories', 'airplanes')))
-  if ~conf.autoDownloadData
-    error(...
-      ['Caltech-101 data not found. ' ...
-       'Set conf.autoDownloadData=true to download the required data.']) ;
-  end
-  vl_xmkdir(conf.calDir) ;
-  calUrl = ['http://www.vision.caltech.edu/Image_Datasets/' ...
-    'Caltech101/101_ObjectCategories.tar.gz'] ;
-  fprintf('Downloading Caltech-101 data to ''%s''. This will take a while.', conf.calDir) ;
-  untar(calUrl, conf.calDir) ;
+if ~exist('imageNet200.tar','file')
+  websave('imageNet200.tar','http://bcv001.uniandes.edu.co/imageNet200.tar');
+end
+if ~exist(conf.calDir,'dir')
+  untar('imageNet200.tar','imageNet/')
 end
 
-if ~exist(fullfile(conf.calDir, 'airplanes'),'dir')
-  conf.calDir = fullfile(conf.calDir, '101_ObjectCategories') ;
-end
+%if ~exist(conf.calDir, 'dir') || ...
+%   (~exist(fullfile(conf.calDir, 'airplanes'),'dir') && ...
+%    ~exist(fullfile(conf.calDir, '101_ObjectCategories', 'airplanes')))
+%  if ~conf.autoDownloadData
+%    error(...
+%      ['Caltech-101 data not found. ' ...
+%       'Set conf.autoDownloadData=true to download the required data.']) ;
+%  end
+%  vl_xmkdir(conf.calDir) ;
+%  calUrl = ['http://www.vision.caltech.edu/Image_Datasets/' ...
+%    'Caltech101/101_ObjectCategories.tar.gz'] ;
+%  fprintf('Downloading Caltech-101 data to ''%s''. This will take a while.', conf.calDir) ;
+%  untar(calUrl, conf.calDir) ;
+%end
+
+%if ~exist(fullfile(conf.calDir, 'airplanes'),'dir')
+%  conf.calDir = fullfile(conf.calDir, '101_ObjectCategories') ;
+%end
+
 
 % --------------------------------------------------------------------
 %                                                           Setup data
 % --------------------------------------------------------------------
 tic
-classes = dir(conf.calDir) ;
+classes = dir(fullfile(conf.calDir,'train')) 
+
 classes = classes([classes.isdir]) ;
+disp(size(classes))
 classes = {classes(3:conf.numClasses+2).name} ;
 
-images = {} ;
-imageClass = {} ;
+imagesTrain = {} ;
+imageClassTrain = {} ;
 for ci = 1:length(classes)
-  ims = dir(fullfile(conf.calDir, classes{ci}, '*.jpg'))' ;
-  ims = vl_colsubset(ims, conf.numTrain + conf.numTest) ;
+  ims = dir(fullfile(conf.calDir,'train', classes{ci}, '*.jpg'))' ;
+  ims = vl_colsubset(ims, conf.numTrain) ;
   ims = cellfun(@(x)fullfile(classes{ci},x),{ims.name},'UniformOutput',false) ;
-  images = {images{:}, ims{:}} ;
-  imageClass{end+1} = ci * ones(1,length(ims)) ;
+  imagesTrain = {imagesTrain{:}, ims{:}} ;
+  imageClassTrain{end+1} = ci * ones(1,length(ims)) ;
 end
-selTrain = find(mod(0:length(images)-1, conf.numTrain+conf.numTest) < conf.numTrain) ;
-selTest = setdiff(1:length(images), selTrain) ;
+
+imagesTest = {} ;
+imageClassTest = {} ;
+for ci = 1:length(classes)
+  ims = dir(fullfile(conf.calDir,'test', classes{ci}, '*.jpg'))' ;
+  ims = vl_colsubset(ims, conf.numTest) ;
+  ims = cellfun(@(x)fullfile(classes{ci},x),{ims.name},'UniformOutput',false) ;
+  imagesTest = {imagesTrain{:}, ims{:}} ;
+  imageClassTest{end+1} = ci * ones(1,length(ims)) ;
+end
+
+selTrain = imagesTrain ;
+selTest =imagesTest ;
 imageClass = cat(2, imageClass{:}) ;
 
 model.classes = classes ;
