@@ -54,14 +54,14 @@ function phow_imagenet()
 conf.calDir = 'imageNet/imageNet200' ;
 conf.dataDir = 'imageNet/' ;
 conf.autoDownloadData = true ;
-conf.numTrain = 50;
-conf.numTest = 50 ;
-conf.numClasses = 200 ;
-conf.numWords = 600 ;
+conf.numTrain = 100;
+conf.numTest = 100;
+conf.numClasses = 100 ;
+conf.numWords = 1000 ;
 conf.numSpatialX = [4 2] ;
 conf.numSpatialY =  [4 2];
 conf.quantizer = 'kdtree' ;
-conf.svm.C = 10;
+conf.svm.C = 100;
 
 conf.svm.solver = 'sdca' ;
 %conf.svm.solver = 'sgd' ;
@@ -71,7 +71,7 @@ conf.svm.biasMultiplier = 1 ;
 conf.phowOpts = {'Step', 3} ;
 conf.clobber = false ;
 conf.tinyProblem = false ;
-conf.prefix = 'imagenet';
+conf.prefix = 'imagenet_2';
 conf.randSeed = 1 ;
 
 if conf.tinyProblem
@@ -133,28 +133,31 @@ classes = classes([classes.isdir]) ;
 disp(size(classes))
 classes = {classes(3:conf.numClasses+2).name} ;
 
-imagesTrain = {} ;
-imageClassTrain = {} ;
+images = {} ;
+imageClass = {} ;
 for ci = 1:length(classes)
-  ims = dir(fullfile(conf.calDir,'train', classes{ci}, '*.jpg'))' ;
+  ims = dir(fullfile(conf.calDir,'train', classes{ci}, '*.JPEG'))' ;
   ims = vl_colsubset(ims, conf.numTrain) ;
   ims = cellfun(@(x)fullfile(classes{ci},x),{ims.name},'UniformOutput',false) ;
-  imagesTrain = {imagesTrain{:}, ims{:}} ;
-  imageClassTrain{end+1} = ci * ones(1,length(ims)) ;
+  images = {images{:}, ims{:}} ;
+  imageClass{end+1} = ci * ones(1,length(ims)) ;
 end
+disp(size(images))
+Last=length(images);
+disp(Last)
 
-imagesTest = {} ;
-imageClassTest = {} ;
 for ci = 1:length(classes)
-  ims = dir(fullfile(conf.calDir,'test', classes{ci}, '*.jpg'))' ;
+  ims = dir(fullfile(conf.calDir,'test', classes{ci}, '*.JPEG'))' ;
   ims = vl_colsubset(ims, conf.numTest) ;
   ims = cellfun(@(x)fullfile(classes{ci},x),{ims.name},'UniformOutput',false) ;
-  imagesTest = {imagesTrain{:}, ims{:}} ;
-  imageClassTest{end+1} = ci * ones(1,length(ims)) ;
+  images = {images{:}, ims{:}} ;
+  imageClass{end+1} = ci * ones(1,length(ims)) ;
 end
 
-selTrain = imagesTrain ;
-selTest =imagesTest ;
+selTrain = [1:1:Last] ;
+selTest =  [Last+1:1:length(images)];
+disp(selTrain);
+disp(selTest);
 imageClass = cat(2, imageClass{:}) ;
 
 model.classes = classes ;
@@ -178,7 +181,7 @@ if ~exist(conf.vocabPath) || conf.clobber
   descrs = {} ;
   %for ii = 1:length(selTrainFeats)
   parfor ii = 1:length(selTrainFeats)
-    im = imread(fullfile(conf.calDir, images{selTrainFeats(ii)})) ;
+    im = imread(fullfile(conf.calDir,'train',images{selTrainFeats(ii)})) ;
     im = standarizeImage(im) ;
     [drop, descrs{ii}] = vl_phow(im, model.phowOpts{:}) ;
   end
@@ -208,14 +211,19 @@ if ~exist(conf.histPath) || conf.clobber
   parfor ii = 1:length(images)
   % for ii = 1:length(images)
     fprintf('Processing %s (%.2f %%)\n', images{ii}, 100 * ii / length(images)) ;
-    im = imread(fullfile(conf.calDir, images{ii})) ;
+    if ii<=Last
+    im = imread(fullfile(conf.calDir, 'train',images{ii})) ;
+    else
+    im = imread(fullfile(conf.calDir,'test' ,images{ii})) ;
+    
+    end
     hists{ii} = getImageDescriptor(model, im);
   end
 
   hists = cat(2, hists{:}) ;
-  save(conf.histPath, 'hists') ;
+%  save(conf.histPath, 'hists') ;
 else
-  load(conf.histPath) ;
+%  load(conf.histPath) ;
 end
 
 % --------------------------------------------------------------------
@@ -257,9 +265,9 @@ if ~exist(conf.modelPath) || conf.clobber
   model.b = conf.svm.biasMultiplier * b ;
   model.w = w ;
 
-  save(conf.modelPath, 'model') ;
+%  save(conf.modelPath, 'model') ;
 else
-  load(conf.modelPath) ;
+%  load(conf.modelPath) ;
 end
 
 % --------------------------------------------------------------------
