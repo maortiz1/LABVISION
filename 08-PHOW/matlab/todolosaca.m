@@ -1,5 +1,5 @@
 
-dx=dir('data');
+dx=dir('imageNet');
 
 allaca={};
 alltime={};
@@ -8,7 +8,7 @@ k=1;
 for i=1:1:length(dx)
   [~,~,ext]=fileparts(dx(i).name);
   if ~isempty(strfind(dx(i).name,'result')) && (isequal(ext,'.mat'))
-   load(fullfile('data',dx(i).name))
+   load(fullfile('imageNet',dx(i).name))
    allinf(k).aca=aca;  
    allinf(k).time=timeEx;
    allinf(k).numwords=conf.numWords;
@@ -19,6 +19,9 @@ for i=1:1:length(dx)
    allinf(k).prefix=conf.prefix;
    allinf(k).C=conf.svm.C;
    allinf(k).numclasses=conf.numClasses;
+   allinf(k).numWords=conf.numWords
+allinf(k).confus=confus;
 	k=k+1;
   end
 end
+
