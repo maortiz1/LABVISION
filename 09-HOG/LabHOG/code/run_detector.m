@@ -45,39 +45,68 @@ test_scenes = dir( fullfile( test_scn_path, '*.jpg' ));
 bboxes = zeros(0,4);
 confidences = zeros(0,1);
 image_ids = cell(0,1);
+cell_sz=feature_params.hog_cell_size;
+wdw_sz = feature_params.template_size;
+pxl = 6; % pixeles que voy a considerar en la ventana
+%scales = [1.15,0.95,0.8,0.65,0.5,0.35,0.2,0.1,0.06];
+scales = [1, 0.9, 0.8, 0.7,0.6,0.5,0.4,0.3,0.2,0.1];
+
+
 
 for i = 1:length(test_scenes)
-      
     fprintf('Detecting faces in %s\n', test_scenes(i).name)
-    img = imread( fullfile( test_scn_path, test_scenes(i).name ));
-    img = single(img)/255;
+    img =imread( fullfile( test_scn_path, test_scenes(i).name ));
+    img = single(img)/255; % normalización de la imagen
+    temp_bboxes=zeros(0,4);
+    temp_confidences=zeros(0,1);
+    temp_image_ids=cell(0,1);
+    num_img=1;
     if(size(img,3) > 1)
         img = rgb2gray(img);
     end
-    
-    %You can delete all of this below.
-    % Let's create 15 random detections per image
-    cur_x_min = rand(15,1) * size(img,2);
-    cur_y_min = rand(15,1) * size(img,1);
-    cur_bboxes = [cur_x_min, cur_y_min, cur_x_min + rand(15,1) * 50, cur_y_min + rand(15,1) * 50];
-    cur_confidences = rand(15,1) * 4 - 2; %confidences in the range [-2 2]
-    cur_image_ids(1:15,1) = {test_scenes(i).name};
-    
-    %non_max_supr_bbox can actually get somewhat slow with thousands of
-    %initial detections. You could pre-filter the detections by confidence,
-    %e.g. a detection with confidence -1.1 will probably never be
-    %meaningful. You probably _don't_ want to threshold at 0.0, though. You
-    %can get higher recall with a lower threshold. You don't need to modify
-    %anything in non_max_supr_bbox, but you can.
-    [is_maximum] = non_max_supr_bbox(cur_bboxes, cur_confidences, size(img));
+ for scale = scales
+       img_temp=imresize(img,scale);
+       %disp(size(img_temp))
+       % posiciones que realmente me puedo mover sin salirme de la ventana
+       dxtot=floor((size(img_temp,2)-wdw_sz)/pxl);
+        dytot=floor((size(img_temp,1)-wdw_sz)/pxl);
+        for dx=1:dxtot
+            for dy=1:dytot
+            %encuentro las posiciones de la ventana
+                ypos1=int16((dy-1)*pxl+1);
+                ypos2=int16(ypos1+wdw_sz-1);
+                xpos1=int16((dx-1)*pxl+1);
+                xpos2=int16(xpos1+wdw_sz-1);
+                window=img_temp(ypos1:ypos2,xpos1:xpos2,:);
+   %for k=1:size(img_temp,1)-wdw_sz+1 
+   % for j=1:size(img_temp,2)-wdw_sz+1    
+               
+               %window = img_temp(k:(k+wdw_sz-1),j:(j+wdw_sz-1));
+                hog_feat=vl_hog(im2single(window),cell_sz);
+                hog_feat=hog_feat(:)';
+                confidence=hog_feat*w+b;
+                % variar umbral de conficence
+                if confidence>0.75
+                    box=int32([xpos1,ypos1,xpos2,ypos2]/scale);
+                   % box=int32([j,k,(j+wdw_sz-1),(k+wdw_sz-1)]/scale);
+                    temp_bboxes=[temp_bboxes;box;];
+                    temp_confidences=[temp_confidences; confidence;];
+                    temp_image_ids{num_img,1}=test_scenes(i).name;
+                    num_img=num_img+1;
+                end
+            end
+        end
+    end
+ %supresión de no máximos para saber cuales son las verdaderas
+     [max] = non_max_supr_bbox(temp_bboxes, temp_confidences, size(img));
 
-    cur_confidences = cur_confidences(is_maximum,:);
-    cur_bboxes      = cur_bboxes(     is_maximum,:);
-    cur_image_ids   = cur_image_ids(  is_maximum,:);
+    temp_confidences = temp_confidences(max,:);
+    temp_bboxes      = temp_bboxes(max,:);
+    temp_image_ids   = temp_image_ids(max,:);
  
-    bboxes      = [bboxes;      cur_bboxes];
-    confidences = [confidences; cur_confidences];
-    image_ids   = [image_ids;   cur_image_ids];
+    bboxes      = [bboxes;      temp_bboxes];
+    confidences = [confidences; temp_confidences];
+    image_ids   = [image_ids;   temp_image_ids];
 end
 
 
