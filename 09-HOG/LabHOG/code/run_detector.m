@@ -86,7 +86,7 @@ for i = 1:length(test_scenes)
                 hog_feat=hog_feat(:)';
                 confidence=hog_feat*w+b;
                 % variar umbral de conficence
-                if confidence>0.75
+                if confidence>1.2
                     box=int32([xpos1,ypos1,xpos2,ypos2]/scale);
                    % box=int32([j,k,(j+wdw_sz-1),(k+wdw_sz-1)]/scale);
                     temp_bboxes=[temp_bboxes;box;];
