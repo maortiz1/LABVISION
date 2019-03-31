@@ -5,7 +5,7 @@
 % wrong). The non-maximum suppression is done on a per-image basis. The
 % starter code includes a call to a provided non-max suppression function.
 function [bboxes, confidences, image_ids] = .... 
-    run_detector(test_scn_path, w, b, feature_params,confi,ext)
+    run_detector(test_scn_path, w, b, feature_params)
 % 'test_scn_path' is a string. This directory contains images which may or
 %    may not have faces in them. This function should work for the MIT+CMU
 %    test set but also for any other images (e.g. class photos)
@@ -39,7 +39,7 @@ function [bboxes, confidences, image_ids] = ....
 % non-maximum suppression. For your initial debugging, you can operate only
 % at a single scale and you can skip calling non-maximum suppression.
 
-test_scenes = dir( fullfile( test_scn_path, ext ));
+test_scenes = dir( fullfile( test_scn_path, '*.jpg' ));
 
 %initialize these as empty and incrementally expand them.
 bboxes = zeros(0,4);
@@ -48,16 +48,13 @@ image_ids = cell(0,1);
 cell_sz=feature_params.hog_cell_size;
 wdw_sz = feature_params.template_size;
 pxl = 6; % pixeles que voy a considerar en la ventana
-%scales = [1.15,0.95,0.8,0.65,0.5,0.35,0.2,0.1,0.06];
-scales = [1.2,1, 0.9, 0.8, 0.7,0.6,0.5,0.4,0.3,0.2,0.1];
-%scales=[1,0.7,0.5,0.3,0.1,0.05];
+scales = [1, 0.9, 0.8, 0.7,0.6,0.5,0.4,0.3,0.2,0.1];
 
 
 
-parfor i = 1:length(test_scenes)
+for i = 1:length(test_scenes)
     fprintf('Detecting faces in %s\n', test_scenes(i).name)
     img =imread( fullfile( test_scn_path, test_scenes(i).name ));
-    %img=histeq(img);
     img = single(img)/255; % normalización de la imagen
     temp_bboxes=zeros(0,4);
     temp_confidences=zeros(0,1);
@@ -66,31 +63,31 @@ parfor i = 1:length(test_scenes)
     if(size(img,3) > 1)
         img = rgb2gray(img);
     end
- for scale = scales
+ for scale = scales % recorro las escalas establecidas
        img_temp=imresize(img,scale);
        %disp(size(img_temp))
        % posiciones que realmente me puedo mover sin salirme de la ventana
        dxtot=floor((size(img_temp,2)-wdw_sz)/pxl);
         dytot=floor((size(img_temp,1)-wdw_sz)/pxl);
+% Recorro en las posiciones donde no me salgo de la imagen con la ventana
         for dx=1:dxtot
             for dy=1:dytot
-            %encuentro las posiciones de la ventana
-                ypos1=int16((dy-1)*pxl+1);
-                ypos2=int16(ypos1+wdw_sz-1);
-                xpos1=int16((dx-1)*pxl+1);
-                xpos2=int16(xpos1+wdw_sz-1);
-                %window=histeq(img_temp(ypos1:ypos2,xpos1:xpos2,:));
-                window=(img_temp(ypos1:ypos2,xpos1:xpos2,:));
+            %encuentro las posiciones de la ventana donde:
+
+                y1=int16((dy-1)*pxl+1); % y1 corresponde al valor sup de la ventana
+                y2=int16(y1+wdw_sz-1); % y2 al valor inf de la ventana
+                x1=int16((dx-1)*pxl+1); % x1 corresponde al valor izq de la ventana
+                x2=int16(x1+wdw_sz-1); % x2 al valor derecho
+                window=img_temp(y1:y2,x1:x2,:);
    %for k=1:size(img_temp,1)-wdw_sz+1 
    % for j=1:size(img_temp,2)-wdw_sz+1    
                
                %window = img_temp(k:(k+wdw_sz-1),j:(j+wdw_sz-1));
-                hog_feat=vl_hog(im2single(window),cell_sz);
+                hog_feat=vl_hog(im2single(window),cell_sz); % sacar HOG a la img en la ventana
                 hog_feat=hog_feat(:)';
-                confidence=hog_feat*w+b;
+                confidence=hog_feat*w+b; % predecir
                 % variar umbral de conficence
-                %fprintf('confidence: %.4f \n', confidence)
-                if confidence>=confi
+                if confidence>0.25 % tomar la decision de guardar o no la predicción basado en la confianza
                     box=int32([xpos1,ypos1,xpos2,ypos2]/scale);
                    % box=int32([j,k,(j+wdw_sz-1),(k+wdw_sz-1)]/scale);
                     temp_bboxes=[temp_bboxes;box;];
