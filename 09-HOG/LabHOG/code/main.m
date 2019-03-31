@@ -39,7 +39,7 @@ close all
 clear
 run('vlfeat/toolbox/vl_setup')
 
-[~,~,~] = mkdir('visualizations');
+[~,~,~] = mkdir('visualizations_c');
 
 data_path = '../data/'; %change if you want to work with a network copy
 train_path_pos = fullfile(data_path, 'caltech_faces/Caltech_CropFaces'); %Positive training examples. 36x36 head crops
@@ -73,7 +73,7 @@ features_neg = get_random_negative_features( non_face_scn_path, feature_params, 
 % work best e.g. 0.0001, but you can try other values
 
 %YOU CODE classifier training. Make sure the outputs are 'w' and 'b'.
-lambda=.001;
+lambda=0.00001;
 train_features=[features_pos;features_neg]';
 train_labels=[ones(size(features_pos,1),1);-1*ones(size(features_neg,1),1)]';
 
@@ -115,7 +115,7 @@ hog_template_image = frame2im(getframe(3));
 % getframe() is unreliable. Depending on the rendering settings, it will
 % grab foreground windows instead of the figure in question. It could also
 % return a partial image.
-imwrite(hog_template_image, 'visualizations/hog_template.png')
+imwrite(hog_template_image, 'visualizations_c/hog_template.png')
     
  
 %% step 4. (optional) Mine hard negatives
@@ -130,7 +130,9 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
 % YOU CODE 'run_detector'. Make sure the outputs are properly structured!
 % They will be interpreted in Step 6 to evaluate and visualize your
 % results. See run_detector.m for more details.
-[bboxes, confidences, image_ids] = run_detector(test_scn_path, w, b, feature_params);
+confi=-0.5;
+ext='*.jpg';
+[bboxes, confidences, image_ids] = run_detector(test_scn_path, w, b, feature_params,confi,ext);
 
 % run_detector will have (at least) two parameters which can heavily
 % influence performance -- how much to rescale each step of your multiscale
@@ -138,6 +140,7 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
 % and your detector still has high precision at its highest recall point,
 % you can improve your average precision by reducing the threshold for a
 % positive detection.
+
 
 
 %% Step 6. Evaluate and Visualize detections
@@ -149,7 +152,7 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
 [gt_ids, gt_bboxes, gt_isclaimed, tp, fp, duplicate_detections] = ...
     evaluate_detections(bboxes, confidences, image_ids, label_path);
 
-visualize_detections_by_image(bboxes, confidences, image_ids, tp, fp, test_scn_path, label_path)
+%visualize_detections_by_image(bboxes, confidences, image_ids, tp, fp, test_scn_path, label_path)
 % visualize_detections_by_image_no_gt(bboxes, confidences, image_ids, test_scn_path)
 
 % visualize_detections_by_confidence(bboxes, confidences, image_ids, test_scn_path, label_path);
@@ -160,3 +163,6 @@ visualize_detections_by_image(bboxes, confidences, image_ids, tp, fp, test_scn_p
 % multiscale, 6 pixel step ~ 0.83 AP
 % multiscale, 4 pixel step ~ 0.89 AP
 % multiscale, 3 pixel step ~ 0.92 AP
+
+save('modelTrained.mat','w','b','feature_params','confi')
+

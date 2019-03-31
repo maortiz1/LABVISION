@@ -48,26 +48,30 @@ run('vlfeat/toolbox/vl_setup')
 data_path = '../data/'; %change if you want to work with a network copy
 train_path_pos = fullfile(data_path, 'trainWaldo/'); %Positive training examples. 36x36 head crops
 non_face_scn_path = fullfile(data_path, 'train_non_face_scenes'); %We can mine random or hard negatives from here
-test_scn_path = fullfile(data_path,'test_scenes/test_jpg'); %CMU+MIT test scenes
+%test_scn_path = fullfile(data_path,'test_scenes/test_jpg'); %CMU+MIT test scenes
 % test_scn_path = fullfile(data_path,'extra_test_scenes'); %Bonus scenes
 label_path = fullfile(data_path,'test_scenes/ground_truth_bboxes.txt'); %the ground truth face locations in the test set
 
 
-d=mkdir('../data/trainWaldo')
-waldoPathzip='../data/Waldo.zip'
-F_name=websave(waldoPathzip,'http://bcv001.uniandes.edu.co/Waldo.zip')
-F_names_unzip=unzip(F_name,data_path);
+d=mkdir('../data/trainWaldo');
+waldoPathzip='../data/Waldo.zip';
+
+F_name=websave(waldoPathzip,'http://bcv001.uniandes.edu.co/Waldo.zip');
+if ~exist('../data/Waldo','dir')
+  F_names_unzip=unzip(F_name,data_path);
+
+end
 waldoPathMugShot='../data/trainWaldo/waldo.png';
 F_waldo=websave(waldoPathMugShot,'https://camo.githubusercontent.com/78e3304eb308a95e652ccd374a9e27fef8d21fe5/68747470733a2f2f7062732e7477696d672e636f6d2f70726f66696c655f696d616765732f3536313237373937393835353035363839362f3479526353325a6f2e706e67');
 
-test_scn_path=F_names_unzip;
+test_scn_path='../data/Waldo';
 
 
 %The faces are 36x36 pixels, which works fine as a template size. You could
 %add other fields to this struct if you want to modify HoG default
 %parameters such as the number of orientations, but that does not help
 %performance in our limited test.
-feature_params = struct('template_size', 36, 'hog_cell_size', 6);
+feature_params = struct('template_size', 72, 'hog_cell_size', 6);
 
 
 %% Step 1. Load positive training crops and random negative examples
@@ -76,7 +80,7 @@ feature_params = struct('template_size', 36, 'hog_cell_size', 6);
 features_pos = get_positive_features('../data/trainWaldo', feature_params );
 
 
-num_negative_examples = 50000; %Higher will work strictly better, but you should start with 10000 for debugging
+num_negative_examples = 2000; %Higher will work strictly better, but you should start with 10000 for debugging
 features_neg = get_random_negative_features( non_face_scn_path, feature_params, num_negative_examples);
 
     
@@ -89,7 +93,7 @@ features_neg = get_random_negative_features( non_face_scn_path, feature_params, 
 % work best e.g. 0.0001, but you can try other values
 
 %YOU CODE classifier training. Make sure the outputs are 'w' and 'b'.
-lambda=.001;
+lambda=.0001;
 train_features=[features_pos;features_neg]';
 train_labels=[ones(size(features_pos,1),1);-1*ones(size(features_neg,1),1)]';
 
@@ -135,9 +139,8 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
     
  
 
-
-
-[bboxes, confidences, image_ids] = detectorWALDO(test_scn_path, w, b, feature_params);
+confi=-0.5
+[bboxes, confidences, image_ids] = detectorWALDO(test_scn_path, w, b, feature_params,confi);
 
 % run_detector will have (at least) two parameters which can heavily
 % influence performance -- how much to rescale each step of your multiscale
@@ -145,6 +148,8 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
 % and your detector still has high precision at its highest recall point,
 % you can improve your average precision by reducing the threshold for a
 % positive detection.
+[maximo,index]=max(confidences);
+
 
 
 %% Step 6. Evaluate and Visualize detections
@@ -153,10 +158,10 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
 % for testing on extra images (it is commented out below).
 
 % Don't modify anything in 'evaluate_detections'!
-[gt_ids, gt_bboxes, gt_isclaimed, tp, fp, duplicate_detections] = ...
-    evaluate_detections(bboxes, confidences, image_ids, label_path);
+%[gt_ids, gt_bboxes, gt_isclaimed, tp, fp, duplicate_detections] = ...
+   % evaluate_detections(bboxes, confidences, image_ids, label_path);
 
-visualize_detections_by_image(bboxes, confidences, image_ids, tp, fp, test_scn_path, label_path)
+%visualize_detections_by_image(bboxes(index), confidences(index), image_ids(index), tp, fp, test_scn_path, label_path)
 % visualize_detections_by_image_no_gt(bboxes, confidences, image_ids, test_scn_path)
 
 % visualize_detections_by_confidence(bboxes, confidences, image_ids, test_scn_path, label_path);

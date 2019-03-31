@@ -71,7 +71,7 @@ for i=1:num_test_images
    % getframe() is unreliable. Depending on the rendering settings, it will
    % grab foreground windows instead of the figure in question. It could also
    % return a partial image.
-   imwrite(detection_image, sprintf('visualizations/detections_%s.png', gt_file_list{i}))
+   imwrite(detection_image, sprintf('visualizations_c/detections_%s.png', gt_file_list{i}))
     
    fprintf('press any key to continue with next image\n');
    pause;

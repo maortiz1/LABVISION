@@ -27,9 +27,9 @@ function features_pos = get_positive_features(train_path_pos, feature_params)
 %  http://www.vlfeat.org/matlab/vl_hog.html  (API)
 %  http://www.vlfeat.org/overview/hog.html   (Tutorial)
 % rgb2gray
-ris=0
+ris=0;
 image_files = dir( fullfile( train_path_pos, '*.jpg') ); %Caltech Faces stored as .jpg
-if ~isempty(strfind(train_pat_pos,'Waldo'))
+if ~isempty(strfind(train_path_pos,'Waldo'))
     ris=1;
     image_files = dir( fullfile( train_path_pos, '*.png') ); %Caltech Faces stored as .jpg
 end
@@ -46,7 +46,7 @@ parfor i=1:1:num_images
   img=imread(fullfile(train_path_pos,image_files(i).name));
   if ris
     img=rgb2gray(img)
-    img=imresize(img,[36,36])
+    img=imresize(img,[feature_params.template_size,feature_params.template_size])
   end
   hog=vl_hog(single(img),feature_params.hog_cell_size);
   features_pos(i,:)= reshape(hog, [1,dimensionality]);

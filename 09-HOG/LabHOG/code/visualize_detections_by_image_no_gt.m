@@ -10,7 +10,7 @@ function visualize_detections_by_image_no_gt(bboxes, confidences, image_ids, tes
 %http://pascallin.ecs.soton.ac.uk/challenges/VOC/voc2010/index.html#devkit
 
 
-test_files = dir(fullfile(test_scn_path, '*.jpg'));
+test_files = dir(fullfile(test_scn_path, '*.jpeg'));
 num_test_images = length(test_files);
 
 for i=1:num_test_images

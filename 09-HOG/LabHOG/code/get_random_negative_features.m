@@ -42,9 +42,14 @@ dimensionality = (feature_params.template_size / feature_params.hog_cell_size)^2
 features_neg = zeros(samples_por_img*num_images,dimensionality);%
 
 for i=1:1:num_images
+  disp(fullfile(non_face_scn_path,image_files(i).name));
   img=imread(fullfile(non_face_scn_path,image_files(i).name));
   img=rgb2gray(img);
   [w,h]=size(img);
+  if feature_params.template_size>=w ||feature_params.template_size>=h
+    img=imresize(img,[feature_params.template_size*2,feature_params.template_size*2]);  
+      [w,h]=size(img);
+  end
   for j=1:1:samples_por_img
     x_beg = randi([1 w-s_sample]); %begginig of sample in x
     y_beg = randi([1 h-s_sample]); %ending of sample in y

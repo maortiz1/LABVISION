@@ -107,13 +107,13 @@ if draw
     % return a partial image.
     imwrite(average_precision_image, 'visualizations/average_precision.png')
     
-    figure(13)
-    plot(cum_fp,rec,'-')
-    axis([0 300 0 1])
-    grid;
-    xlabel 'False positives'
-    ylabel 'Number of correct detections (recall)'
-    title('This plot is meant to match Figure 6 in Viola Jones');
+   % figure(13)
+   % plot(cum_fp,rec,'-')
+   % axis([0 300 0 1])
+   % grid;
+   % xlabel 'False positives'
+   % ylabel 'Number of correct detections (recall)'
+   % title('This plot is meant to match Figure 6 in Viola Jones');
     % http://wearables.cc.gatech.edu/paper_of_week/viola01rapid.pdf
 end
 

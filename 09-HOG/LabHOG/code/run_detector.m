@@ -5,7 +5,7 @@
 % wrong). The non-maximum suppression is done on a per-image basis. The
 % starter code includes a call to a provided non-max suppression function.
 function [bboxes, confidences, image_ids] = .... 
-    run_detector(test_scn_path, w, b, feature_params)
+    run_detector(test_scn_path, w, b, feature_params,confi,ext)
 % 'test_scn_path' is a string. This directory contains images which may or
 %    may not have faces in them. This function should work for the MIT+CMU
 %    test set but also for any other images (e.g. class photos)
@@ -39,7 +39,7 @@ function [bboxes, confidences, image_ids] = ....
 % non-maximum suppression. For your initial debugging, you can operate only
 % at a single scale and you can skip calling non-maximum suppression.
 
-test_scenes = dir( fullfile( test_scn_path, '*.jpg' ));
+test_scenes = dir( fullfile( test_scn_path, ext ));
 
 %initialize these as empty and incrementally expand them.
 bboxes = zeros(0,4);
@@ -49,13 +49,15 @@ cell_sz=feature_params.hog_cell_size;
 wdw_sz = feature_params.template_size;
 pxl = 6; % pixeles que voy a considerar en la ventana
 %scales = [1.15,0.95,0.8,0.65,0.5,0.35,0.2,0.1,0.06];
-scales = [1, 0.9, 0.8, 0.7,0.6,0.5,0.4,0.3,0.2,0.1];
+scales = [1.2,1, 0.9, 0.8, 0.7,0.6,0.5,0.4,0.3,0.2,0.1];
+%scales=[1,0.7,0.5,0.3,0.1,0.05];
 
 
 
-for i = 1:length(test_scenes)
+parfor i = 1:length(test_scenes)
     fprintf('Detecting faces in %s\n', test_scenes(i).name)
     img =imread( fullfile( test_scn_path, test_scenes(i).name ));
+    %img=histeq(img);
     img = single(img)/255; % normalización de la imagen
     temp_bboxes=zeros(0,4);
     temp_confidences=zeros(0,1);
@@ -77,7 +79,8 @@ for i = 1:length(test_scenes)
                 ypos2=int16(ypos1+wdw_sz-1);
                 xpos1=int16((dx-1)*pxl+1);
                 xpos2=int16(xpos1+wdw_sz-1);
-                window=img_temp(ypos1:ypos2,xpos1:xpos2,:);
+                %window=histeq(img_temp(ypos1:ypos2,xpos1:xpos2,:));
+                window=(img_temp(ypos1:ypos2,xpos1:xpos2,:));
    %for k=1:size(img_temp,1)-wdw_sz+1 
    % for j=1:size(img_temp,2)-wdw_sz+1    
                
@@ -86,7 +89,8 @@ for i = 1:length(test_scenes)
                 hog_feat=hog_feat(:)';
                 confidence=hog_feat*w+b;
                 % variar umbral de conficence
-                if confidence>2
+                %fprintf('confidence: %.4f \n', confidence)
+                if confidence>=confi
                     box=int32([xpos1,ypos1,xpos2,ypos2]/scale);
                    % box=int32([j,k,(j+wdw_sz-1),(k+wdw_sz-1)]/scale);
                     temp_bboxes=[temp_bboxes;box;];
