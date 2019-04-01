@@ -1,5 +1,5 @@
 %This function visualizes all detections in each test image
-function visualize_detections_by_image(bboxes, confidences, image_ids, tp, fp, test_scn_path, label_path, onlytp)
+function visualize_detections_by_image(bboxes, confidences, image_ids, tp, fp, test_scn_path, label_path, onlytp,varargin)
 % 'bboxes' is Nx4, N is the number of non-overlapping detections, and each
 % row is [x_min, y_min, x_max, y_max]
 % 'confidences' is the Nx1 (final cascade node) confidence of each
@@ -21,11 +21,20 @@ gt_bboxes = [gt_info{1,2}, gt_info{1,3}, gt_info{1,4}, gt_info{1,5}];
 gt_bboxes = double(gt_bboxes);
 
 gt_file_list = unique(gt_ids);
+size(gt_file_list)
+if nargin>8
 
-num_test_images = length(gt_file_list);
+indextoshow=varargin{1}
+gt_file_list =gt_file_list(indextoshow);
+else
+indextoshow=1:length(gt_file_list);
+end
+
+num_test_images=length(gt_file_list);
+
 
 for i=1:num_test_images
-   cur_test_image = imread( fullfile( test_scn_path, gt_file_list{i}));
+   cur_test_image = imread( fullfile( test_scn_path, gt_file_list{(i)}));
    cur_gt_detections = strcmp( gt_file_list{i}, gt_ids);
    cur_gt_bboxes = gt_bboxes(cur_gt_detections ,:);
    

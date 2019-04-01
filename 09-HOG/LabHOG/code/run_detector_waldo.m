@@ -94,7 +94,7 @@ parfor i = 1:length(test_scenes)
                    % box=int32([j,k,(j+wdw_sz-1),(k+wdw_sz-1)]/scale);
                     temp_bboxes=[temp_bboxes;box;];
                     temp_confidences=[temp_confidences; confidence;];
-                    temp_image_ids{num_img,1}=test_scenes(i).name;
+                    temp_image_ids{num_img,1}=fullfile(test_scn_path,test_scenes(i).name);
                     num_img=num_img+1;
                 end
             end

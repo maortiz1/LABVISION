@@ -71,7 +71,7 @@ test_scn_path='../data/Waldo';
 %add other fields to this struct if you want to modify HoG default
 %parameters such as the number of orientations, but that does not help
 %performance in our limited test.
-feature_params = struct('template_size', 72, 'hog_cell_size', 6);
+feature_params = struct('template_size', 72, 'hog_cell_size', 3);
 
 
 %% Step 1. Load positive training crops and random negative examples
@@ -80,7 +80,7 @@ feature_params = struct('template_size', 72, 'hog_cell_size', 6);
 features_pos = get_positive_features('../data/trainWaldo', feature_params );
 
 
-num_negative_examples = 2000; %Higher will work strictly better, but you should start with 10000 for debugging
+num_negative_examples = 10000; %Higher will work strictly better, but you should start with 10000 for debugging
 features_neg = get_random_negative_features( non_face_scn_path, feature_params, num_negative_examples);
 
     
@@ -139,7 +139,7 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
     
  
 
-confi=-0.5
+confi=-0.5;
 [bboxes, confidences, image_ids] = detectorWALDO(test_scn_path, w, b, feature_params,confi);
 
 % run_detector will have (at least) two parameters which can heavily
@@ -149,7 +149,7 @@ confi=-0.5
 % you can improve your average precision by reducing the threshold for a
 % positive detection.
 [maximo,index]=max(confidences);
-
+[sorted,indexsort]=sort(confidences,'descend');
 
 
 %% Step 6. Evaluate and Visualize detections
@@ -162,7 +162,8 @@ confi=-0.5
    % evaluate_detections(bboxes, confidences, image_ids, label_path);
 
 %visualize_detections_by_image(bboxes(index), confidences(index), image_ids(index), tp, fp, test_scn_path, label_path)
-% visualize_detections_by_image_no_gt(bboxes, confidences, image_ids, test_scn_path)
+ext='*.jpg'
+visualize_detections_by_image_no_gt_waldo(bboxes(indexsort(1:20)), confidences(indexsort(1:20)), image_ids(indexsort(1:20)), test_scn_path,ext);
 
 % visualize_detections_by_confidence(bboxes, confidences, image_ids, test_scn_path, label_path);
 

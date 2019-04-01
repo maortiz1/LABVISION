@@ -1,5 +1,5 @@
 %This function visualizes all detections in each test image
-function visualize_detections_by_image_no_gt(bboxes, confidences, image_ids, test_scn_path)
+function visualize_detections_by_image_no_gt(bboxes, confidences, image_ids, test_scn_path,ext)
 % 'bboxes' is Nx4, N is the number of non-overlapping detections, and each
 % row is [x_min, y_min, x_max, y_max]
 % 'confidences' is the Nx1 (final cascade node) confidence of each
@@ -10,7 +10,7 @@ function visualize_detections_by_image_no_gt(bboxes, confidences, image_ids, tes
 %http://pascallin.ecs.soton.ac.uk/challenges/VOC/voc2010/index.html#devkit
 
 
-test_files = dir(fullfile(test_scn_path, '*.jpeg'));
+test_files = dir(fullfile(test_scn_path, ext));
 num_test_images = length(test_files);
 
 for i=1:num_test_images
