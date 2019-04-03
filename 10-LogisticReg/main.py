@@ -39,8 +39,9 @@ def get_data():
         pixels = np.array(img.split(" "), 'float32')
         emotion = 1 if int(emotion)==3 else 0 # Only for happiness
         if 'Training' in usage:
-            y_train.append(emotion)
-            x_train.append(pixels)
+            y_train.append(emotion) # en y guardo las emociones (en este caso 0 o 1). groundtruth
+            x_train.append(pixels) # en x guardo las imagenes
+        
         elif 'PublicTest' in usage:
             y_test.append(emotion)
             x_test.append(pixels)
@@ -59,11 +60,20 @@ def get_data():
     x_test = x_test.reshape(x_test.shape[0], 48, 48)
     y_train = y_train.reshape(y_train.shape[0], 1)
     y_test = y_test.reshape(y_test.shape[0], 1)
+    
+    #Dividir train en train y validation
+    divx = np.split(x_train, 2)
+    x_train = divx[0]
+    x_val = divx[1]
+    divy = np.split(y_train, 2)
+    y_train = divy[0]
+    y_val = divy[1]   
 
     print(x_train.shape[0], 'train samples')
+    print(x_val.shape[0], 'validation samples')
     print(x_test.shape[0], 'test samples')
 
-    # plt.hist(y_train, max(y_train)+1); plt.show()
+    plt.hist(y_train, max(y_train)+1); plt.show()
 
     return x_train, y_train, x_test, y_test
 
@@ -107,9 +117,12 @@ def train(model):
         out = model.forward(x_test)                
         loss_test = model.compute_loss(out, y_test)
         print('Epoch {:6d}: {:.5f} | test: {:.5f}'.format(i, np.array(loss).mean(), loss_test))
-	# plot()
+	   plot(epochs,loss)
 
-def plot(): # Add arguments
+def plot(epochs,loss): # Add arguments
+   y =np.arange(epochs)
+   x = loss
+   plt.plot(x, y, linewidth)
     # CODE HERE
     # Save a pdf figure with train and test losses
     pass
