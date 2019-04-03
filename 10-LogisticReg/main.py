@@ -1,8 +1,23 @@
+#!/usr/bin/ipython3
 
 # read kaggle facial expression recognition challenge dataset (fer2013.csv)
 # https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression-recognition-challenge
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import requests
+import tarfile
+
+if not os.path.isdir(os.path.join(os.getcwd(),'fer2013')):
+    url='https://drive.google.com/uc?export=download&id=1B9Lr_Q3mzu-H-DD2-i2SkTx0TndcyVvO'
+    r=requests.get(url,allow_redirects=True)
+    open('fer2013.tar.gz','wb').write(r.content)
+    tar=tarfile.open("fer2013.tar.gz","r")
+    tar.extractall()
+    tar.close
+
+os.chdir("fer2013/")
+
 
 def sigmoid(x):
     return 1/(1+np.exp(-x))
