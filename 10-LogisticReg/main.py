@@ -62,20 +62,20 @@ def get_data():
     y_test = y_test.reshape(y_test.shape[0], 1)
     
     #Dividir train en train y validation
-    divx = np.split(x_train, 2)
-    x_train = divx[0]
-    x_val = divx[1]
-    divy = np.split(y_train, 2)
-    y_train = divy[0]
-    y_val = divy[1]   
+    tempx = x_train
+    x_train = (tempx[tempx%2==1])
+    x_val = (tempx[tempx%2==0])
+    tempy = y_train
+    y_train = (tempy[tempy%2==1])
+    y_val = (tempy[tempy%2==0])   
 
     print(x_train.shape[0], 'train samples')
     print(x_val.shape[0], 'validation samples')
     print(x_test.shape[0], 'test samples')
 
-    plt.hist(y_train, max(y_train)+1); plt.show()
+    #plt.hist(y_train, max(y_train)+1); plt.show()
 
-    return x_train, y_train, x_test, y_test
+    return x_train, y_train,x_val, y_val, x_test, y_test
 
 class Model():
     def __init__(self):
@@ -103,9 +103,10 @@ class Model():
         self.b -= b_grad*self.lr
 
 def train(model):
-    x_train, y_train, x_test, y_test = get_data()
+    x_train, y_train, x_val, y_val, x_test, y_test = get_data()
     batch_size = 100 # Change if you want
     epochs = 40000 # Change if you want
+    losstot = []
     for i in range(epochs):
         loss = []
         for j in range(0,x_train.shape[0], batch_size):
@@ -114,18 +115,20 @@ def train(model):
             out = model.forward(_x_train)
             loss.append(model.compute_loss(out, _y_train))
             model.compute_gradient(_x_train, out, _y_train)
-        out = model.forward(x_test)                
-        loss_test = model.compute_loss(out, y_test)
-        print('Epoch {:6d}: {:.5f} | test: {:.5f}'.format(i, np.array(loss).mean(), loss_test))
-	   plot(epochs,loss)
+        out = model.forward(x_val)                
+        loss_val = model.compute_loss(out, y_val)
+        print('Epoch {:6d}: {:.5f} | test: {:.5f}'.format(i, np.array(loss).mean(), loss_val))
+        plot(i,np.array(loss).mean())
+        
 
-def plot(epochs,loss): # Add arguments
+
+def plot(epochs,losstot): # Add arguments
    y =np.arange(epochs)
-   x = loss
-   plt.plot(x, y, linewidth)
+   x = losstot
+   plt.plot(x, y)
     # CODE HERE
     # Save a pdf figure with train and test losses
-    pass
+   #pass
 
 def test(model):
     # _, _, x_test, y_test = get_data()
