@@ -68,19 +68,19 @@ def get_data():
     y_test = y_test.reshape(y_test.shape[0], 1)
     
     #Dividir train en train y validation
-   # x_val=x_train[np.arange(0,x_train.shape[0],2),::,::]
-   # x_train=x_train[np.arange(1,x_train.shape[0],2),::,::]
-   # y_val=x_val[np.arange(0,x_train.shape[0],2),1]
-   # y_train=x_val[np.arange(1,x_train.shape[0],2),1]
+#    x_val=x_train[np.arange(0,x_train.shape[0],2),::,::]
+#    x_train=x_train[np.arange(1,x_train.shape[0],2),::,::]
+#    y_val=x_val[np.arange(0,x_train.shape[0],2),1]
+#    y_train=x_val[np.arange(1,x_train.shape[0],2),1]
 
     print(x_train.shape[0],'train size')
     print(x_train.shape[0], 'train samples')
-    #print(x_val.shape[0], 'validation samples')
+ #   print(x_val.shape[0], 'validation samples')
     print(x_test.shape[0], 'test samples')
 
     #plt.hist(y_train, max(y_train)+1); plt.show()
-
-    return x_train, y_train, x_test, y_test
+    return x_train,y_train,x_test,y_test	
+  #  return x_train, y_train,x_val,y_val, x_test, y_test
 
 class Model():
     def __init__(self):
@@ -113,8 +113,9 @@ class Model():
         self.b -= b_grad*self.lr
 
 def train(model):
-    x_train, y_train, x_test, y_test = get_data()
-    batch_size = 100 # Change if you want
+    #x_train, y_train,x_val,y_val, x_test, y_test = get_data()
+    x_train,y_train,x_test,y_test=get_data()
+    batch_size = 50 # Change if you want
     epochs = 10000 # Change if you want
     losstot = []
     lossTrain=[]
