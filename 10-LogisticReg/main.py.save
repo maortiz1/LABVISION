@@ -104,11 +104,12 @@ class Model():
         return J
 
     def compute_gradient(self, image, pred, gt):
-        print(image.shape,'img size bfo reshape')
-        print(pred.shape,'img pred size')
+#        print(image.shape,'img size bfo reshape')
+#        print(pred.shape,'img pred size')
         image = image.reshape(image.shape[0], -1)
-       	print(image.shape,'img size aft reshape')
+#       	print(image.shape,'img size aft reshape')
         W_grad = np.dot(image.T, pred-gt)/image.shape[0]
+
         print(W_grad.shape,'W_grad forma')
         print(self.W.shape,'w SHAPR')
         self.W -= W_grad*self.lr
@@ -126,7 +127,7 @@ def train(model):
     lossVal=[]
     epochsVector=[]
     
-    plt.ioff()
+#    plt.ioff()
     fig=plt.figure()
     for i in range(epochs):
         loss = []
@@ -149,17 +150,17 @@ def train(model):
 
 def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     plt.figure(fig.number)
-    vis=False
+    vis=True
     l1=plt.plot(epochsVector,lossVal,'r-')
     l2=plt.plot(epochsVector,losstrain,'b-')
     plt.xlabel('Model Complexity (epoch)')
     plt.ylabel('Error')
-    plt.legend([l1,l2],['Validation','Train'])
-    plt.draw()
-    plt.savefig('epochsVsLoss.pdf')
+    plt.legend([l1,l2],['Validation','Error'])
+    
+    fig.savefig('epochsVsLoss.pdf')
     if vis:
-      plt.show(block=False)
-    fig.canvas.flush_events()
+      plt.show()
+    plt.close()
     # CODE HERE
     # Save a pdf figure with train and test losses
    #pass
