@@ -32,7 +32,7 @@ def get_data():
     print("number of instances: ",num_of_instances)
     print("instance length: ",len(lines[1].split(",")[1].split(" ")))
 
-    x_train, y_train, x_test, y_test = [], [], [], []
+    x_train, y_train,x_val, y_val ,x_test, y_test = [], [], [], [],[],[]
 
     for i in range(1,num_of_instances):
         emotion, img, usage = lines[i].split(",")
@@ -55,32 +55,36 @@ def get_data():
 
     x_train /= 255 #normalize inputs between [0, 1]
     x_test /= 255
-    #tempx = x_train
-    #x_train = (tempx[np.arange(1,tempx.shape[0],2),::,::])
-    #x_val = (tempxnp.arange(0,tempx.shape[0],2)],::,::)
-    #tempy = y_train
-    #y_train = (tempy[np.arange(1,tempx.shape[0],2),::,::])
-    #y_val = (tempy[np.arange(0,tempx.shape[0],2),::,::])  
+    tempx = x_train
+    print(tempx.shape,'tempx forma')
+    x_train = tempx[np.arange(1,tempx.shape[0],2),::]
+    x_val = tempx[np.arange(0,tempx.shape[0],2),::]
+    tempy = y_train
+    print(tempy.shape,'tempy forma')
+    y_train = tempy[np.arange(1,tempx.shape[0],2)]
+    y_val = tempy[np.arange(0,tempx.shape[0],2)]  
 
     x_train = x_train.reshape(x_train.shape[0], 48, 48)
+    x_val = x_val.reshape(x_val.shape[0], 48, 48)
     x_test = x_test.reshape(x_test.shape[0], 48, 48)
     y_train = y_train.reshape(y_train.shape[0], 1)
+    y_val = y_val.reshape(y_val.shape[0], 1)
     y_test = y_test.reshape(y_test.shape[0], 1)
     
     #Dividir train en train y validation
-#    x_val=x_train[np.arange(0,x_train.shape[0],2),::,::]
-#    x_train=x_train[np.arange(1,x_train.shape[0],2),::,::]
-#    y_val=x_val[np.arange(0,x_train.shape[0],2),1]
-#    y_train=x_val[np.arange(1,x_train.shape[0],2),1]
+   # x_val=x_train[np.arange(0,x_train.shape[0],2),::,::]
+   # x_train=x_train[np.arange(1,x_train.shape[0],2),::,::]
+   # y_val=x_val[np.arange(0,x_train.shape[0],2),1]
+   # y_train=x_val[np.arange(1,x_train.shape[0],2),1]
 
     print(x_train.shape[0],'train size')
     print(x_train.shape[0], 'train samples')
- #   print(x_val.shape[0], 'validation samples')
+    print(x_val.shape[0], 'validation samples')
     print(x_test.shape[0], 'test samples')
 
     #plt.hist(y_train, max(y_train)+1); plt.show()
-    return x_train,y_train,x_test,y_test	
-  #  return x_train, y_train,x_val,y_val, x_test, y_test
+   # return x_train,y_train,x_test,y_test	
+    return x_train, y_train,x_val,y_val, x_test, y_test
 
 class Model():
     def __init__(self):
@@ -113,8 +117,8 @@ class Model():
         self.b -= b_grad*self.lr
 
 def train(model):
-    #x_train, y_train,x_val,y_val, x_test, y_test = get_data()
-    x_train,y_train,x_test,y_test=get_data()
+    x_train, y_train,x_val,y_val,_,_ = get_data()
+   # x_train,y_train,x_test,y_test=get_data()
     batch_size = 50 # Change if you want
     epochs = 10000 # Change if you want
     losstot = []
@@ -132,9 +136,9 @@ def train(model):
             out = model.forward(_x_train)
             loss.append(model.compute_loss(out, _y_train))
             model.compute_gradient(_x_train, out, _y_train)
-        out = model.forward(x_test)                
-        loss_val = model.compute_loss(out, y_test)
-        print('Epoch {:6d}: {:.5f} | test: {:.5f}'.format(i, np.array(loss).mean(), loss_val))
+        out = model.forward(x_val)                
+        loss_val = model.compute_loss(out, y_val)
+        print('Epoch {:6d}: {:.5f} | val: {:.5f}'.format(i, np.array(loss).mean(), loss_val))
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
@@ -143,18 +147,16 @@ def train(model):
     return [epochsVector,lossVal,lossTrain]    
 
 
-def plot(fig,epochs,lossVal,losstrain): # Add arguments
+def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     plt.figure(fig.number)
     vis=False
-#    y =np.arange(epochs)
- #   x = losstot
     l1=plt.plot(epochsVector,lossVal,'r-')
     l2=plt.plot(epochsVector,losstrain,'b-')
     plt.xlabel('Model Complexity (epoch)')
     plt.ylabel('Error')
     plt.legend([l1,l2],['Validation','Error'])
     
-    self.fig.savefig('epochsVsLoss.pdf')
+    fig.savefig('epochsVsLoss.pdf')
     if vis:
       plt.show()
     plt.close()
@@ -163,10 +165,14 @@ def plot(fig,epochs,lossVal,losstrain): # Add arguments
    #pass
     
 def test(model):
-    # _, _, x_test, y_test = get_data()
-    # YOU CODE HERE
-    # Show some qualitative results and the total accuracy for the whole test set
-    pass
+     _, _,_,_, x_test, y_test = get_data()
+     
+     epochs = 10000
+     # Como hago para que evalue en cada epoca
+     for i in range(epochs):
+       out = model.forward(x_val)                
+       loss_test = model.compute_loss(out, y_val)
+   # pass
 
 if __name__ == '__main__':
     model = Model()
