@@ -182,7 +182,7 @@ def test(model):
     for pro in prob:
       if pro <= 0.5:
         prediction.append(0)
-      elif pro >= 0.5:
+      elif pro > 0.5:
         prediction.append(1)
     print (len(prediction))
     print(prediction[1])
