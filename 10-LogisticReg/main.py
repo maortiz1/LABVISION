@@ -80,7 +80,7 @@ def get_data():
     print(x_train.shape[0],'train size')
     print(x_train.shape[0], 'train samples')
     print(x_val.shape[0], 'validation samples')
-    print(x_test.shape[0], 'test samples')
+    print(x_test.shape, 'test samples')
 
     #plt.hist(y_train, max(y_train)+1); plt.show()
    # return x_train,y_train,x_test,y_test	
@@ -120,7 +120,7 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 50 # Change if you want
-    epochs = 10000 # Change if you want
+    epochs = 10 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -165,13 +165,29 @@ def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
    #pass
     
 def test(model):
-     _, _,_,_, x_test, y_test = get_data()
+    _, _,_,_, x_test, y_test = get_data()
      
-     epochs = 10000
-     # Como hago para que evalue en cada epoca
-     for i in range(epochs):
-       out = model.forward(x_val)                
-       loss_test = model.compute_loss(out, y_val)
+     
+    # for j in range(0,x_test.shape[0]):
+    #image = x_test[j,::,::]
+    image = x_test
+    print (image.shape,'size test')
+    image = image.reshape(image.shape[0], -1)
+   # print (image.shape)
+    print (model.W.shape,'size W')
+    out = np.dot(image, model.W) + model.b
+    prob = sigmoid(out)
+    print(prob.shape,'size prob')
+    prediction = []
+    for pro in prob:
+      if pro <= 0.5:
+        prediction.append(0)
+      elif pro >= 0.5:
+        prediction.append(1)
+    print (len(prediction))
+    print(prediction[1])
+    print(prediction[5])
+
    # pass
 
 if __name__ == '__main__':
