@@ -1,0 +1,50 @@
+number of instances:  35888
+instance length:  2304
+618725 train samples
+458521 validation samples
+3589 test samples
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mTclError[0m                                  Traceback (most recent call last)
+[0;32m/media/user_home2/vision/maortiz1/LABVISION/10-LogisticReg/main.py[0m in [0;36m<module>[0;34m[0m
+[1;32m    158[0m     [0;32mpass[0m[0;34m[0m[0;34m[0m[0m
+[1;32m    159[0m [0;34m[0m[0m
+[0;32m--> 160[0;31m [0;32mif[0m [0m__name__[0m [0;34m==[0m [0;34m'__main__'[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
+[0m[1;32m    161[0m     [0mmodel[0m [0;34m=[0m [0mModel[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[1;32m    162[0m     [0;34m[[0m[0mepochsVector[0m[0;34m,[0m[0mlossVal[0m[0;34m,[0m[0mlossTrain[0m[0;34m][0m [0;34m=[0m[0mtrain[0m[0;34m([0m[0mmodel[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m/media/user_home2/vision/maortiz1/LABVISION/10-LogisticReg/main.py[0m in [0;36mtrain[0;34m(model)[0m
+[1;32m    111[0m     [0mlossVal[0m[0;34m=[0m[0;34m[[0m[0;34m][0m[0;34m[0m[0;34m[0m[0m
+[1;32m    112[0m     [0mepochsVector[0m[0;34m=[0m[0;34m[[0m[0;34m][0m[0;34m[0m[0;34m[0m[0m
+[0;32m--> 113[0;31m [0;34m[0m[0m
+[0m[1;32m    114[0m     [0mplt[0m[0;34m.[0m[0mioff[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[1;32m    115[0m     [0mfig[0m[0;34m=[0m[0mplt[0m[0;34m.[0m[0mfigure[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m~/.local/lib/python3.6/site-packages/matplotlib/pyplot.py[0m in [0;36mfigure[0;34m(num, figsize, dpi, facecolor, edgecolor, frameon, FigureClass, clear, **kwargs)[0m
+[1;32m    523[0m                                         [0mframeon[0m[0;34m=[0m[0mframeon[0m[0;34m,[0m[0;34m[0m[0;34m[0m[0m
+[1;32m    524[0m                                         [0mFigureClass[0m[0;34m=[0m[0mFigureClass[0m[0;34m,[0m[0;34m[0m[0;34m[0m[0m
+[0;32m--> 525[0;31m                                         **kwargs)
+[0m[1;32m    526[0m [0;34m[0m[0m
+[1;32m    527[0m         [0;32mif[0m [0mfigLabel[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m~/.local/lib/python3.6/site-packages/matplotlib/backend_bases.py[0m in [0;36mnew_figure_manager[0;34m(cls, num, *args, **kwargs)[0m
+[1;32m   3216[0m         [0mfig_cls[0m [0;34m=[0m [0mkwargs[0m[0;34m.[0m[0mpop[0m[0;34m([0m[0;34m'FigureClass'[0m[0;34m,[0m [0mFigure[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[1;32m   3217[0m         [0mfig[0m [0;34m=[0m [0mfig_cls[0m[0;34m([0m[0;34m*[0m[0margs[0m[0;34m,[0m [0;34m**[0m[0mkwargs[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[0;32m-> 3218[0;31m         [0;32mreturn[0m [0mcls[0m[0;34m.[0m[0mnew_figure_manager_given_figure[0m[0;34m([0m[0mnum[0m[0;34m,[0m [0mfig[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[0m[1;32m   3219[0m [0;34m[0m[0m
+[1;32m   3220[0m     [0;34m@[0m[0mclassmethod[0m[0;34m[0m[0;34m[0m[0m
+
+[0;32m~/.local/lib/python3.6/site-packages/matplotlib/backends/_backend_tk.py[0m in [0;36mnew_figure_manager_given_figure[0;34m(cls, num, figure)[0m
+[1;32m   1006[0m         """
+[1;32m   1007[0m         [0;32mwith[0m [0m_restore_foreground_window_at_end[0m[0;34m([0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
+[0;32m-> 1008[0;31m             [0mwindow[0m [0;34m=[0m [0mTk[0m[0;34m.[0m[0mTk[0m[0;34m([0m[0mclassName[0m[0;34m=[0m[0;34m"matplotlib"[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[0m[1;32m   1009[0m             [0mwindow[0m[0;34m.[0m[0mwithdraw[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[1;32m   1010[0m [0;34m[0m[0m
+
+[0;32m/usr/lib/python3.6/tkinter/__init__.py[0m in [0;36m__init__[0;34m(self, screenName, baseName, className, useTk, sync, use)[0m
+[1;32m   2021[0m                 [0mbaseName[0m [0;34m=[0m [0mbaseName[0m [0;34m+[0m [0mext[0m[0;34m[0m[0;34m[0m[0m
+[1;32m   2022[0m         [0minteractive[0m [0;34m=[0m [0;36m0[0m[0;34m[0m[0;34m[0m[0m
+[0;32m-> 2023[0;31m         [0mself[0m[0;34m.[0m[0mtk[0m [0;34m=[0m [0m_tkinter[0m[0;34m.[0m[0mcreate[0m[0;34m([0m[0mscreenName[0m[0;34m,[0m [0mbaseName[0m[0;34m,[0m [0mclassName[0m[0;34m,[0m [0minteractive[0m[0;34m,[0m [0mwantobjects[0m[0;34m,[0m [0museTk[0m[0;34m,[0m [0msync[0m[0;34m,[0m [0muse[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[0m[1;32m   2024[0m         [0;32mif[0m [0museTk[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
+[1;32m   2025[0m             [0mself[0m[0;34m.[0m[0m_loadtk[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+
+[0;31mTclError[0m: couldn't connect to display "localhost:17.0"

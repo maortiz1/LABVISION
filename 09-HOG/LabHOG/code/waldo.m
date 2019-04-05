@@ -139,7 +139,7 @@ imwrite(hog_template_image, 'visualizations/hog_template.png')
     
  
 
-confi=-0.5;
+confi=-0.9;
 [bboxes, confidences, image_ids] = detectorWALDO(test_scn_path, w, b, feature_params,confi);
 
 % run_detector will have (at least) two parameters which can heavily
