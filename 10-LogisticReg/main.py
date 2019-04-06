@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import requests
 import tarfile
+import sklearn.metrics as metrics
 
 if not os.path.isdir(os.path.join(os.getcwd(),'fer2013')):
     url='https://drive.google.com/uc?export=download&id=1B9Lr_Q3mzu-H-DD2-i2SkTx0TndcyVvO'
@@ -39,7 +40,7 @@ def get_data():
         pixels = np.array(img.split(" "), 'float32')
         emotion = 1 if int(emotion)==3 else 0 # Only for happiness
         if 'Training' in usage:
-            y_train.append(emotion) # en y guardo las emociones (en este caso 0 o 1). groundtruth            
+            y_train.append(int(emotion)) # en y guardo las emociones (en este caso 0 o 1). groundtruth            
             x_train.append(pixels) # en x guardo las imagenes
         
         elif 'PublicTest' in usage:
@@ -90,7 +91,7 @@ class Model():
     def __init__(self):
         params = 48*48 # image reshape
         out = 1 # smile label
-        self.lr = 0.00001 # Change if you want
+        self.lr = 0.0001 # Change if you want
         self.W = np.random.randn(params, out)
         self.b = np.random.randn(out)
 
@@ -104,13 +105,13 @@ class Model():
         return J
 
     def compute_gradient(self, image, pred, gt):
-        print(image.shape,'img size bfo reshape')
-        print(pred.shape,'img pred size')
+        #print(image.shape,'img size bfo reshape')
+        #print(pred.shape,'img pred size')
         image = image.reshape(image.shape[0], -1)
-       	print(image.shape,'img size aft reshape')
+       	#print(image.shape,'img size aft reshape')
         W_grad = np.dot(image.T, pred-gt)/image.shape[0]
-        print(W_grad.shape,'W_grad forma')
-        print(self.W.shape,'w SHAPR')
+        #print(W_grad.shape,'W_grad forma')
+        #print(self.W.shape,'w SHAPR')
         self.W -= W_grad*self.lr
 
         b_grad = np.sum(pred-gt)/image.shape[0]
@@ -120,16 +121,18 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 50 # Change if you want
-    epochs = 10 # Change if you want
+    epochs = 1000 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
     epochsVector=[]
     
     plt.ioff()
+    lossAnt=float('Inf');
     fig=plt.figure()
     for i in range(epochs):
         loss = []
+        
         for j in range(0,x_train.shape[0], batch_size):
             _x_train = x_train[j:j+batch_size]
             _y_train = y_train[j:j+batch_size]
@@ -142,7 +145,12 @@ def train(model):
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
-        plot(fig,epochsVector,lossVal,lossTrain)
+        #plot(fig,epochsVector,lossVal,lossTrain)
+        
+        if loss_val>lossAnt and not(np.isnan(loss_val)):
+            break;
+        lossAnt=loss_val    
+        
         
     return [epochsVector,lossVal,lossTrain]    
 
@@ -154,7 +162,7 @@ def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     l2=plt.plot(epochsVector,losstrain,'b-')
     plt.xlabel('Model Complexity (epoch)')
     plt.ylabel('Error')
-    plt.legend([l1,l2],['Validation','Train'])
+    plt.legend(('Validation','Train'))
     plt.draw()
     plt.savefig('epochsVsLoss.pdf')
     if vis:
@@ -179,19 +187,56 @@ def test(model):
     prob = sigmoid(out)
     print(prob.shape,'size prob')
     prediction = []
-    for pro in prob:
-      if pro <= 0.5:
-        prediction.append(0)
-      elif pro > 0.5:
-        prediction.append(1)
-    print (len(prediction))
-    print(prediction[1])
-    print(prediction[5])
+    thrs= np.linspace(0.001,1,50)
+    prec_vec=[]
+    recal_vec=[]
+    FMed_vec=[]
+    CMat_vec=[]
+    ACA_vec=[]
+    for th in thrs:
+      
+      prediction=np.zeros(prob.shape)
+      prediction[prob>th]=1
+      #prediction = prob>th
+      #anotation = y_test==1            
+      #trueP = np.sum(prediction and anotation)
+      #falseP = np.sum(prediction and not(anotation))
+      #falseN = np.sum(not(prediction) and anotation)
+      #trueN = np.sum(prediction and not(anotation))
+      #precision=trueP/(trueP+falseP)
+      #recall=trueP/(trueP+falseN)
+      #FMe=(2*precision*recall)/(precision+recall)
+      #fMeasure.append(FMe)
+      precision=metrics.precision_score(y_test,prediction)
+      recall = metrics.recall_score(y_test,prediction)
+      Fmed=metrics.f1_score(y_test,prediction)
+      confM=metrics.confusion_matrix(y_test,prediction)
+      aca=metrics.accuracy_score(y_test,prediction)
+      prec_vec.append(precision)
+      recal_vec.append(recall)
+      FMed_vec.append(Fmed)
+      CMat_vec.append(confM)
+      ACA_vec.append(aca)
+    
+    
+    MaxFMed=np.amax(FMed_vec)  
+    index=np.argmax(FMed_vec)
+    plt.plot(recal_vec,prec_vec,'-b')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('PRCurve')
+    plt.plot(recal_vec[index],prec_vec[index],'*r')
+    plt.show()
+    print(MaxFMed,' Max F-Measure')
+    print(index, 'Max threshold')
+    
+    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed  
+    
 
    # pass
 
 if __name__ == '__main__':
     model = Model()
-    [epochsVector,lossVal,lossTrain] =train(model)
-    test(model)
-
+    train(model)
+    prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed=test(model)
+    

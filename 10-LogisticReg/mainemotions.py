@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import requests
 import tarfile
+import sklearn.metrics as metrics
 
 if not os.path.isdir(os.path.join(os.getcwd(),'fer2013')):
     url='https://drive.google.com/uc?export=download&id=1B9Lr_Q3mzu-H-DD2-i2SkTx0TndcyVvO'
@@ -21,6 +22,10 @@ os.chdir("fer2013/")
 
 def sigmoid(x):
     return 1/(1+np.exp(-x))
+def softmax(X):
+   
+    exps = np.exp(X)
+    return exps / np.sum(exps)
 
 def get_data():
     # angry, disgust, fear, happy, sad, surprise, neutral
@@ -37,13 +42,13 @@ def get_data():
     for i in range(1,num_of_instances):
         emotion, img, usage = lines[i].split(",")
         pixels = np.array(img.split(" "), 'float32')
-        emotion = 1 if int(emotion)==3 else 0 # Only for happiness
+        #emotion = 1 if int(emotion)==3 else 0 # Only for happiness
         if 'Training' in usage:
-            y_train.append(emotion) # en y guardo las emociones (en este caso 0 o 1). groundtruth            
+            y_train.append(int(emotion)) # en y guardo las emociones (en este caso 0 o 1). groundtruth            
             x_train.append(pixels) # en x guardo las imagenes
         
         elif 'PublicTest' in usage:
-            y_test.append(emotion)
+            y_test.append(int(emotion))
             x_test.append(pixels)
 
     #------------------------------
@@ -56,11 +61,11 @@ def get_data():
     x_train /= 255 #normalize inputs between [0, 1]
     x_test /= 255
     tempx = x_train
-    print(tempx.shape,'tempx forma')
+  #  print(tempx.shape,'tempx forma')
     x_train = tempx[np.arange(1,tempx.shape[0],2),::]
     x_val = tempx[np.arange(0,tempx.shape[0],2),::]
     tempy = y_train
-    print(tempy.shape,'tempy forma')
+   # print(tempy.shape,'tempy forma')
     y_train = tempy[np.arange(1,tempx.shape[0],2)]
     y_val = tempy[np.arange(0,tempx.shape[0],2)]  
 
@@ -80,7 +85,7 @@ def get_data():
     print(x_train.shape[0],'train size')
     print(x_train.shape[0], 'train samples')
     print(x_val.shape[0], 'validation samples')
-    print(x_test.shape[0], 'test samples')
+    print(x_test.shape, 'test samples')
 
     #plt.hist(y_train, max(y_train)+1); plt.show()
    # return x_train,y_train,x_test,y_test	
@@ -89,8 +94,8 @@ def get_data():
 class Model():
     def __init__(self):
         params = 48*48 # image reshape
-        out = 1 # smile label
-        self.lr = 0.00001 # Change if you want
+        out = 7 # smile label
+        self.lr = 0.001 # Change if you want
         self.W = np.random.randn(params, out)
         self.b = np.random.randn(out)
 
@@ -99,38 +104,42 @@ class Model():
         out = np.dot(image, self.W) + self.b
         return out
 
-    def compute_loss(self, pred, gt):
-        J = (-1/pred.shape[0]) * np.sum(np.multiply(gt, np.log(sigmoid(pred))) + np.multiply((1-gt), np.log(1 - sigmoid(pred))))
-        return J
+    def compute_loss(self,X,y):
+    
+        m = y.shape[0]
+       # print(m,' m')
+        p = softmax(X)
+
+        y=y.astype(int)
+        
+
+        log_likelihood = -np.log(p[range(m), y])
+        loss = np.sum(log_likelihood) / m
+        return loss
 
     def compute_gradient(self, image, pred, gt):
-#        print(image.shape,'img size bfo reshape')
-#        print(pred.shape,'img pred size')
         image = image.reshape(image.shape[0], -1)
-#       	print(image.shape,'img size aft reshape')
-        W_grad = np.dot(image.T, pred-gt)/image.shape[0]
-
-        print(W_grad.shape,'W_grad forma')
-        print(self.W.shape,'w SHAPR')
+        W_grad = np.dot(image.T, pred-gt)/image.shape[0]      
         self.W -= W_grad*self.lr
-
         b_grad = np.sum(pred-gt)/image.shape[0]
         self.b -= b_grad*self.lr
 
 def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
-    batch_size = 50 # Change if you want
-    epochs = 10000 # Change if you want
+    batch_size = 100 # Change if you want
+    epochs = 25 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
     epochsVector=[]
     
-#    plt.ioff()
+    plt.ioff()
+    lossAnt=float('Inf');
     fig=plt.figure()
     for i in range(epochs):
         loss = []
+        
         for j in range(0,x_train.shape[0], batch_size):
             _x_train = x_train[j:j+batch_size]
             _y_train = y_train[j:j+batch_size]
@@ -143,7 +152,12 @@ def train(model):
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
-        plot(fig,epochsVector,lossVal,lossTrain)
+        #plot(fig,epochsVector,lossVal,lossTrain)
+        
+        if loss_val>lossAnt and not(np.isnan(loss_val)):
+            break;
+        lossAnt=loss_val    
+        
         
     return [epochsVector,lossVal,lossTrain]    
 
@@ -155,28 +169,57 @@ def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     l2=plt.plot(epochsVector,losstrain,'b-')
     plt.xlabel('Model Complexity (epoch)')
     plt.ylabel('Error')
-    plt.legend([l1,l2],['Validation','Error'])
-    
-    fig.savefig('epochsVsLoss.pdf')
+    plt.legend(('Validation','Train'))
+    plt.draw()
+    plt.savefig('epochsVsLoss.pdf')
     if vis:
-      plt.show()
-    plt.close()
+      plt.show(block=False)
+    fig.canvas.flush_events()
     # CODE HERE
     # Save a pdf figure with train and test losses
    #pass
     
 def test(model):
-     _, _,_,_, x_test, y_test = get_data()
+    _, _,_,_, x_test, y_test = get_data()
      
-     epochs = 10000
-     # Como hago para que evalue en cada epoca
-     for i in range(epochs):
-       out = model.forward(x_val)                
-       loss_test = model.compute_loss(out, y_val)
+     
+    # for j in range(0,x_test.shape[0]):
+    #image = x_test[j,::,::]
+    image = x_test
+    print (image.shape,'size test')
+    image = image.reshape(image.shape[0], -1)
+   # print (image.shape)
+    print (model.W.shape,'size W')
+    out = np.dot(image, model.W) + model.b
+    prob = softmax(out)
+    print(prob.shape,'size prob')
+    prediction = []
+    thrs= np.linspace(0.001,1,50)
+    prec_vec=[]
+    recal_vec=[]
+    FMed_vec=[]
+    CMat_vec=[]
+    ACA_vec=[]
+   
+    print(prob)
+    confM=metrics.confusion_matrix(y_test,prob)
+    aca=metrics.accuracy_score(y_test,prob)
+    CMat_vec.append(confM)
+    ACA_vec.append(aca)
+    
+    
+    MaxFMed=np.amax(FMed_vec)  
+    index=np.argmax(FMed_vec)
+    print(MaxFMed,' Max F-Measure')
+    print(index, 'Max threshold')
+    
+    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed  
+    
+
    # pass
 
 if __name__ == '__main__':
     model = Model()
-    [epochsVector,lossVal,lossTrain] =train(model)
-    test(model)
-
+    train(model)
+    prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed=test(model)
+    
