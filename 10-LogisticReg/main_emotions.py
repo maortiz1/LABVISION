@@ -128,7 +128,7 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 100 # Change if you want
-    epochs = 25 # Change if you want
+    epochs = 1000 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -180,8 +180,7 @@ def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
    #pass
     
 def test(model):
-    _, _,_,_, x_test, y_test = get_data()
-     
+    _, _,_,_, x_test, y_test = get_data()    
      
     # for j in range(0,x_test.shape[0]):
     #image = x_test[j,::,::]

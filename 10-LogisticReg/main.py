@@ -8,6 +8,7 @@ import os
 import requests
 import tarfile
 import sklearn.metrics as metrics
+import scipy.io as sio
 
 if not os.path.isdir(os.path.join(os.getcwd(),'fer2013')):
     url='https://drive.google.com/uc?export=download&id=1B9Lr_Q3mzu-H-DD2-i2SkTx0TndcyVvO'
@@ -91,7 +92,7 @@ class Model():
     def __init__(self):
         params = 48*48 # image reshape
         out = 1 # smile label
-        self.lr = 0.0001 # Change if you want
+        self.lr = 0.00001 # Change if you want
         self.W = np.random.randn(params, out)
         self.b = np.random.randn(out)
 
@@ -120,7 +121,7 @@ class Model():
 def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
-    batch_size = 50 # Change if you want
+    batch_size = 300 # Change if you want
     epochs = 1000 # Change if you want
     losstot = []
     lossTrain=[]
@@ -164,7 +165,7 @@ def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     plt.ylabel('Error')
     plt.legend(('Validation','Train'))
     plt.draw()
-    plt.savefig('epochsVsLoss.pdf')
+    plt.savefig('epochs1000VsLossbatch800_0.01lr.pdf')
     if vis:
       plt.show(block=False)
     fig.canvas.flush_events()
@@ -184,6 +185,7 @@ def test(model):
    # print (image.shape)
     print (model.W.shape,'size W')
     out = np.dot(image, model.W) + model.b
+    #sio.savemat('trial.mat',model.W)
     prob = sigmoid(out)
     print(prob.shape,'size prob')
     prediction = []
@@ -238,5 +240,11 @@ def test(model):
 if __name__ == '__main__':
     model = Model()
     train(model)
+    #file_pi = open('trialW.obj', 'w') 
+    #pickle.dump(model.W, file_pi)
+    #outfile = TemporaryFile()
+    #np.save(outfile, model)
+    #np.savetxt('testW.out', model.W, delimiter=',')
+    #np.savetxt('testb.out', model.b, delimiter=',')  
     prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed=test(model)
     
