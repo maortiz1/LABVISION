@@ -192,6 +192,7 @@ def test(model):
     print (model.W.shape,'size W')
     out = np.dot(image, model.W) + model.b
     prob = softmax(out)
+    prob = np.argmax(prob,axis=1)
     print(prob.shape,'size prob')
     prediction = []
     thrs= np.linspace(0.001,1,50)
@@ -202,16 +203,17 @@ def test(model):
     ACA_vec=[]
    
     print(prob)
+    print(prob.shape)
     confM=metrics.confusion_matrix(y_test,prob)
     aca=metrics.accuracy_score(y_test,prob)
     CMat_vec.append(confM)
     ACA_vec.append(aca)
     
     
-    MaxFMed=np.amax(FMed_vec)  
-    index=np.argmax(FMed_vec)
-    print(MaxFMed,' Max F-Measure')
-    print(index, 'Max threshold')
+    #MaxFMed=np.amax(FMed_vec)  
+    #index=np.argmax(FMed_vec)
+    #print(MaxFMed,' Max F-Measure')
+    #print(index, 'Max threshold')
     
     return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed  
     
