@@ -10,6 +10,10 @@ import tarfile
 import sklearn.metrics as metrics
 import scipy.io as sio
 
+import pickle
+
+
+
 if not os.path.isdir(os.path.join(os.getcwd(),'fer2013')):
     url='https://drive.google.com/uc?export=download&id=1B9Lr_Q3mzu-H-DD2-i2SkTx0TndcyVvO'
     r=requests.get(url,allow_redirects=True)
@@ -92,7 +96,7 @@ class Model():
     def __init__(self):
         params = 48*48 # image reshape
         out = 1 # smile label
-        self.lr = 0.00001 # Change if you want
+        self.lr = 0.0001 # Change if you want
         self.W = np.random.randn(params, out)
         self.b = np.random.randn(out)
 
@@ -165,7 +169,7 @@ def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     plt.ylabel('Error')
     plt.legend(('Validation','Train'))
     plt.draw()
-    plt.savefig('epochs1000VsLossbatch800_0.01lr.pdf')
+    plt.savefig('prueba.pdf')
     if vis:
       plt.show(block=False)
     fig.canvas.flush_events()
@@ -195,6 +199,7 @@ def test(model):
     FMed_vec=[]
     CMat_vec=[]
     ACA_vec=[]
+
     for th in thrs:
       
       prediction=np.zeros(prob.shape)
@@ -228,23 +233,78 @@ def test(model):
     plt.ylabel('Precision')
     plt.title('PRCurve')
     plt.plot(recal_vec[index],prec_vec[index],'*r')
+    plt.legend(['PR Curve','F-MAX'])
     plt.show()
+    plt.savefig('PRCURVE.pdf')
     print(MaxFMed,' Max F-Measure')
     print(index, 'Max threshold')
     
     return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed  
     
-
+def demo(model):
+    if not os.path.isdir(os.path.join(os.getcwd(),'demo')):
+        url='https://drive.google.com/uc?export=download&id=16TGyOoqyV8huJqHhenw7loSc8O0FcOEV'
+        r=requests.get(url,allow_redirects=True)
+        open('demo.zip','wb').write(r.content)
+        tar=tarfile.open("fdemo.zip","r")
+        tar.extractall()
+        tar.close
+        
+    filenames=os.listdir("demo/")
+    test = []
+    for i in filenames:
+       temp=cv2.imread(os.path.join("demo/", i))
+       #the files are too big. It is necessary to resize
+       temp = color.rgb2gray (temp)
+       imCrop=cv2.resize(temp,(300,300))
+       test.append(imCrop)
    # pass
 
 if __name__ == '__main__':
-    model = Model()
-    train(model)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t","--test",help="runs only test",dest='test',action='store_true')
+    parser.add_argument("-d","--demo",help="runs only test",dest='demo',action='store_true')
+    
+
+    arguments = parser.parse_args()
+
+        
+    if arguments.test:      
+      try:
+        with open('data.pkl','rb') as f:
+          model = pickle.load(f)
+        test(model)
+      except: 
+        print('No trained model found, model computation will proceed')
+        model=Model()
+        train(model)
+        test(model)
+    elif arguments.demo:
+      print('Not Yet')
+    else:
+      model = Model()
+      train(model)
+      test(model)
+      with open('data.pkl', 'wb') as f:
+        pickle.dump(model,f)      
+              
+    
+    
+
+    
+ 
+    
+    
+    
     #file_pi = open('trialW.obj', 'w') 
     #pickle.dump(model.W, file_pi)
     #outfile = TemporaryFile()
     #np.save(outfile, model)
     #np.savetxt('testW.out', model.W, delimiter=',')
     #np.savetxt('testb.out', model.b, delimiter=',')  
-    prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed=test(model)
+
+    
+    
     
