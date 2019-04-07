@@ -189,7 +189,6 @@ def test(model):
    # print (image.shape)
     print (model.W.shape,'size W')
     out = np.dot(image, model.W) + model.b
-    #sio.savemat('trial.mat',model.W)
     prob = sigmoid(out)
     print(prob.shape,'size prob')
     prediction = []
@@ -246,19 +245,59 @@ def demo(model):
         url='https://drive.google.com/uc?export=download&id=16TGyOoqyV8huJqHhenw7loSc8O0FcOEV'
         r=requests.get(url,allow_redirects=True)
         open('demo.zip','wb').write(r.content)
-        tar=tarfile.open("fdemo.zip","r")
+        tar=tarfile.open("demo.zip","r")
         tar.extractall()
         tar.close
         
     filenames=os.listdir("demo/")
-    test = []
+    demo_test = []
     for i in filenames:
        temp=cv2.imread(os.path.join("demo/", i))
        #the files are too big. It is necessary to resize
        temp = color.rgb2gray (temp)
        imCrop=cv2.resize(temp,(300,300))
-       test.append(imCrop)
-   # pass
+       demo_test.append(imCrop)
+    
+    out = np.dot(demo_test, model.W) + model.b
+    prob = sigmoid(out)
+    prediction = []
+    thrs= np.linspace(0.001,1,50)
+    prec_vec=[]
+    recal_vec=[]
+    FMed_vec=[]
+    CMat_vec=[]
+    ACA_vec=[]
+
+    for th in thrs:
+      
+      prediction=np.zeros(prob.shape)
+      prediction[prob>th]=1
+      precision=metrics.precision_score(y_test,prediction)
+      recall = metrics.recall_score(y_test,prediction)
+      Fmed=metrics.f1_score(y_test,prediction)
+      confM=metrics.confusion_matrix(y_test,prediction)
+      aca=metrics.accuracy_score(y_test,prediction)
+      prec_vec.append(precision)
+      recal_vec.append(recall)
+      FMed_vec.append(Fmed)
+      CMat_vec.append(confM)
+      ACA_vec.append(aca)
+    
+    
+    MaxFMed=np.amax(FMed_vec)  
+    index=np.argmax(FMed_vec)
+    plt.plot(recal_vec,prec_vec,'-b')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('PRCurve')
+    plt.plot(recal_vec[index],prec_vec[index],'*r')
+    plt.legend(['PR Curve','F-MAX'])
+    plt.show()
+    plt.savefig('PRCURVE.pdf')
+    print(MaxFMed,' Max F-Measure')
+    print(index, 'Max threshold')
+    
+    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed
 
 if __name__ == '__main__':
     import argparse
@@ -281,8 +320,17 @@ if __name__ == '__main__':
         model=Model()
         train(model)
         test(model)
+        
     elif arguments.demo:
-      print('Not Yet')
+      try:
+        with open('data.pkl','rb') as f:
+          model = pickle.load(f)
+        demo(model)
+      except: 
+        print('No trained model found, model computation will proceed')
+        model=Model()
+        train(model)
+        demo(model)
     else:
       model = Model()
       train(model)
@@ -298,13 +346,6 @@ if __name__ == '__main__':
     
     
     
-    #file_pi = open('trialW.obj', 'w') 
-    #pickle.dump(model.W, file_pi)
-    #outfile = TemporaryFile()
-    #np.save(outfile, model)
-    #np.savetxt('testW.out', model.W, delimiter=',')
-    #np.savetxt('testb.out', model.b, delimiter=',')  
-
-    
+  
     
     
