@@ -6,10 +6,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import requests
+import zipfile
 import tarfile
 import sklearn.metrics as metrics
 import scipy.io as sio
-
+import cv2
+from skimage import color
+from skimage import io
 import pickle
 
 
@@ -150,7 +153,7 @@ def train(model):
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
-        #plot(fig,epochsVector,lossVal,lossTrain)
+        plot(fig,epochsVector,lossVal,lossTrain)
         
         if loss_val>lossAnt and not(np.isnan(loss_val)):
             break;
@@ -162,14 +165,14 @@ def train(model):
 
 def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     plt.figure(fig.number)
-    vis=False
+    vis= True
     l1=plt.plot(epochsVector,lossVal,'r-')
     l2=plt.plot(epochsVector,losstrain,'b-')
     plt.xlabel('Model Complexity (epoch)')
     plt.ylabel('Error')
     plt.legend(('Validation','Train'))
     plt.draw()
-    plt.savefig('prueba.pdf')
+    plt.savefig('final.pdf')
     if vis:
       plt.show(block=False)
     fig.canvas.flush_events()
@@ -244,10 +247,10 @@ def demo(model):
     if not os.path.isdir(os.path.join(os.getcwd(),'demo')):
         url='https://drive.google.com/uc?export=download&id=16TGyOoqyV8huJqHhenw7loSc8O0FcOEV'
         r=requests.get(url,allow_redirects=True)
-        open('demo.zip','wb').write(r.content)
-        tar=tarfile.open("demo.zip","r")
-        tar.extractall()
-        tar.close
+        open('demo.zip','wb').write(r.content) 
+        zip_ref = zipfile.ZipFile('demo.zip', 'r')
+        zip_ref.extractall()
+        zip_ref.close()
         
     filenames=os.listdir("demo/")
     demo_test = []
@@ -255,10 +258,12 @@ def demo(model):
        temp=cv2.imread(os.path.join("demo/", i))
        #the files are too big. It is necessary to resize
        temp = color.rgb2gray (temp)
-       imCrop=cv2.resize(temp,(300,300))
+       imCrop=cv2.resize(temp,(48,48))
        demo_test.append(imCrop)
     
-    out = np.dot(demo_test, model.W) + model.b
+    image = demo_test
+    image = image.reshape(image.shape[0], -1)
+    out = np.dot(image, model.W) + model.b
     prob = sigmoid(out)
     prediction = []
     thrs= np.linspace(0.001,1,50)
@@ -314,6 +319,7 @@ if __name__ == '__main__':
       try:
         with open('data.pkl','rb') as f:
           model = pickle.load(f)
+          f.close
         test(model)
       except: 
         print('No trained model found, model computation will proceed')
@@ -325,7 +331,8 @@ if __name__ == '__main__':
       try:
         with open('data.pkl','rb') as f:
           model = pickle.load(f)
-        demo(model)
+          f.close
+        demo(model)        
       except: 
         print('No trained model found, model computation will proceed')
         model=Model()
