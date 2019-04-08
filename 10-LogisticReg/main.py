@@ -237,18 +237,18 @@ def test(model):
     
 def demo(model):
     if not os.path.isdir(os.path.join(os.getcwd(),'demo')):
-        url='https://drive.google.com/uc?export=download&id=16TGyOoqyV8huJqHhenw7loSc8O0FcOEV'
+        url='https://drive.google.com/uc?export=download&id=11VhP5pORYEiuUlmZ72S7K2rYlBZ5prWN'
         r=requests.get(url,allow_redirects=True)
-        open('demo.zip','wb').write(r.content) 
-        zip_ref = zipfile.ZipFile('demo.zip', 'r')
+        open('demo1.zip','wb').write(r.content) 
+        zip_ref = zipfile.ZipFile('demo1.zip', 'r')
         zip_ref.extractall()
         zip_ref.close()
         
-    filenames=os.listdir("demo/")
+    filenames=os.listdir("demo1/")
     demo_test = []
     
     for i in filenames:
-       temp=cv2.imread(os.path.join("demo/", i))
+       temp=cv2.imread(os.path.join("demo1/", i))
        #the files are too big. It is necessary to resize
        temp = color.rgb2gray (temp)
        imCrop=cv2.resize(temp,(48,48))
@@ -271,7 +271,7 @@ def demo(model):
       print(acImg.shape)
       clas_prob = prob[i]
       tag='No Smile'
-      if clas_prob > 0.06:
+      if clas_prob > 0.44:
           tag='Smile'
       plt.imshow(acImg,cmap='gray')
       plt.title(tag)

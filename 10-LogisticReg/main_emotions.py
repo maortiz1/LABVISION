@@ -102,7 +102,7 @@ class Model():
     def __init__(self):
         params = 48*48 # image reshape
         out = 7 # all emotions labels
-        self.lr = 0.001 # Change if you want
+        self.lr = 0.0001 # Change if you want
         self.W = np.random.randn(params, out)
         self.b = np.random.randn(out)
 
@@ -135,7 +135,7 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 300 # Change if you want
-    epochs = 1000 # Change if you want
+    epochs = 2000 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -159,7 +159,7 @@ def train(model):
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
-       # plot(fig,epochsVector,lossVal,lossTrain)
+        plot(fig,epochsVector,lossVal,lossTrain)
         
         if loss_val>lossAnt and not(np.isnan(loss_val)):
             break;
@@ -178,7 +178,7 @@ def plot(fig,epochsVector,lossVal,losstrain): # Add arguments
     plt.ylabel('Error')
     plt.legend(('Validation','Train'))
     plt.draw()
-    plt.savefig('epochsVsLoss.pdf')
+    plt.savefig('epochsVsLossjjj.pdf')
     if vis:
       plt.show(block=False)
     fig.canvas.flush_events()
@@ -228,18 +228,18 @@ def test(model):
 
 def demo(model):
     if not os.path.isdir(os.path.join(os.getcwd(),'demo')):
-        url='https://drive.google.com/uc?export=download&id=111VhP5pORYEiuUlmZ72S7K2rYlBZ5prWN'
+        url='https://drive.google.com/uc?export=download&id=11VhP5pORYEiuUlmZ72S7K2rYlBZ5prWN'
         r=requests.get(url,allow_redirects=True)
-        open('demo.zip','wb').write(r.content) 
-        zip_ref = zipfile.ZipFile('demo.zip', 'r')
+        open('demo1.zip','wb').write(r.content) 
+        zip_ref = zipfile.ZipFile('demo1.zip', 'r')
         zip_ref.extractall()
         zip_ref.close()
         
-    filenames=os.listdir("demo/")
+    filenames=os.listdir("demo1/")
     demo_test = []
     
     for i in filenames:
-       temp=cv2.imread(os.path.join("demo/", i))
+       temp=cv2.imread(os.path.join("demo1/", i))
        #the files are too big. It is necessary to resize
        temp = color.rgb2gray (temp)
        imCrop=cv2.resize(temp,(48,48))
