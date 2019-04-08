@@ -134,8 +134,8 @@ class Model():
 def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
-    batch_size = 100 # Change if you want
-    epochs = 5000 # Change if you want
+    batch_size = 300 # Change if you want
+    epochs = 1000 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -159,7 +159,7 @@ def train(model):
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
-        plot(fig,epochsVector,lossVal,lossTrain)
+       # plot(fig,epochsVector,lossVal,lossTrain)
         
         if loss_val>lossAnt and not(np.isnan(loss_val)):
             break;
@@ -228,7 +228,7 @@ def test(model):
 
 def demo(model):
     if not os.path.isdir(os.path.join(os.getcwd(),'demo')):
-        url='https://drive.google.com/uc?export=download&id=16TGyOoqyV8huJqHhenw7loSc8O0FcOEV'
+        url='https://drive.google.com/uc?export=download&id=111VhP5pORYEiuUlmZ72S7K2rYlBZ5prWN'
         r=requests.get(url,allow_redirects=True)
         open('demo.zip','wb').write(r.content) 
         zip_ref = zipfile.ZipFile('demo.zip', 'r')
@@ -254,16 +254,27 @@ def demo(model):
     image = image.reshape(image.shape[0], -1)
     
     out = np.dot(image, model.W) + model.b
-    prob = sigmoid(out)
+    prob = softmax(out)
+    prob = np.argmax(prob,axis=1)
     figure=plt.figure() 
     
     for i in range(0,image.shape[0]):
       acImg= image[i,::].reshape(48,48)
       print(acImg.shape)
       clas_prob = prob[i]
-      tag='No Smile'
-      if clas_prob > 0.06:
-          tag='Smile'
+      tag='Angry'
+      if clas_prob ==1:
+          tag='Disgust'
+      elif clas_prob ==2:
+          tag='Fear'
+      elif clas_prob ==3:
+          tag='Happy'
+      elif clas_prob ==4:
+          tag='Sad'
+      elif clas_prob ==5:
+          tag='Surprise'
+      elif clas_prob ==6:
+          tag='Neutral'
       plt.imshow(acImg,cmap='gray')
       plt.title(tag)
       plt.axis('off')
