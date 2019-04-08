@@ -135,7 +135,7 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 300 # Change if you want
-    epochs = 1000 # Change if you want
+    epochs = 100 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -221,17 +221,17 @@ def test(model):
     #print(MaxFMed,' Max F-Measure')
     #print(index, 'Max threshold')
     
-    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed  
+    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec
     
 
    # pass
 
 def demo(model):
     if not os.path.isdir(os.path.join(os.getcwd(),'demo')):
-        url='https://drive.google.com/uc?export=download&id=111VhP5pORYEiuUlmZ72S7K2rYlBZ5prWN'
+        url='https://drive.google.com/uc?export=download&id=11VhP5pORYEiuUlmZ72S7K2rYlBZ5prWN'
         r=requests.get(url,allow_redirects=True)
-        open('demo.zip','wb').write(r.content) 
-        zip_ref = zipfile.ZipFile('demo.zip', 'r')
+        open('demo1.zip','wb').write(r.content) 
+        zip_ref = zipfile.ZipFile('demo1.zip', 'r')
         zip_ref.extractall()
         zip_ref.close()
         
