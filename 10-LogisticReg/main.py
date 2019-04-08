@@ -14,6 +14,7 @@ import cv2
 from skimage import color
 from skimage import io
 import pickle
+import traceback
 
 
 
@@ -129,7 +130,7 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 300 # Change if you want
-    epochs = 1000 # Change if you want
+    epochs = 50000 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -137,7 +138,7 @@ def train(model):
     
     plt.ioff()
     lossAnt=float('Inf');
-    fig=plt.figure()
+    #fig=plt.figure()
     for i in range(epochs):
         loss = []
         
@@ -153,7 +154,7 @@ def train(model):
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
-        plot(fig,epochsVector,lossVal,lossTrain)
+        #plot(fig,epochsVector,lossVal,lossTrain)
         
         if loss_val>lossAnt and not(np.isnan(loss_val)):
             break;
@@ -206,16 +207,7 @@ def test(model):
       
       prediction=np.zeros(prob.shape)
       prediction[prob>th]=1
-      #prediction = prob>th
-      #anotation = y_test==1            
-      #trueP = np.sum(prediction and anotation)
-      #falseP = np.sum(prediction and not(anotation))
-      #falseN = np.sum(not(prediction) and anotation)
-      #trueN = np.sum(prediction and not(anotation))
-      #precision=trueP/(trueP+falseP)
-      #recall=trueP/(trueP+falseN)
-      #FMe=(2*precision*recall)/(precision+recall)
-      #fMeasure.append(FMe)
+ 
       precision=metrics.precision_score(y_test,prediction)
       recall = metrics.recall_score(y_test,prediction)
       Fmed=metrics.f1_score(y_test,prediction)
@@ -236,10 +228,10 @@ def test(model):
     plt.title('PRCurve')
     plt.plot(recal_vec[index],prec_vec[index],'*r')
     plt.legend(['PR Curve','F-MAX'])
-    plt.show()
+    plt.show(block=False)
     plt.savefig('PRCURVE.pdf')
     print(MaxFMed,' Max F-Measure')
-    print(index, 'Max threshold')
+    print(thrs[index], 'Max threshold')
     
     return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed  
     
@@ -254,6 +246,7 @@ def demo(model):
         
     filenames=os.listdir("demo/")
     demo_test = []
+    
     for i in filenames:
        temp=cv2.imread(os.path.join("demo/", i))
        #the files are too big. It is necessary to resize
@@ -261,88 +254,94 @@ def demo(model):
        imCrop=cv2.resize(temp,(48,48))
        demo_test.append(imCrop)
     
-    image = demo_test
+ 
+    image = np.array(demo_test, 'float64')
+    image /= 255
+
+    image= image.reshape(image.shape[0],48,48)
+    print(image.shape,'vector imagen')
     image = image.reshape(image.shape[0], -1)
+    
     out = np.dot(image, model.W) + model.b
     prob = sigmoid(out)
-    prediction = []
-    thrs= np.linspace(0.001,1,50)
-    prec_vec=[]
-    recal_vec=[]
-    FMed_vec=[]
-    CMat_vec=[]
-    ACA_vec=[]
-
-    for th in thrs:
+    figure=plt.figure() 
+    
+    for i in range(0,image.shape[0]):
+      acImg= image[i,::].reshape(48,48)
+      print(acImg.shape)
+      clas_prob = prob[i]
+      tag='No Smile'
+      if clas_prob > 0.06:
+          tag='Smile'
+      plt.imshow(acImg,cmap='gray')
+      plt.title(tag)
+      plt.axis('off')
+      plt.show(block=False)
       
-      prediction=np.zeros(prob.shape)
-      prediction[prob>th]=1
-      precision=metrics.precision_score(y_test,prediction)
-      recall = metrics.recall_score(y_test,prediction)
-      Fmed=metrics.f1_score(y_test,prediction)
-      confM=metrics.confusion_matrix(y_test,prediction)
-      aca=metrics.accuracy_score(y_test,prediction)
-      prec_vec.append(precision)
-      recal_vec.append(recall)
-      FMed_vec.append(Fmed)
-      CMat_vec.append(confM)
-      ACA_vec.append(aca)
+      print("Please press any key to continue")
+      plt.waitforbuttonpress(0)
     
     
-    MaxFMed=np.amax(FMed_vec)  
-    index=np.argmax(FMed_vec)
-    plt.plot(recal_vec,prec_vec,'-b')
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('PRCurve')
-    plt.plot(recal_vec[index],prec_vec[index],'*r')
-    plt.legend(['PR Curve','F-MAX'])
-    plt.show()
-    plt.savefig('PRCURVE.pdf')
-    print(MaxFMed,' Max F-Measure')
-    print(index, 'Max threshold')
     
-    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed
 
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t","--test",help="runs only test",dest='test',action='store_true')
-    parser.add_argument("-d","--demo",help="runs only test",dest='demo',action='store_true')
-    
+    parser.add_argument("-t","--test",help="runs only test if model is saved",dest='test',action='store_true')
+    parser.add_argument("-d","--demo",help="runs only demo if model is saved",dest='demo',action='store_true')
+    parser.add_argument("-tr","--train",help="runs only train and val set to train model",dest='train',action='store_true')
 
     arguments = parser.parse_args()
 
         
-    if arguments.test:      
+    if arguments.test:    
+      print('You chose test')  
       try:
-        with open('data.pkl','rb') as f:
+        with open('data','rb') as f:
           model = pickle.load(f)
-          f.close
+          f.close()
         test(model)
       except: 
         print('No trained model found, model computation will proceed')
         model=Model()
         train(model)
+        with open('data', 'wb') as f:
+          pickle.dump(model,f)  
+          f.close()
         test(model)
         
     elif arguments.demo:
+      print('You chose demo')
       try:
-        with open('data.pkl','rb') as f:
+        with open('data','rb') as f:
           model = pickle.load(f)
-          f.close
+          f.close()
         demo(model)        
-      except: 
+      except  Exception as err: 
+        traceback.print_tb(err.__traceback__)
         print('No trained model found, model computation will proceed')
         model=Model()
         train(model)
+        with open('data', 'wb') as f:
+          pickle.dump(model,f)  
+          f.close()
         demo(model)
+    elif arguments.train:
+        print('Model will be trained')
+        model=Model()
+        train(model)
+        with open('data', 'wb') as f:
+          pickle.dump(model,f)  
+          f.close()
+    
     else:
       model = Model()
       train(model)
+      with open('data', 'wb') as f:
+        pickle.dump(model,f)     
       test(model)
-      with open('data.pkl', 'wb') as f:
+      with open('data', 'wb') as f:
         pickle.dump(model,f)      
               
     

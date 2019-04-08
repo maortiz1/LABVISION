@@ -6,8 +6,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import requests
+import zipfile
 import tarfile
 import sklearn.metrics as metrics
+import scipy.io as sio
+import cv2
+from skimage import color
+from skimage import io
+import pickle
+import traceback
 
 if not os.path.isdir(os.path.join(os.getcwd(),'fer2013')):
     url='https://drive.google.com/uc?export=download&id=1B9Lr_Q3mzu-H-DD2-i2SkTx0TndcyVvO'
@@ -94,7 +101,7 @@ def get_data():
 class Model():
     def __init__(self):
         params = 48*48 # image reshape
-        out = 7 # smile label
+        out = 7 # all emotions labels
         self.lr = 0.001 # Change if you want
         self.W = np.random.randn(params, out)
         self.b = np.random.randn(out)
@@ -128,7 +135,7 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 100 # Change if you want
-    epochs = 1000 # Change if you want
+    epochs = 5000 # Change if you want
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -152,7 +159,7 @@ def train(model):
         lossVal.append(loss_val)
         lossTrain.append(np.array(loss).mean())
         epochsVector.append(i)
-        #plot(fig,epochsVector,lossVal,lossTrain)
+        plot(fig,epochsVector,lossVal,lossTrain)
         
         if loss_val>lossAnt and not(np.isnan(loss_val)):
             break;
@@ -194,7 +201,7 @@ def test(model):
     prob = np.argmax(prob,axis=1)
     print(prob.shape,'size prob')
     prediction = []
-    thrs= np.linspace(0.001,1,50)
+    thrs= np.linspace(0.001,1,30)
     prec_vec=[]
     recal_vec=[]
     FMed_vec=[]
@@ -219,8 +226,109 @@ def test(model):
 
    # pass
 
+def demo(model):
+    if not os.path.isdir(os.path.join(os.getcwd(),'demo')):
+        url='https://drive.google.com/uc?export=download&id=16TGyOoqyV8huJqHhenw7loSc8O0FcOEV'
+        r=requests.get(url,allow_redirects=True)
+        open('demo.zip','wb').write(r.content) 
+        zip_ref = zipfile.ZipFile('demo.zip', 'r')
+        zip_ref.extractall()
+        zip_ref.close()
+        
+    filenames=os.listdir("demo/")
+    demo_test = []
+    
+    for i in filenames:
+       temp=cv2.imread(os.path.join("demo/", i))
+       #the files are too big. It is necessary to resize
+       temp = color.rgb2gray (temp)
+       imCrop=cv2.resize(temp,(48,48))
+       demo_test.append(imCrop)
+    
+ 
+    image = np.array(demo_test, 'float64')
+    image /= 255
+
+    image= image.reshape(image.shape[0],48,48)
+    print(image.shape,'vector imagen')
+    image = image.reshape(image.shape[0], -1)
+    
+    out = np.dot(image, model.W) + model.b
+    prob = sigmoid(out)
+    figure=plt.figure() 
+    
+    for i in range(0,image.shape[0]):
+      acImg= image[i,::].reshape(48,48)
+      print(acImg.shape)
+      clas_prob = prob[i]
+      tag='No Smile'
+      if clas_prob > 0.06:
+          tag='Smile'
+      plt.imshow(acImg,cmap='gray')
+      plt.title(tag)
+      plt.axis('off')
+      plt.show(block=False)
+      
+      print("Please press any key to continue")
+      plt.waitforbuttonpress(0)
 if __name__ == '__main__':
-    model = Model()
-    train(model)
-    prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed=test(model)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t","--test",help="runs only test if model is saved",dest='test',action='store_true')
+    parser.add_argument("-d","--demo",help="runs only demo if model is saved",dest='demo',action='store_true')
+    parser.add_argument("-tr","--train",help="runs only train and val set to train model",dest='train',action='store_true')
+
+    arguments = parser.parse_args()
+
+        
+    if arguments.test:    
+      print('You chose test')  
+      try:
+        with open('dataemo','rb') as f:
+          model = pickle.load(f)
+          f.close()
+        test(model)
+      except: 
+        print('No trained model found, model computation will proceed')
+        model=Model()
+        train(model)
+        with open('dataemo', 'wb') as f:
+          pickle.dump(model,f)  
+          f.close()
+        test(model)
+        
+    elif arguments.demo:
+      print('You chose demo')
+      try:
+        with open('dataemo','rb') as f:
+          model = pickle.load(f)
+          f.close()
+        demo(model)        
+      except  Exception as err: 
+        traceback.print_tb(err.__traceback__)
+        print('No trained model found, model computation will proceed')
+        model=Model()
+        train(model)
+        with open('dataemo', 'wb') as f:
+          pickle.dump(model,f)  
+          f.close()
+        demo(model)
+    elif arguments.train:
+        print('Model will be trained')
+        model=Model()
+        train(model)
+        with open('dataemo', 'wb') as f:
+          pickle.dump(model,f)  
+          f.close()
+    
+    else:
+      model = Model()
+      train(model)
+      with open('dataemo', 'wb') as f:
+        pickle.dump(model,f)     
+      test(model)
+      with open('dataemo', 'wb') as f:
+        pickle.dump(model,f)      
+              
     
