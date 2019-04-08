@@ -135,7 +135,9 @@ def train(model):
     x_train, y_train,x_val,y_val,_,_ = get_data()
    # x_train,y_train,x_test,y_test=get_data()
     batch_size = 300 # Change if you want
+
     epochs = 2000 # Change if you want
+
     losstot = []
     lossTrain=[]
     lossVal=[]
@@ -221,7 +223,7 @@ def test(model):
     #print(MaxFMed,' Max F-Measure')
     #print(index, 'Max threshold')
     
-    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec,MaxFMed  
+    return prec_vec,recal_vec,FMed_vec,CMat_vec,ACA_vec
     
 
    # pass
