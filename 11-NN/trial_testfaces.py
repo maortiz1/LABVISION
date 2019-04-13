@@ -7,6 +7,7 @@ import os
 import cv2
 from skimage import color
 from matplotlib import pyplot as plt
+import face_recognition
 
 if not os.path.isdir(os.path.join(os.getcwd(),'Emotions_test')):
     url='http://bcv001.uniandes.edu.co/Emotions_test.zip'
@@ -19,20 +20,22 @@ if not os.path.isdir(os.path.join(os.getcwd(),'Emotions_test')):
 filenames=os.listdir("Emotions_test/")
     
 for ix in filenames:
-    img = cv2.imread(os.path.join("Emotions_test/", ix))
-    imgtest1 = img
-    imgtest = color.rgb2gray(imgtest1) 
-    imgtest = np.array(imgtest, dtype='uint8')
-    facecascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
-   
-    faces = facecascade.detectMultiScale(imgtest, scaleFactor=5, minNeighbors=5)
+#    img = cv2.imread(os.path.join("Emotions_test/", ix))
+#    imgtest1 = img
+#    imgtest = color.rgb2gray(imgtest1) 
+#    imgtest = np.array(imgtest, dtype='uint8')
+    imgtest= face_recognition.load_image_file(os.path.join("Emotions_test/", ix))
+    facelocations =face_recognition.face_locations(imgtest);
+    print(facelocations)
+    faces = len(facelocations)
  
-    print('Total number of Faces found',len(faces))
+    print('Total number of Faces found: ',(faces))
     
-    for (x, y, w, h) in faces:
-        face_detect = cv2.rectangle(imgtest, (x, y), (x+w, y+h), (255, 0, 255), 2)
-        roi_gray = imgtest[y:y+h, x:x+w]
-        roi_color = imgtest[y:y+h, x:x+w]        
+    for facelocation in facelocations:
+        top, right, bottom, left = facelocation
+        face_detect = imgtest[top:bottom, left:right]
+        roi_gray = imgtest[top:bottom, left:right]
+        roi_color = imgtest[top:bottom, left:right]        
         plt.imshow(face_detect)
         print("Please press any key to continue")
         plt.waitforbuttonpress(0)

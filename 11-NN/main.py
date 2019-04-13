@@ -97,7 +97,19 @@ def get_data(batch_size):
     
     # Test preprocesamiento
     filenames=os.listdir("Emotions_test/")
+    for ix in filenames:
+
+
+    imgtest= face_recognition.load_image_file(os.path.join("Emotions_test/", ix))
+    facelocations =face_recognition.face_locations(imgtest);
+    print(facelocations)
+    faces = len(facelocations)
+ 
     
+    for facelocation in facelocations:
+        top, right, bottom, left = facelocation
+        face_detect = imgtest[top:bottom, left:right]
+        
     
     
     
