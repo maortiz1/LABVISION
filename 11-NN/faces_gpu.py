@@ -1,4 +1,4 @@
-
+#!/usr/bin/python3
 # read kaggle facial expression recognition challenge dataset (fer2013.csv)
 # https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression-recognition-challenge
 import numpy as np

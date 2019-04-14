@@ -1,4 +1,4 @@
-#!/usr/bin/ipython3
+#!/home/afromero/anaconda3/bin/python3
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,6 +8,7 @@ import tqdm
 import tarfile
 import zipfile
 import os
+import requests
 from skimage import color
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -49,7 +50,7 @@ class Net(nn.Module):
         self.conv3 = nn.Conv2d(32, 32, kernel_size=3)
         self.fc2 = nn.Linear(32, 10) # capa fully connected con 10 neuronas
         self.relu = nn.ReLU()
-
+        print('done')
     def forward(self, x):
       
         x = F.max_pool2d(F.relu(self.conv1(x)), 2) #Perform a Maximum pooling operation over the nonlinear responses of the convolutional layer
@@ -68,7 +69,7 @@ class Net(nn.Module):
 # Obtener los datos y preprocesamiento de las imagenes
 # Importante
 def get_data(batch_size):
-
+    print('try')
     # Train 
     with open("fer2013.csv") as f:
         content = f.readlines()
@@ -94,7 +95,7 @@ def get_data(batch_size):
 
     x_traintot /= 255 #normalize inputs between [0, 1]
     
-    # División de imágenes sólo hasta el batchsize dado por parametro
+
     x_train = x_traintot[0:batchsize]
     ytrain = y_traintot[0:batchsize] 
     # Reshape a train
@@ -105,7 +106,7 @@ def get_data(batch_size):
     
     # Test preprocesamiento
     filenames=os.listdir("Emotions_test/")
-    i=1;
+    i=0;
     for ix in filenames:
       
 
