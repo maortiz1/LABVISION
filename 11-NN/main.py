@@ -8,7 +8,7 @@ import tqdm
 import tarfile
 import zipfile
 import os
-
+from skimage import color
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Descargar los dos dataset
@@ -44,19 +44,27 @@ def print_network(model, name):
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.fc1 = nn.Linear(784, 10)
-        self.fc2 = nn.Linear(10, 1) # capa fully connected con 10 neuronas
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=3) #Channels input: 1, c output: 63, filter of size 3
+        self.conv2 = nn.Conv2d(64, 32, kernel_size=3)       
+        self.conv3 = nn.Conv2d(32, 32, kernel_size=3)
+        self.fc2 = nn.Linear(32, 10) # capa fully connected con 10 neuronas
         self.relu = nn.ReLU()
 
     def forward(self, x):
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.fc2(x)
+      
+        x = F.max_pool2d(F.relu(self.conv1(x)), 2) #Perform a Maximum pooling operation over the nonlinear responses of the convolutional layer
+        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
+        x = F.Dropout(x, 0.25, training=self.training)#Try to control overfit on the network, by randomly excluding 25% of neurons on the last #layer during each iteration
+        x = F.max_pool2d(F.relu(self.conv3(x)), 2)
+        x = F.Dropout(x, 0.25, training=self.training)
+        x = x.view(-1, 32)
+        x = self.fc(x)
+        
         return x
         
     def training_params(self):
         self.optimizer = torch.optim.SGD(self.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0)
-        self.Loss = nn.MSELoss()
+        self.Loss = nn.CrossEntropyLoss()
 # Obtener los datos y preprocesamiento de las imagenes
 # Importante
 def get_data(batch_size):
@@ -97,20 +105,23 @@ def get_data(batch_size):
     
     # Test preprocesamiento
     filenames=os.listdir("Emotions_test/")
+    i=1;
     for ix in filenames:
+      
 
-
-    imgtest= face_recognition.load_image_file(os.path.join("Emotions_test/", ix))
-    facelocations =face_recognition.face_locations(imgtest);
-    print(facelocations)
-    faces = len(facelocations)
- 
+      imgtest= face_recognition.load_image_file(os.path.join("Emotions_test/", ix))
+      facelocations =face_recognition.face_locations(imgtest);
+      print(facelocations)
+      faces = len(facelocations)
     
-    for facelocation in facelocations:
-        top, right, bottom, left = facelocation
-        face_detect = imgtest[top:bottom, left:right]
-        
     
+      for facelocation in facelocations:
+          top, right, bottom, left = facelocation
+          face_detect = imgtest[top:bottom, left:right]
+          gray=color.rgb2gray(face_detect)
+          facereshape=gray.reshape(48,48)
+          
+      i=1+i
     
     
     
