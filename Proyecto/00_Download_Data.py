@@ -1,12 +1,15 @@
-#!/usr/bin/ipython3
+#!/usr/bin/python3
+
+#Modules to use
+import ipdb
 import numpy as np
+import pandas as pd  
 import tarfile
 import zipfile
 import os
 import requests
 from skimage import color
 import urllib
-#matplotlib inline
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -14,13 +17,16 @@ import os
 from glob import glob
 import seaborn as sns
 from PIL import Image
-np.random.seed(123)
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 import itertools
 import keras
 from keras.utils.np_utils import to_categorical
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.preprocessing import StandardScaler
+
 # Downloading Dataset
 URL='https://www.dropbox.com/s/9ybbu805dwh8258/skin-cancer-mnist-ham10000.zip?dl=1'
 print('It will be proceed to download the database')
@@ -32,7 +38,7 @@ else:
     print('The file skin-cancer-mnist-ham10000.zip already exists')
     
 print('It will be proceed to decompress de database')
-#checkinf if database is already decompress
+#checking if database is already decompress
 if not(os.path.exists('skin-cancer-mnist-ham10000')):
      zips = zipfile.ZipFile('skin-cancer-mnist-ham10000.zip','r')
      zips.extractall('skin-cancer-mnist-ham10000')
@@ -51,7 +57,7 @@ if not(os.path.exists('skin-cancer-mnist-ham10000/HAM10000_images_part_2')):
    zip2.close()
 #os.chdir(..)
 # Reading and preparation of the data
-base_skin_dir = "/media/user_home2/vision/lmunar10/LABVISION/Proyecto/skin-cancer-mnist-ham10000/" # Mari esto es lo unico que no quedó eficiente porque no supe como poner para que quedara el path completo jaja no me funcionó ~/
+base_skin_dir = "/media/user_home2/vision/lmunar10/LABVISION/Proyecto/skin-cancer-mnist-ham10000/" # Mari esto es lo unico que no quedo eficiente porque no supe como poner para que quedara el path completo jaja no me funciono 
 #print (base_skin_dir)
 #"/media/user_home2/vision/lmunar10/LABVISION/Proyecto/skin-cancer-mnist-ham10000/HAM10000_metadata.csv"
 # Merging images from both folders HAM10000_images_part1.zip and HAM10000_images_part2.zip into one dictionary
@@ -83,7 +89,6 @@ print(skin_df.head())
 skin_df['age'].fillna((skin_df['age'].mean()), inplace=True) 
 #print(skin_df.isnull().sum()) # no null files
 #print(skin_df.dtypes) #check types in array
-
 # Loading and resizing images
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -105,10 +110,11 @@ fig.savefig('category_samples.png', dpi=300)
 print('Checking the image size distribution')
 skin_df['image'].map(lambda x: x.shape).value_counts()
 features=skin_df.drop(columns=['cell_type_idx'],axis=1)
+#features=skin_df['image']
 target=skin_df['cell_type_idx']
 
 print('Dividing train y test set')
-
+# x es data y y es la anotacion
 x_train_o, x_test_o, y_train_o, y_test_o = train_test_split(features, target, test_size=0.20,random_state=1234)
 
 print(' Normalization')
@@ -123,13 +129,37 @@ x_test_std = np.std(x_test)
 
 x_train = (x_train - x_train_mean)/x_train_std
 x_test = (x_test - x_test_mean)/x_test_std
-print('Encode labels')
-y_train = to_categorical(y_train_o, num_classes = 7)
-y_test = to_categorical(y_test_o, num_classes = 7)
 
+print('Encode labels')
+# Volver un numero las clases 
+#y_train = to_categorical(y_train_o, num_classes = 7)
+#y_test = to_categorical(y_test_o, num_classes = 7)
+#print(y_train[0])
+y_train = pd.factorize(y_train_o)[0]
+print(y_train)
+print(y_train.shape)
+y_test = pd.factorize(y_test_o)[0]
 print('Separating validation set')
-x_train, x_validate, y_train, y_validate = train_test_split(x_train, y_train, test_size = 0.1, random_state = 2)
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = 0.1, random_state = 2)
 print('Reshape 3D image')
-x_train = x_train.reshape(x_train.shape[0], *(150, 150, 3))
-x_test = x_test.reshape(x_test.shape[0], *(150, 150, 3))
-x_validate = x_validate.reshape(x_validate.shape[0], *(150, 150, 3))
+x_train = x_train.reshape(x_train.shape[0], -1)
+x_test = x_test.reshape(x_test.shape[0], -1)
+x_val = x_val.reshape(x_val.shape[0], -1)
+
+print('Number of observations in the training data:', len(x_train))
+print('Number of observations in the validation data:',len(x_val))
+print('Number of observations in the test data:',len(x_test))
+
+
+print('Classifier RF')
+print(x_train.shape)
+print(y_train.shape)
+# Training the classifier
+RF = RandomForestClassifier(n_jobs=2, random_state=0)
+RF.fit(x_train, y_train)
+# Predict validation data
+y_pred = RF.predict(x_val)
+#print(RF.predict_proba(x_val)[0:10]) # view first 10 prediction
+print(confusion_matrix(y_val,y_pred))  
+print(classification_report(y_val,y_pred))  
+print(accuracy_score(y_val, y_pred))  
