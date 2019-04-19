@@ -27,6 +27,38 @@ from keras.utils.np_utils import to_categorical
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.preprocessing import StandardScaler
 
+
+# Function to plot confusion matrix    
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.savefig('confusionmatrix.png', dpi=300)
+
+
 # Downloading Dataset
 URL='https://www.dropbox.com/s/9ybbu805dwh8258/skin-cancer-mnist-ham10000.zip?dl=1'
 print('It will be proceed to download the database')
@@ -97,15 +129,15 @@ print(skin_df.head())
 
 # Plot some example images
 
-n_samples = 5
-fig, m_axs = plt.subplots(7, n_samples, figsize = (4*n_samples, 3*7))
-for n_axs, (type_name, type_rows) in zip(m_axs, 
-   skin_df.sort_values(['cell_type']).groupby('cell_type')):
-    n_axs[0].set_title(type_name)
-    for c_ax, (_, c_row) in zip(n_axs, type_rows.sample(n_samples, random_state=1234).iterrows()):
-        c_ax.imshow(c_row['image'])
-        c_ax.axis('off')
-fig.savefig('category_samples.png', dpi=300)
+#n_samples = 5
+#fig, m_axs = plt.subplots(7, n_samples, figsize = (4*n_samples, 3*7))
+#for n_axs, (type_name, type_rows) in zip(m_axs, 
+#   skin_df.sort_values(['cell_type']).groupby('cell_type')):
+#    n_axs[0].set_title(type_name)
+#    for c_ax, (_, c_row) in zip(n_axs, type_rows.sample(n_samples, random_state=1234).iterrows()):
+#        c_ax.imshow(c_row['image'])
+#        c_ax.axis('off')
+#fig.savefig('category_samples.png', dpi=300)
 
 print('Checking the image size distribution')
 skin_df['image'].map(lambda x: x.shape).value_counts()
@@ -160,6 +192,9 @@ RF.fit(x_train, y_train)
 # Predict validation data
 y_pred = RF.predict(x_val)
 #print(RF.predict_proba(x_val)[0:10]) # view first 10 prediction
-print(confusion_matrix(y_val,y_pred))  
+confusion_mtx = confusion_matrix(y_val,y_pred)
+print(confusion_mtx)  
 print(classification_report(y_val,y_pred))  
 print(accuracy_score(y_val, y_pred))  
+# plot the confusion matrix
+plot_confusion_matrix(confusion_mtx, classes = range(7)) 
