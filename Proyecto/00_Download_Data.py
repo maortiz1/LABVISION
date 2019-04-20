@@ -26,6 +26,7 @@ import keras
 from keras.utils.np_utils import to_categorical
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import StratifiedShuffleSplit
 
 
 # Function to plot confusion matrix    
@@ -78,12 +79,12 @@ if not(os.path.exists('skin-cancer-mnist-ham10000')):
 
 #os.chdir("skin-cancer-mnist-ham10000/")
 if not(os.path.exists('skin-cancer-mnist-ham10000/HAM10000_images_part_1')):
-   zip1 = zipfile.ZipFile('HAM10000_images_part_1.zip','r')
+   zip1 = zipfile.ZipFile('skin-cancer-mnist-ham10000/HAM10000_images_part_1.zip','r')
    print('Unzipping part1')
    zip1.extractall('HAM10000_images_part_1')
    zip1.close()
 if not(os.path.exists('skin-cancer-mnist-ham10000/HAM10000_images_part_2')):
-   zip2 = zipfile.ZipFile('HAM10000_images_part_2.zip','r')
+   zip2 = zipfile.ZipFile('skin-cancer-mnist-ham10000/HAM10000_images_part_2.zip','r')
    print('Unzipping part2')
    zip2.extractall('HAM10000_images_part_2')
    zip2.close()
@@ -147,7 +148,10 @@ target=skin_df['cell_type_idx']
 
 print('Dividing train y test set')
 # x es data y y es la anotacion
-x_train_o, x_test_o, y_train_o, y_test_o = train_test_split(features, target, test_size=0.20,random_state=1234)
+x_train_o, x_test_o, y_train_o, y_test_o = train_test_split(features, target, test_size=0.20,random_state=0,stratify=target)
+print(target)
+print(y_train_o)
+print(y_test_o)
 
 print(' Normalization')
 x_train = np.asarray(x_train_o['image'].tolist())
@@ -167,12 +171,30 @@ print('Encode labels')
 #y_train = to_categorical(y_train_o, num_classes = 7)
 #y_test = to_categorical(y_test_o, num_classes = 7)
 #print(y_train[0])
-y_train = pd.factorize(y_train_o)[0]
+#y_train = pd.factorize(y_train_o)[0]
+y_train=y_train_o
 print(y_train)
 print(y_train.shape)
-y_test = pd.factorize(y_test_o)[0]
+#y_test = pd.factorize(y_test_o)[0]
+y_test=y_test_o
 print('Separating validation set')
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = 0.1, random_state = 2)
+import collections
+
+countertrain=(collections.Counter(y_train).values())
+print(collections.Counter(y_train))
+print(countertrain)
+countertest=((collections.Counter(y_test).values()))
+print(collections.Counter(y_test))
+print(countertest)
+
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = 0.1, random_state = 0,stratify=y_train)
+countertest=((collections.Counter(y_train).values()))
+print(collections.Counter(y_train))
+print(countertest)
+countertest=((collections.Counter(y_val).values()))
+print(collections.Counter(y_val))
+print(countertest)
+
 print('Reshape 3D image')
 x_train = x_train.reshape(x_train.shape[0], -1)
 x_test = x_test.reshape(x_test.shape[0], -1)
