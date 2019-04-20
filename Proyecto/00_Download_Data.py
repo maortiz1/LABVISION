@@ -38,6 +38,14 @@ def plot_confusion_matrix(cm, classes,
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
+    
+    plt.figure
+    
+
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     plt.colorbar()
@@ -45,18 +53,16 @@ def plot_confusion_matrix(cm, classes,
     plt.xticks(tick_marks, classes, rotation=45)
     plt.yticks(tick_marks, classes)
 
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j],
+        plt.text(j, i, round(cm[i, j],3),
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
 
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    plt.show()
     plt.savefig('confusionmatrix.png', dpi=300)
 
 
@@ -113,9 +119,9 @@ skin_df = pd.read_csv(os.path.join(base_skin_dir,'HAM10000_metadata.csv'))
 
 skin_df['path'] = skin_df['image_id'].map(imageid_path_dict.get)
 skin_df['cell_type'] = skin_df['dx'].map(lesion_type_dict.get) 
+cate= pd.Categorical(skin_df['cell_type'])
 skin_df['cell_type_idx'] = pd.Categorical(skin_df['cell_type']).codes
 
-print(skin_df.head())
 
 # Data cleaning. Checking for missing values in csv file
 #print(skin_df.isnull().sum())
@@ -209,7 +215,7 @@ print('Classifier RF')
 print(x_train.shape)
 print(y_train.shape)
 # Training the classifier
-RF = RandomForestClassifier(n_jobs=2, random_state=0)
+RF = RandomForestClassifier(n_estimators=100,n_jobs=2, random_state=0,min_samples_split=8)
 RF.fit(x_train, y_train)
 # Predict validation data
 y_pred = RF.predict(x_val)
@@ -219,4 +225,14 @@ print(confusion_mtx)
 print(classification_report(y_val,y_pred))  
 print(accuracy_score(y_val, y_pred))  
 # plot the confusion matrix
-plot_confusion_matrix(confusion_mtx, classes = range(7)) 
+plot_confusion_matrix(confusion_mtx, classes = range(7),normalize=True) 
+
+
+#on test
+print(cate)
+y_predtest=RF.predict(x_test)
+confusion_mtx = confusion_matrix(y_test,y_predtest)
+print(confusion_mtx)  
+print(classification_report(y_test,y_predtest))  
+print(accuracy_score(y_test, y_predtest)) 
+plot_confusion_matrix(confusion_mtx, classes = range(7),title='Test Confusion',normalize=True) 
