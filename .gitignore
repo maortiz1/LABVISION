@@ -22,6 +22,7 @@ BSDS_small/
 *.mat
 *.png
 *.jpg
+*.csv
 08-PHOW/imageNet200
 vlfeat-0.9.21/
 08-PHOW/matlab/data
@@ -29,4 +30,5 @@ vlfeat-0.9.21/
 LabHOG.zip
 10-LogisticReg/fer2013
 skin-cancer-mnist-ham10000/
+celeba-dataset/
 
