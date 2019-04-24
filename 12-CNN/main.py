@@ -1,6 +1,6 @@
 #!/usr/bin/ipython3
 
-# Modules needed
+# Modules needed for preprocessing
 import ipdb
 import numpy as np
 import pandas as pd  
@@ -17,6 +17,7 @@ import seaborn as sns
 import os
 from glob import glob
 from PIL import Image
+import cv2
 
 # Downloading dataset
 URL='https://www.dropbox.com/s/pcyp3a2an1shj5c/celeba-dataset.zip?dl=1'
@@ -47,16 +48,6 @@ print(os.listdir("celeba-dataset/"))
 data = pd.read_csv("celeba-dataset/list_attr_celeba.csv")
 print(data.head())
 #print(data.info())
-
-# Loading and resizing images
-#base_skin_dir = "celeba-dataset/" 
-#imageid_path_dict = {os.path.splitext(os.path.basename(x))[0]: x
-                   #  for x in glob(os.path.join(base_skin_dir, '*', '*.jpg'))}
-#data['path'] = data['image_id'].map(imageid_path_dict.get)
-#from PIL import ImageFile
-#ImageFile.LOAD_TRUNCATED_IMAGES = True
-#data['image'] = data['path'].map(lambda x: np.asarray(Image.open(x).resize((150,150))))
-#print(data.head())
 
 # Se eliminan las columnas que no se van a usar para entrenar
 data.drop(["5_o_Clock_Shadow"],axis=1,inplace = True)
@@ -90,7 +81,28 @@ data.drop(["Wearing_Necktie"],axis=1,inplace = True)
 data.drop(["Wearing_Lipstick"],axis=1,inplace = True)
 data.drop(["Wearing_Necklace"],axis=1,inplace = True)
 print(data.head())
-#xdata = data['image']
-#data.drop(["image"],axis=1,inplace = True)
-#ydata = data
-#print(ydata.head())
+
+# Loading and resizing images
+base_skin_dir = "celeba-dataset/img_align_celeba/img_align_celeba/"
+filenames=os.listdir(base_skin_dir)
+imgs=[]
+for filenam in filenames:
+  filenam2,ext =os.path.splitext(filenam) 
+  if ext=='.jpg':
+     temp=cv2.imread(os.path.join(base_skin_dir, filenam))
+     temp=cv2.resize(temp,(300,300))
+     imgs.append(temp)
+data['image'] = imgs
+print(data.head())
+
+# Ya en data tengo las imagenes y las anotaciones que quiero. Ahora las voy a separar para poder entrenar la red
+xdata = data['image']
+data.drop(["image"],axis=1,inplace = True)
+data.drop(["image_id"],axis=1,inplace = True)
+ydata = data
+
+from sklearn.model_selection import train_test_split
+x_train_o, x_test_o, y_train, y_test = train_test_split(xdata,ydata,test_size = 0.3,random_state=42)
+
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = 0.1, random_state = 0,stratify=y_train)
+
