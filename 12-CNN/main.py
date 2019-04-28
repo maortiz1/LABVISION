@@ -8,7 +8,7 @@ import tarfile
 import zipfile
 import os
 import torch.nn as nn
-
+import tqdm
 import requests
 from skimage import color
 import urllib
@@ -17,6 +17,7 @@ import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import torch
 from glob import glob
 from PIL import Image
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
@@ -190,11 +191,12 @@ def generate_df(partition):
 
 
 
-class Model(nn.Module,numclas):
+class Model(nn.Module):
 
     def __init__(self):
-        
-        super(alex,self).__init__()
+
+        super(Model,self).__init__()
+        num_classes=10        
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
             nn.ReLU(inplace=True),
@@ -229,19 +231,54 @@ class Model(nn.Module,numclas):
         return x   
 
 def train(model,epochs):
+   model.train()
+   
   # Train data
    x_train, y_train = generate_df(0)
    # val data
    x_val, y_val = generate_df(1)
    
-def test(model):
+   train_dataset=train.utils.data.DataLoader(dataset=[x_train,y_train], batch_size=50,shuffle=True)
+   optimizer = torch.optim.SGD(model.parameters(),lr=0.01,momentum=0.9,weight_decay=0.01)
+   criterion = nn.BCELoss()
+   
+   for epoch in range(epochs):
+     losser =[]
+     train_precision =0
+     print(enumerate(train_dataset))
+     
+     for batch_idx, (data,target) in tqdm(enumerate(train_dataset),total=len(train_dataset),desc="[TRAIN] Epoch{}".format(epoch)):
+         data = data.to(device)
+         t = target.type(torch.Tensor).squeeze(1).to(device)
+         out = model(data)
+         out = torch.sigmoid(out)
+         loss = criterion(out,t)
+         optimizer.zero_grad()
+         loss.backward()
+         optimizer.step()
+         pred = torch.round(out)
+         for k in range(len(pred)):
+            for l in range(10):
+               if pred[k][l]==target[k][l]:
+                  train_precision +=1
+         
+         aux = loss.cpu()
+         losser.append(aux.data.numpy())
+     print("Loss: %0.3f"%(np.mean(losser)))
+     print("Train Precicision",train_precision)   
+#def test(model):
+
+
+
+
+
    
 
-if __name__ == '__main__':
- 
+if __name__ == '__main__': 
    
    device=torch.device('cuda:1' if torch.cuda.is_available() else "cpu")
-   model = Model(7).to(device)
+   model =Model().to(device)
+   train(model,70)
    
     
 
