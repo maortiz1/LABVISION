@@ -7,6 +7,8 @@ import pandas as pd
 import tarfile
 import zipfile
 import os
+import torch.nn as nn
+
 import requests
 from skimage import color
 import urllib
@@ -115,8 +117,8 @@ images_folder = base_skin_dir
 TRAINING_SAMPLES = 162770
 VALIDATION_SAMPLES = 1986
 TEST_SAMPLES = 19962
-IMG_WIDTH = 178
-IMG_HEIGHT = 218
+IMG_WIDTH = 224
+IMG_HEIGHT = 224
 BATCH_SIZE = 16
 NUM_EPOCHS = 20
 
@@ -156,11 +158,11 @@ def generate_df(partition):
         x_ = np.array([load_reshape_img(images_folder+df_['image_id'][fname]) for fname in df_.index])
 
         x_ = x_.reshape(x_.shape[0], 218, 178, 3)
-        print(x_.head())
+       # print(x_.head())
         y_ = df_
         y_ = y_.drop(["image_id"],axis=1,inplace = True)
         y_ = y_.drop(["partition"],axis=1,inplace = True)
-        print(y_.head())
+        #print(y_.head())
     # for Test
     else:
         x_ = []
@@ -176,20 +178,71 @@ def generate_df(partition):
            # print(x_)
             #print(y_)
 
+    x_=np.array(x_)
+    x_=x_[:,np.newaxis]
+    x_=torch.stack([torch.Tensor(i) for i in x_])
+    
+    y_=np.array(y_)
+    y_=y_[:,np.newaxis]
+    y_=torch.stack([torch.Tensor(i) for i in y_])
     return x_, y_
 
-# Train data
-x_train, y_train = generate_df(0)
-# val data
-x_val, y_val = generate_df(1)
 
-def get_data(batch_size):
-    #transform_train = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
-    transform_train = transforms.Compose([transforms.ToTensor()])
-    data_train = datasets.MNIST('data', train=True, transform = transform_train)
-    train_loader = torch.utils.data.DataLoader(data_train, batch_size=batch_size, shuffle=True)
 
-    data_test = datasets.MNIST('data', train=False, transform = transform_train)
-    test_loader = torch.utils.data.DataLoader(data_test, batch_size=batch_size, shuffle=False)
 
-    return train_loader, test_loader
+class Model(nn.Module,numclas):
+
+    def __init__(self):
+        
+        super(alex,self).__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+        self.classifier = nn.Sequential(
+            nn.Dropout(),
+            nn.Linear(256 * 6 * 6, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True),
+            nn.Linear(4096, num_classes),
+        )     
+    
+    def forward(self, x):
+        x = self.features(x)
+        x = self.avgpool(x)
+        x = x.view(x.size(0), 256 * 6 * 6)
+        x = self.classifier(x)
+        return x   
+
+def train(model,epochs):
+  # Train data
+   x_train, y_train = generate_df(0)
+   # val data
+   x_val, y_val = generate_df(1)
+   
+def test(model):
+   
+
+if __name__ == '__main__':
+ 
+   
+   device=torch.device('cuda:1' if torch.cuda.is_available() else "cpu")
+   model = Model(7).to(device)
+   
+    
+
+    
