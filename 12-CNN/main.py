@@ -1,4 +1,4 @@
-#!/usr/bin/ipython3
+#!/usr/bin/python3
 
 # Modules needed for preprocessing
 import ipdb
@@ -17,6 +17,7 @@ import seaborn as sns
 import os
 from glob import glob
 from PIL import Image
+from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 import cv2
 
 # Downloading dataset
@@ -102,7 +103,26 @@ data.drop(["image_id"],axis=1,inplace = True)
 ydata = data
 
 from sklearn.model_selection import train_test_split
-x_train_o, x_test_o, y_train, y_test = train_test_split(xdata,ydata,test_size = 0.3,random_state=42)
+#x_train_o, x_test_o, y_train, y_test = train_test_split(xdata,ydata,test_size = 0.3,random_state=42)
 
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = 0.1, random_state = 0,stratify=y_train)
+#x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = 0.1, random_state = 0,stratify=y_train)
+
+
+
+main_folder = '../celeba-dataset/'
+images_folder = base_skin_dir
+
+EXAMPLE_PIC = images_folder + '000506.jpg'
+
+TRAINING_SAMPLES = 10000
+VALIDATION_SAMPLES = 2000
+TEST_SAMPLES = 2000
+IMG_WIDTH = 178
+IMG_HEIGHT = 218
+BATCH_SIZE = 16
+NUM_EPOCHS = 20
+
+
+
+
 
