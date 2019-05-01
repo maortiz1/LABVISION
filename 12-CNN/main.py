@@ -7,7 +7,7 @@ import pandas as pd
 import tarfile
 import zipfile
 import os
-import torch.nn as nn
+#import torch.nn as nn
 import tqdm
 import requests
 from skimage import color
@@ -22,6 +22,16 @@ from glob import glob
 from PIL import Image
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 import cv2
+import torch
+import torchvision
+import torchvision.transforms as transforms
+from torch.autograd import Variable
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import tqdm
+import torch.utils.data as data_utils
+import torchvision.datasets as dset
 
 # Downloading dataset
 URL='https://www.dropbox.com/s/pcyp3a2an1shj5c/celeba-dataset.zip?dl=1'
@@ -157,7 +167,7 @@ def generate_df(partition):
     if partition != 2:
         #ipdb.set_trace()
         x_ = np.array([load_reshape_img(images_folder+df_['image_id'][fname]) for fname in df_.index])
-
+        print(entre)
         x_ = x_.reshape(x_.shape[0], 218, 178, 3)
        # print(x_.head())
         y_ = df_
@@ -247,7 +257,7 @@ def train(model,epochs):
      train_precision =0
      print(enumerate(train_dataset))
      
-     for batch_idx, (data,target) in tqdm(enumerate(train_dataset),total=len(train_dataset),desc="[TRAIN] Epoch{}".format(epoch)):
+     for batch_idx, (data,target) in tqdm(enumerate(train_dataset),total=len(train_dataset),desc="[TRAIN] Epoch{}".format(epochs)):
          data = data.to(device)
          t = target.type(torch.Tensor).squeeze(1).to(device)
          out = model(data)
@@ -265,12 +275,28 @@ def train(model,epochs):
          aux = loss.cpu()
          losser.append(aux.data.numpy())
      print("Loss: %0.3f"%(np.mean(losser)))
-     print("Train Precicision",train_precision)   
-#def test(model):
+     print("Train Precision",train_precision)   
 
+def test(model, epochs):
 
+   x_test, y_test = generate_df(2)
+   
+   test_dataset=test.utils.data.DataLoader(dataset=[x_test,y_test], batch_size=100,shuffle=True)
+   
+   model.eval()
+   loss_cum = []
+   Acc = 0
+   for batch_idx, (data,target) in tqdm.tqdm(enumerate(test_dataset), total=len(test_dataset), desc="[TEST] Epoch: {}".format(epochs)):
+        data = data.to(device).requires_grad_(False)
+        target = target.to(device).requires_grad_(False)
 
-
+        output = model(data)
+        loss = model.Loss(output,target)   
+        loss_cum.append(loss.item())
+        _, arg_max_out = torch.max(output.data.cpu(), 1)
+        Acc += arg_max_out.long().eq(target.data.cpu().long()).sum()
+    
+   print("Loss Test: %0.3f | Acc Test: %0.2f"%(np.array(loss_cum).mean(), float(Acc*100)/len(data_loader.dataset)))
 
    
 
@@ -278,8 +304,10 @@ if __name__ == '__main__':
    
    device=torch.device('cuda:1' if torch.cuda.is_available() else "cpu")
    model =Model().to(device)
-   train(model,70)
-   
-    
+   #train(model,70)
+   epochs = 10
+   for epoch in range(epochs):
+     train(model, epoch)
+     if TEST: test(model, epoch)
 
     
