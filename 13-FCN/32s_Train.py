@@ -505,6 +505,7 @@ if resume:
     checkpoint = torch.load(resume)
     model.load_state_dict(checkpoint['model_state_dict'])
 else:
+    print('load vgg')
     vgg16 = VGG16(pretrained=True) # It takes a while
     model.copy_params_from_vgg16(vgg16)
     

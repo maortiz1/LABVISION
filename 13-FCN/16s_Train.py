@@ -472,9 +472,41 @@ def _get_vgg16_pretrained_model(folder):
             )
 
 model = FCN16s(n_class=21)
-if cuda: model.to('cuda')
+if cuda:
+   model.to('cuda')
 
-model
+
+
+iter_loader=iter(train_loader)
+data, target = next(iter_loader)
+if cuda:
+    data = data.to('cuda')
+with torch.no_grad():
+    output = model(data)
+    
+print('output: ', output.data.shape)
+print('input: ', data.shape)
+    
+data, target = next(iter_loader)
+if cuda:
+    data = data.to('cuda')
+with torch.no_grad():
+    output = model(data, debug=True)
+    
+
+data, target = next(iter_loader)
+if cuda:
+    data = data.to('cuda')
+with torch.no_grad():
+    output = model(data, debug=True)
+
+data, target = next(iter_loader)
+if cuda:
+    data = data.to('cuda')
+with torch.no_grad():
+    output = model(data, debug=True)
+
+
 
 
 if resume:
@@ -482,7 +514,7 @@ if resume:
     checkpoint = torch.load(resume)
     model.load_state_dict(checkpoint['model_state_dict'])
 else:
-    vgg16 = VGG16(pretrained=True) # It takes a while
+    vgg16 = VGG16(pretrained=True).to('cuda') # It takes a while
     model.copy_params_from_vgg16(vgg16)
 
 def get_parameters(model, bias=False):
