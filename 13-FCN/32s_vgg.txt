@@ -1,0 +1,210 @@
+{'max_iteration': 100000, 'lr': 1e-10, 'momentum': 0.99, 'weight_decay': 0.0005, 'interval_validate': 4000}
+logs/MODEL-fcn32s_CFG-001_MAX_ITERATION-100000_LR-1e-10_MOMENTUM-0.99_WEIGHT_DECAY-0.0005_INTERVAL_VALIDATE-4000_TIME-20190501-153532
+Cuda: True
+/home/vision/data/Pascal_VOC
+torch.Size([1, 3, 333, 500])
+torch.Size([1, 333, 500])
+output:  torch.Size([1, 21, 375, 500])
+input:  torch.Size([1, 3, 375, 500])
+torch.Size([1, 3, 288, 352])
+torch.Size([1, 64, 486, 550])
+torch.Size([1, 64, 486, 550])
+torch.Size([1, 64, 243, 275])
+torch.Size([1, 128, 243, 275])
+torch.Size([1, 128, 243, 275])
+torch.Size([1, 128, 122, 138])
+torch.Size([1, 256, 122, 138])
+torch.Size([1, 256, 122, 138])
+torch.Size([1, 256, 122, 138])
+torch.Size([1, 256, 61, 69])
+torch.Size([1, 512, 61, 69])
+torch.Size([1, 512, 61, 69])
+torch.Size([1, 512, 61, 69])
+torch.Size([1, 512, 31, 35])
+torch.Size([1, 512, 31, 35])
+torch.Size([1, 512, 31, 35])
+torch.Size([1, 512, 31, 35])
+torch.Size([1, 512, 16, 18])
+torch.Size([1, 4096, 10, 12])
+torch.Size([1, 4096, 10, 12])
+torch.Size([1, 4096, 10, 12])
+torch.Size([1, 4096, 10, 12])
+torch.Size([1, 21, 10, 12])
+torch.Size([1, 21, 352, 416])
+torch.Size([1, 21, 288, 352])
+torch.Size([1, 3, 333, 500])
+torch.Size([1, 64, 531, 698])
+torch.Size([1, 64, 531, 698])
+torch.Size([1, 64, 266, 349])
+torch.Size([1, 128, 266, 349])
+torch.Size([1, 128, 266, 349])
+torch.Size([1, 128, 133, 175])
+torch.Size([1, 256, 133, 175])
+torch.Size([1, 256, 133, 175])
+torch.Size([1, 256, 133, 175])
+torch.Size([1, 256, 67, 88])
+torch.Size([1, 512, 67, 88])
+torch.Size([1, 512, 67, 88])
+torch.Size([1, 512, 67, 88])
+torch.Size([1, 512, 34, 44])
+torch.Size([1, 512, 34, 44])
+torch.Size([1, 512, 34, 44])
+torch.Size([1, 512, 34, 44])
+torch.Size([1, 512, 17, 22])
+torch.Size([1, 4096, 11, 16])
+torch.Size([1, 4096, 11, 16])
+torch.Size([1, 4096, 11, 16])
+torch.Size([1, 4096, 11, 16])
+torch.Size([1, 21, 11, 16])
+torch.Size([1, 21, 384, 544])
+torch.Size([1, 21, 333, 500])
+torch.Size([1, 3, 375, 500])
+torch.Size([1, 64, 573, 698])
+torch.Size([1, 64, 573, 698])
+torch.Size([1, 64, 287, 349])
+torch.Size([1, 128, 287, 349])
+torch.Size([1, 128, 287, 349])
+torch.Size([1, 128, 144, 175])
+torch.Size([1, 256, 144, 175])
+torch.Size([1, 256, 144, 175])
+torch.Size([1, 256, 144, 175])
+torch.Size([1, 256, 72, 88])
+torch.Size([1, 512, 72, 88])
+torch.Size([1, 512, 72, 88])
+torch.Size([1, 512, 72, 88])
+torch.Size([1, 512, 36, 44])
+torch.Size([1, 512, 36, 44])
+torch.Size([1, 512, 36, 44])
+torch.Size([1, 512, 36, 44])
+torch.Size([1, 512, 18, 22])
+torch.Size([1, 4096, 12, 16])
+torch.Size([1, 4096, 12, 16])
+torch.Size([1, 4096, 12, 16])
+torch.Size([1, 4096, 12, 16])
+torch.Size([1, 21, 12, 16])
+torch.Size([1, 21, 416, 544])
+torch.Size([1, 21, 375, 500])
+load vgg
+[/media/user_home2/vision/maortiz1/LABVISION/13-FCN/data/pretrained_models/vgg16_from_caffe.pth] Checking md5 (aa75b158f4181e7f6230029eb96c1b13)
+0 - FCN32s(
+  (conv1_1): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(100, 100))
+  (relu1_1): ReLU(inplace)
+  (conv1_2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu1_2): ReLU(inplace)
+  (pool1): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (conv2_1): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu2_1): ReLU(inplace)
+  (conv2_2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu2_2): ReLU(inplace)
+  (pool2): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (conv3_1): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu3_1): ReLU(inplace)
+  (conv3_2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu3_2): ReLU(inplace)
+  (conv3_3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu3_3): ReLU(inplace)
+  (pool3): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (conv4_1): Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu4_1): ReLU(inplace)
+  (conv4_2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu4_2): ReLU(inplace)
+  (conv4_3): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu4_3): ReLU(inplace)
+  (pool4): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (conv5_1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu5_1): ReLU(inplace)
+  (conv5_2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu5_2): ReLU(inplace)
+  (conv5_3): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (relu5_3): ReLU(inplace)
+  (pool5): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+  (fc6): Conv2d(512, 4096, kernel_size=(7, 7), stride=(1, 1))
+  (relu6): ReLU(inplace)
+  (drop6): Dropout2d(p=0.5)
+  (fc7): Conv2d(4096, 4096, kernel_size=(1, 1), stride=(1, 1))
+  (relu7): ReLU(inplace)
+  (drop7): Dropout2d(p=0.5)
+  (score_fr): Conv2d(4096, 21, kernel_size=(1, 1), stride=(1, 1))
+  (upscore): ConvTranspose2d(21, 21, kernel_size=(64, 64), stride=(32, 32), bias=False)
+)
+----
+1 - Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(100, 100))
+----
+2 - ReLU(inplace)
+----
+3 - Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+4 - ReLU(inplace)
+----
+5 - MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+----
+6 - Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+7 - ReLU(inplace)
+----
+8 - Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+9 - ReLU(inplace)
+----
+10 - MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+----
+11 - Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+12 - ReLU(inplace)
+----
+13 - Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+14 - ReLU(inplace)
+----
+15 - Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+16 - ReLU(inplace)
+----
+17 - MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+----
+18 - Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+19 - ReLU(inplace)
+----
+20 - Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+21 - ReLU(inplace)
+----
+22 - Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+23 - ReLU(inplace)
+----
+24 - MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+----
+25 - Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+26 - ReLU(inplace)
+----
+27 - Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+28 - ReLU(inplace)
+----
+29 - Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+----
+30 - ReLU(inplace)
+----
+31 - MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=True)
+----
+32 - Conv2d(512, 4096, kernel_size=(7, 7), stride=(1, 1))
+----
+33 - ReLU(inplace)
+----
+34 - Dropout2d(p=0.5)
+----
+35 - Conv2d(4096, 4096, kernel_size=(1, 1), stride=(1, 1))
+----
+36 - ReLU(inplace)
+----
+37 - Dropout2d(p=0.5)
+----
+38 - Conv2d(4096, 21, kernel_size=(1, 1), stride=(1, 1))
+----
+39 - ConvTranspose2d(21, 21, kernel_size=(64, 64), stride=(32, 32), bias=False)
+----
+4000
+logs/MODEL-fcn32s_CFG-001_MAX_ITERATION-100000_LR-1e-10_MOMENTUM-0.99_WEIGHT_DECAY-0.0005_INTERVAL_VALIDATE-4000_TIME-20190501-153532

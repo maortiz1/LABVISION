@@ -691,8 +691,8 @@ class Trainer(object):
         img_ = fcn.utils.get_tile_image(visualizations)
         #scipy.misc.imsave(out_file, img_)
         imageio.imwrite(out_file, img_)
-        plt.imshow(imageio.imread(out_file))
-        plt.show()
+        #plt.imshow(imageio.imread(out_file))
+        #plt.show()
 
         val_loss /= len(self.val_loader)
 
