@@ -28,7 +28,7 @@ resume = ''
 
 cfg = configurations[1]
 
-gpu = 0
+gpu = 1
 os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
 cuda = torch.cuda.is_available()
 
@@ -263,10 +263,48 @@ def run_fromfile(img_file):
         imshow_label(lbl_pred[0])
         plt.show()
         
+
+import os
+import requests
+import zipfile
+import tarfile
+
+if not os.path.isdir(os.path.join(os.getcwd(),'wild')):
+   url='https://drive.google.com/uc?export=download&id=1HYJCzhzdRb8m4yFjjuFxfUBam4IGrhg0'
+   r=requests.get(url,allow_redirects=True)
+   open('wild.zip','wb').write(r.content) 
+   zip_ref = zipfile.ZipFile('wild.zip', 'r')
+   zip_ref.extractall()
+   zip_ref.close()
+
         
-img_file = 'imgs/demo.jpg'
+img_file = 'wild/1.jpeg'
 run_fromfile(img_file)
 
 
-img_file = 'imgs/demo1.jpg'
+img_file = 'wild/2.jpeg'
+run_fromfile(img_file)
+
+
+img_file = 'wild/3.jpeg'
+run_fromfile(img_file)
+
+img_file = 'wild/4.jpeg'
+run_fromfile(img_file)
+
+
+img_file = 'wild/5.jpeg'
+run_fromfile(img_file)
+
+img_file = 'wild/6.jpeg'
+run_fromfile(img_file)
+
+img_file = 'wild/7.jpeg'
+run_fromfile(img_file)
+
+img_file = 'wild/8.jpeg'
+run_fromfile(img_file)
+
+
+img_file = 'wild/9.jpeg'
 run_fromfile(img_file)

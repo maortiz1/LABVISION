@@ -354,11 +354,11 @@ class FCN32s(nn.Module):
         return h
  
 
-#model = FCN16s(n_class=21)
+model = FCN32s(n_class=21)
 #if cuda: model.to('cuda')
 #model.eval()
        
-model = FCN16s(n_class=21)
+#model = FCN16s(n_class=21)
 if cuda: model.to('cuda')
 model.eval()
 
@@ -368,7 +368,7 @@ model.eval()
 #checkpoint = torch.load(resume)
 #model.load_state_dict(checkpoint['model_state_dict'])
 
-resume = 'logs/FCN16vgg/checkpoint.pth.tar'
+resume = 'logs/FCN32s_Sc/checkpoint.pth.tar'
 #resume = 'data/pretrained_models/fcn32s_from_caffe.pth'
 print('Loading checkpoint from: '+resume)
 model.load_state_dict(torch.load(resume)['model_state_dict'])
@@ -797,5 +797,8 @@ label_trues,label_preds,n_c=trainer.validate()
 
 print(len(label_trues))
 print(len(label_preds))
+
+
+
 
 
