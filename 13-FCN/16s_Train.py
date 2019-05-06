@@ -513,9 +513,7 @@ if resume:
     print('Loading checkpoint from: '+resume)
     checkpoint = torch.load(resume)
     model.load_state_dict(checkpoint['model_state_dict'])
-else:
-    vgg16 = VGG16(pretrained=True).to('cuda') # It takes a while
-    model.copy_params_from_vgg16(vgg16)
+
 
 def get_parameters(model, bias=False):
     import torch.nn as nn

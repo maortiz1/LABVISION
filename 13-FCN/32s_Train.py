@@ -51,7 +51,7 @@ def get_log_dir(model_name, config_id, cfg):
 out = get_log_dir('fcn32s', 1, cfg)
 print(out)
 
-gpu = 0
+gpu = 1
 os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
 cuda = torch.cuda.is_available()
 print('Cuda: {}'.format(cuda))
@@ -504,10 +504,7 @@ if resume:
     print('Loading checkpoint from: '+resume)
     checkpoint = torch.load(resume)
     model.load_state_dict(checkpoint['model_state_dict'])
-else:
-    print('load vgg')
-    vgg16 = VGG16(pretrained=True) # It takes a while
-    model.copy_params_from_vgg16(vgg16)
+
     
     
 for idx, m in enumerate(model.modules()): print(str(idx)+' - '+ str(m)+'\n----')
