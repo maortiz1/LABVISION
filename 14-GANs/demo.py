@@ -18,6 +18,23 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
 
+
+
+import os
+import requests
+import urllib
+
+URL='https://www.dropbox.com/s/bijwrvojafs2nwn/checkpoint.pth.tar?dl=1'
+print('It will be proceed to download the model')
+#checking if databse is already downloaded
+if not(os.path.exists('checkpoint.pth.tar')):
+  urllib.request.urlretrieve(URL, "checkpoint.pth.tar") 
+  print('The model had been downloaded')
+else: 
+  print('The file  already exists')
+
+
+
 # Set random seem for reproducibility
 manualSeed = 999
 #manualSeed = random.randint(1, 10000) # use if you want new results
@@ -113,20 +130,37 @@ netG = Generator(ngpu).to(device)
 
 resume = 'checkpoint.pth.tar'
 print('Loading checkpoint from: '+resume)
+print('Number of epochs training: '+str(torch.load(resume)['epoch']))
+print('Number of iterations: '+str(torch.load(resume)['iteration']))
 netG.load_state_dict(torch.load(resume)['model_state_dict'])
 matplotlib.use('tkagg')
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator
 fixed_noise = torch.randn(64, nz, 1, 1, device=device)
 
-
+netG = torch.load(resume)['model']
 fake1 = netG(fixed_noise).detach().cpu()
 
 
+fixed_noise = torch.randn(32, nz, 1, 1, device=device)
 
-with torch.no_grad():
-    fake2 = netG(fixed_noise).detach().cpu()
+fake2 = netG(fixed_noise).detach().cpu()
 
 img = vutils.make_grid(fake1, padding=2, normalize=True)
+plt.imshow(np.transpose(img,(1,2,0)))
+plt.show()
+
+
+
+img = vutils.make_grid(fake2, padding=2, normalize=True)
+plt.imshow(np.transpose(img,(1,2,0)))
+plt.show()
+
+
+fixed_noise = torch.randn(2, nz, 1, 1, device=device)
+
+fake3 = netG(fixed_noise).detach().cpu()
+
+img = vutils.make_grid(fake3, padding=2, normalize=True)
 plt.imshow(np.transpose(img,(1,2,0)))
 plt.show()
