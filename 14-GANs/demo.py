@@ -146,13 +146,13 @@ fixed_noise = torch.randn(32, nz, 1, 1, device=device)
 
 fake2 = netG(fixed_noise).detach().cpu()
 
-img = vutils.make_grid(fake1, padding=2, normalize=True)
+img = vutils.make_grid(fake1, padding=1, normalize=True)
 plt.imshow(np.transpose(img,(1,2,0)))
 plt.show()
 
 
 
-img = vutils.make_grid(fake2, padding=2, normalize=True)
+img = vutils.make_grid(fake2, padding=1, normalize=True)
 plt.imshow(np.transpose(img,(1,2,0)))
 plt.show()
 
@@ -161,6 +161,6 @@ fixed_noise = torch.randn(2, nz, 1, 1, device=device)
 
 fake3 = netG(fixed_noise).detach().cpu()
 
-img = vutils.make_grid(fake3, padding=2, normalize=True)
+img = vutils.make_grid(fake3, padding=1, normalize=True)
 plt.imshow(np.transpose(img,(1,2,0)))
 plt.show()
