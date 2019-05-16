@@ -32,6 +32,9 @@ import seaborn as sns
 from torch.utils import data
 import torch
 from PIL import Image
+
+import pdb
+
 torch.manual_seed(42)
 np.random.seed(42)
 
@@ -84,7 +87,6 @@ lesion_type_dict = {
     'df': 'Dermatofibroma'
 }
 skin_df = pd.read_csv(os.path.join(base_skin_dir,'HAM10000_metadata.csv'))
-
 # Creating New Columns for better readability
 
 skin_df['path'] = skin_df['image_id'].map(imageid_path_dict.get)
@@ -103,7 +105,7 @@ skin_df['age'].fillna((skin_df['age'].mean()), inplace=True)
 #from PIL import ImageFile
 #ImageFile.LOAD_TRUNCATED_IMAGES = True
 #skin_df['image'] = skin_df['path'].map(lambda x: np.asarray(Image.open(x).resize((150,150))))
-print(skin_df['path'])
+#print(skin_df['path'])
 
 #print('Checking the image size distribution')
 #skin_df['image'].map(lambda x: x.shape).value_counts()
@@ -143,6 +145,7 @@ y_train=y_train_o
 #print(y_train)
 print(y_train.shape)
 #y_test = pd.factorize(y_test_o)[0]
+x_test = x_test_o
 y_test=y_test_o
 print('Separating validation set')
 import collections
@@ -162,7 +165,9 @@ countertest=((collections.Counter(y_val).values()))
 print(collections.Counter(y_val))
 print(countertest)
 
-
+x_train = x_train.reset_index()
+x_val = x_val.reset_index()
+x_test = x_test.reset_index()
 
 # CNN model
 import torchvision.models as models
@@ -193,6 +198,7 @@ class Dataset(data.Dataset):
     def __getitem__(self, index):
         'Generates one sample of data'
         # Load data and get label
+        #print(self.df['path'][index])
         X = Image.open(self.df['path'][index])
         y = torch.tensor(int(self.df['cell_type_idx'][index]))
 
@@ -204,7 +210,7 @@ class Dataset(data.Dataset):
 # Define the parameters for the dataloader
 params = {'batch_size': 4,
           'shuffle': True,
-          'num_workers': 6}
+          'num_workers': 0}
 
 # define the transformation of the images.
 import torchvision.transforms as trf
@@ -224,7 +230,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 # Train
 
-max_epochs = 20
+max_epochs = 30
 trainings_error = []
 validation_error = []
 for epoch in range(max_epochs):
@@ -264,9 +270,21 @@ for epoch in range(max_epochs):
                 validation_error.append(mean_val_error)
                 print('validation error:', mean_val_error)
                 break
+
+
+#plt.plot(trainings_error, label = 'training error')
+#plt.plot(validation_error, label = 'validation error')
+#plt.legend()
+#plt.show()
+
+
 model.eval()
 test_set = Dataset(x_test, transform=composed)
-test_generator = data.SequentialSampler(validation_set)
+#test_generator = data.DataLoader(test_set, **params)
+test_generator = data.SequentialSampler(test_set)
+
+
+
 print(accuracy_score(y_test, test_generator)) 
 
 
