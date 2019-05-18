@@ -230,7 +230,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 # Train
 
-max_epochs = 30
+max_epochs = 100
 trainings_error = []
 validation_error = []
 for epoch in range(max_epochs):
@@ -283,8 +283,19 @@ test_set = Dataset(x_test, transform=composed)
 #test_generator = data.DataLoader(test_set, **params)
 test_generator = data.SequentialSampler(test_set)
 
-
-
-print(accuracy_score(y_test, test_generator)) 
+result_array = []
+gt_array = []
+for i in test_generator:
+    data_sample, y = test_set.__getitem__(i)
+    data_gpu = data_sample.unsqueeze(0).to(device)
+    output = model(data_gpu)
+    result = torch.argmax(output)
+    result_array.append(result.item())
+    gt_array.append(y.item())
+    
+correct_results = np.array(result_array)==np.array(gt_array)
+sum_correct = np.sum(correct_results)
+accuracy = sum_correct/test_generator.__len__()
+print(accuracy)
 
 
