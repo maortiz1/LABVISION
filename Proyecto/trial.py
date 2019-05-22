@@ -38,6 +38,45 @@ import pdb
 torch.manual_seed(42)
 np.random.seed(42)
 
+
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    
+    plt.figure
+    
+
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, round(cm[i, j],3),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.show()
+    plt.savefig('confusionmatrix_prueba.png', dpi=300)
+
+
+
+
 # Downloading Training Dataset
 URL='https://www.dropbox.com/s/9ybbu805dwh8258/skin-cancer-mnist-ham10000.zip?dl=1'
 print('It will be proceed to download the training database')
@@ -171,7 +210,7 @@ x_test = x_test.reset_index()
 
 # CNN model
 import torchvision.models as models
-model_conv = models.resnet50(pretrained=True)
+model_conv = models.resnet50(pretrained=False)
 #print(model_conv)
 #print(model_conv.fc)
 num_ftrs = model_conv.fc.in_features
@@ -179,7 +218,7 @@ model_conv.fc = torch.nn.Linear(num_ftrs, 7)
 #print(model_conv.fc)
 
 # Define the device:
-device = torch.device('cuda:0')
+device = torch.device('cuda:2')
 
 # Put the model on the device:
 model = model_conv.to(device)
@@ -225,7 +264,7 @@ training_generator = data.DataLoader(training_set, **params)
 validation_set = Dataset(x_val, transform=composed)
 validation_generator = data.DataLoader(validation_set, **params)
 #Optimizer
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-6)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0000005)
 criterion = torch.nn.CrossEntropyLoss()
 
 # Train
@@ -297,5 +336,5 @@ correct_results = np.array(result_array)==np.array(gt_array)
 sum_correct = np.sum(correct_results)
 accuracy = sum_correct/test_generator.__len__()
 print(accuracy)
-
-
+#confusion_mtx = confusion_matrix(gt_array,result_array)
+#plot_confusion_matrix(confusion_mtx, classes = range(7),title='Test Confusion Matrix',normalize=True) 
