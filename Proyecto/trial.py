@@ -210,7 +210,7 @@ x_test = x_test.reset_index()
 
 # CNN model
 import torchvision.models as models
-model_conv = models.resnet50(pretrained=False)
+model_conv = models.resnet50(pretrained=True)
 #print(model_conv)
 #print(model_conv.fc)
 num_ftrs = model_conv.fc.in_features
@@ -264,12 +264,12 @@ training_generator = data.DataLoader(training_set, **params)
 validation_set = Dataset(x_val, transform=composed)
 validation_generator = data.DataLoader(validation_set, **params)
 #Optimizer
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0000005)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0000001)
 criterion = torch.nn.CrossEntropyLoss()
 
 # Train
 
-max_epochs = 100
+max_epochs = 300
 trainings_error = []
 validation_error = []
 for epoch in range(max_epochs):
