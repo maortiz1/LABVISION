@@ -13,50 +13,6 @@ from unet import UNet
 from utils import get_ids, split_ids, split_train_val, get_imgs_and_masks, batch
 from sklearn.model_selection import train_test_split
 
-# To read the images in numerical order
-import re
-numbers = re.compile(r'(\d+)')
-def numericalSort(value):
-    parts = numbers.split(value)
-    parts[1::2] = map(int, parts[1::2])
-    return parts
-    
-class DataLoader():
-   def __init__(self,rootG,rootI):
-     #self.batch_size=batch_size
-     #self.image_size=image_size
-     self.rootG=rootG
-     self.rootI=rootI
-
-     if os.path.isdir(rootG):
-       self.groundtruthP= sorted(glob.glob(os.path.join(rootG,'*.png')),key=numericalSort)
-       
-     else:
-       raise Exception('rootG debe ser un directorio')
-     if os.path.isdir(rootI):
-       self.imagesPts= sorted(glob.glob(os.path.join(rootI,'*.jpg')),key=numericalSort)
-       
-     else:
-       raise Exception('rootI debe ser un directorio')
-     
-     print('Size of the dataset:  ',len(self.imagesPts))
-     self.train_x, self.test_x, self.train_y, self.test_y =train_test_split(self.imagesPts,self.groundtruthP,
-     test_size=0.20,random_state=42)
-     self.train_x,self.val_x,self.train_y,self.val_y = train_test_split(self.train_x,self.train_y)
-     print('Number of train images: ',len(self.train_x))
-     print('Number of test images: ',len(self.test_x))
-     print('Number of validation images: ', len(self.val_x))
-     self.train_x=np.array([np.array(Image.open(fname)) for fname in self.train_x])
-     self.train_y = np.array([np.array(Image.open(fname)) for fname in self.train_y])
-     self.test_x = np.array([np.array(Image.open(fname)) for fname in self.test_x])
-     self.test_y = np.array([np.array(Image.open(fname)) for fname in self.test_y])
-     self.val_x = np.array([np.array(Image.open(fname)) for fname in self.val_x])
-     self.val_y = np.array([np.array(Image.open(fname)) for fname in self.val_y])
-
-     
-rootG='ISIC2018_Task1_Training_GroundTruth'
-rootI='ISIC2018_Task1-2_Training_Input'
-data = DataLoader(rootG,rootI)
 
 
 def train_net(net,
@@ -68,14 +24,14 @@ def train_net(net,
               gpu=True,
               img_scale=0.5):
 
-#    dir_img = 'ISIC2018_Task1-2_Training_Input'
-#   dir_mask = 'ISIC2018_Task1_Training_GroundTruth'
+    dir_img = 'ISIC2018_Task1-2_Training_Input/'
+    dir_mask = 'ISIC2018_Task1_Training_GroundTruth/'
     dir_checkpoint = 'checkpoints/'
 
-#    ids = get_ids(dir_img)
-#    ids = split_ids(ids)
+    ids = get_ids(dir_img)
+    ids = split_ids(ids)
 
-#    iddataset = split_train_val(ids, val_percent)
+    iddataset = split_train_val(ids, val_percent)
 
     print('''
     Starting training:
@@ -86,10 +42,10 @@ def train_net(net,
         Validation size: {}
         Checkpoints: {}
         CUDA: {}
-    '''.format(epochs, batch_size, lr, len(data.train_x),
-               len(data.val_x), str(save_cp), str(gpu)))
+    '''.format(epochs, batch_size, lr, len(iddataset['train']),
+               len(iddataset['val']), str(save_cp), str(gpu)))
 
-    N_train = len(data.train_x)
+    N_train = len(iddataset['train'])
 
     optimizer = optim.SGD(net.parameters(),
                           lr=lr,
@@ -103,10 +59,9 @@ def train_net(net,
         net.train()
 
         # reset the generators
-        train = data.train_x
-        mask_train = data.train_y
-        val = data.val_x
-        mask_val = data.val_y
+        train = get_imgs_and_masks(iddataset['train'], dir_img, dir_mask, img_scale)
+        val = get_imgs_and_masks(iddataset['val'], dir_img, dir_mask, img_scale)
+
         epoch_loss = 0
 
         for i, b in enumerate(batch(train, batch_size)):
