@@ -2,16 +2,16 @@ import sys
 import os
 from optparse import OptionParser
 import numpy as np
-
+import glob
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
 from torch import optim
-
+from PIL import Image
 from eval import eval_net
 from unet import UNet
 from utils import get_ids, split_ids, split_train_val, get_imgs_and_masks, batch
-
+from sklearn.model_selection import train_test_split
 
 # To read the images in numerical order
 import re
@@ -46,12 +46,12 @@ class DataLoader():
      print('Number of train images: ',len(self.train_x))
      print('Number of test images: ',len(self.test_x))
      print('Number of validation images: ', len(self.val_x))
-     self.train_x=np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_x])
-     self.train_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_y])
-     self.test_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_x])
-     self.test_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_y])
-     self.val_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.val_x])
-     self.val_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.val_y])
+     self.train_x=np.array([np.array(Image.open(fname)) for fname in self.train_x])
+     self.train_y = np.array([np.array(Image.open(fname)) for fname in self.train_y])
+     self.test_x = np.array([np.array(Image.open(fname)) for fname in self.test_x])
+     self.test_y = np.array([np.array(Image.open(fname)) for fname in self.test_y])
+     self.val_x = np.array([np.array(Image.open(fname)) for fname in self.val_x])
+     self.val_y = np.array([np.array(Image.open(fname)) for fname in self.val_y])
 
      
 rootG='ISIC2018_Task1_Training_GroundTruth'
@@ -86,7 +86,8 @@ def train_net(net,
         Validation size: {}
         Checkpoints: {}
         CUDA: {}
-    '''.format(epochs, batch_size, lr, str(save_cp), str(gpu)))
+    '''.format(epochs, batch_size, lr, len(data.train_x),
+               len(data.val_x), str(save_cp), str(gpu)))
 
     N_train = len(data.train_x)
 
@@ -103,8 +104,9 @@ def train_net(net,
 
         # reset the generators
         train = data.train_x
+        mask_train = data.train_y
         val = data.val_x
-
+        mask_val = data.val_y
         epoch_loss = 0
 
         for i, b in enumerate(batch(train, batch_size)):
