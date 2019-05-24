@@ -269,7 +269,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 # Train
 
-max_epochs = 300
+max_epochs = 20
 trainings_error = []
 validation_error = []
 for epoch in range(max_epochs):
@@ -336,5 +336,5 @@ correct_results = np.array(result_array)==np.array(gt_array)
 sum_correct = np.sum(correct_results)
 accuracy = sum_correct/test_generator.__len__()
 print(accuracy)
-#confusion_mtx = confusion_matrix(gt_array,result_array)
-#plot_confusion_matrix(confusion_mtx, classes = range(7),title='Test Confusion Matrix',normalize=True) 
+confusion_mtx = confusion_matrix(gt_array,result_array)
+plot_confusion_matrix(confusion_mtx, classes = range(7),title='Test Confusion Matrix',normalize=True) 
