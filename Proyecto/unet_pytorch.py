@@ -13,7 +13,7 @@ from unet import UNet
 from utils import get_ids, split_ids, split_train_val, get_imgs_and_masks, batch
 from sklearn.model_selection import train_test_split
 
-
+device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 def train_net(net,
               epochs=5,
@@ -61,19 +61,22 @@ def train_net(net,
         # reset the generators
         train = get_imgs_and_masks(iddataset['train'], dir_img, dir_mask, img_scale)
         val = get_imgs_and_masks(iddataset['val'], dir_img, dir_mask, img_scale)
-
+        
         epoch_loss = 0
 
         for i, b in enumerate(batch(train, batch_size)):
-            imgs = np.array([i[0] for i in b]).astype(np.float32)
-            true_masks = np.array([i[1] for i in b])
+ 
+            temp = [k[0] for k in b]
+
+            imgs = np.array([k for k in temp])
+            true_masks = np.array([j[1] for j in b])
 
             imgs = torch.from_numpy(imgs)
             true_masks = torch.from_numpy(true_masks)
 
             if gpu:
-                imgs = imgs.cuda()
-                true_masks = true_masks.cuda()
+                imgs = imgs.to(device)
+                true_masks = true_masks.to(device)
 
             masks_pred = net(imgs)
             masks_probs_flat = masks_pred.view(-1)
@@ -111,7 +114,7 @@ def get_args():
     parser.add_option('-l', '--learning-rate', dest='lr', default=0.1,
                       type='float', help='learning rate')
     parser.add_option('-g', '--gpu', action='store_true', dest='gpu',
-                      default=False, help='use cuda')
+                      default=True, help='use cuda')
     parser.add_option('-c', '--load', dest='load',
                       default=False, help='load file model')
     parser.add_option('-s', '--scale', dest='scale', type='float',
@@ -121,6 +124,9 @@ def get_args():
     return options
 
 if __name__ == '__main__':
+    gpu = 0
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
+    cuda = torch.cuda.is_available()
     args = get_args()
 
     net = UNet(n_channels=3, n_classes=1)
@@ -130,7 +136,7 @@ if __name__ == '__main__':
         print('Model loaded from {}'.format(args.load))
 
     if args.gpu:
-        net.cuda()
+        net.to(device)
         # cudnn.benchmark = True # faster convolutions, but more memory
 
     try:

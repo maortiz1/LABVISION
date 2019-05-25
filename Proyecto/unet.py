@@ -1,4 +1,15 @@
 from PIL import Image
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2"
+
+import tensorflow as tf
+import keras
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.Session(config=config)
+keras.backend.set_session(sess)
+
 
 import os
 from keras.preprocessing import image
@@ -50,7 +61,13 @@ def numericalSort(value):
     parts = numbers.split(value)
     parts[1::2] = map(int, parts[1::2])
     return parts
-    
+
+from tensorflow.python.client import device_lib
+local_device_protos = device_lib.list_local_devices()
+print( [x.name for x in local_device_protos])
+from keras.utils import multi_gpu_model
+
+
 class DataLoader():
    def __init__(self,rootG,rootI):
      #self.batch_size=batch_size
@@ -87,12 +104,6 @@ class DataLoader():
 rootG='ISIC2018_Task1_Training_GroundTruth'
 rootI='ISIC2018_Task1-2_Training_Input'
 data = DataLoader(rootG,rootI)
-
-x = data.train_y[0]
-print(x)
-plt.imshow(x)
-plt.show()
-
 def unet(input_size = (192,256,3  )):
       img_input = Input(shape= (192, 256, 3))
       x = Conv2D(16, (3, 3), padding='same', name='conv1')(img_input)
@@ -166,8 +177,9 @@ def unet(input_size = (192,256,3  )):
       x = Activation('sigmoid')(x)
       pred = Reshape((192,256))(x)
       
+      
       model = Model(inputs=img_input, outputs=pred)
-  
+      model=multi_gpu_model(model,gpus=2)
   
       model.compile(optimizer= Adam(lr = 0.003), loss= [jaccard_distance], metrics=[iou])
       

@@ -28,7 +28,9 @@ def resize_and_crop(pilimg, scale=0.5, final_height=None):
         diff = newH - final_height
 
     img = pilimg.resize((newW, newH))
+ 
     img = img.crop((0, diff // 2, newW, newH - diff // 2))
+    print(np.array(img).shape)
     return np.array(img, dtype=np.float32)
 
 def batch(iterable, batch_size):
