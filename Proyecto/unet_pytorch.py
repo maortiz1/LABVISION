@@ -14,7 +14,7 @@ from utils import get_ids, split_ids, split_train_val, get_imgs_and_masks, batch
 from sklearn.model_selection import train_test_split
 from torchsummary import summary
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def train_net(net,
               epochs=5,
@@ -68,7 +68,7 @@ def train_net(net,
         for i, b in enumerate(batch(train, batch_size)):
        
             temp = [k[0] for k in b]
-            print(temp[0].shape)
+            print(len(b))
             imgs = np.array([k for k in temp])
             true_masks = np.array([j[1] for j in b])
 
@@ -111,7 +111,7 @@ def get_args():
     parser = OptionParser()
     parser.add_option('-e', '--epochs', dest='epochs', default=30, type='int',
                       help='number of epochs')
-    parser.add_option('-b', '--batch-size', dest='batchsize', default=5,
+    parser.add_option('-b', '--batch-size', dest='batchsize', default=10,
                       type='int', help='batch size')
     parser.add_option('-l', '--learning-rate', dest='lr', default=0.1,
                       type='float', help='learning rate')

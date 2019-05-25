@@ -179,7 +179,7 @@ def unet(input_size = (192,256,3  )):
       
       
       model = Model(inputs=img_input, outputs=pred)
-      model=multi_gpu_model(model,gpus=2)
+
   
       model.compile(optimizer= Adam(lr = 0.003), loss= [jaccard_distance], metrics=[iou])
       
