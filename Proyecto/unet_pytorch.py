@@ -12,8 +12,9 @@ from eval import eval_net
 from unet import UNet
 from utils import get_ids, split_ids, split_train_val, get_imgs_and_masks, batch
 from sklearn.model_selection import train_test_split
+from torchsummary import summary
 
-device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 def train_net(net,
               epochs=5,
@@ -63,11 +64,11 @@ def train_net(net,
         val = get_imgs_and_masks(iddataset['val'], dir_img, dir_mask, img_scale)
         
         epoch_loss = 0
-
+      
         for i, b in enumerate(batch(train, batch_size)):
- 
+       
             temp = [k[0] for k in b]
-
+            print(temp[0].shape)
             imgs = np.array([k for k in temp])
             true_masks = np.array([j[1] for j in b])
 
@@ -85,7 +86,7 @@ def train_net(net,
 
             loss = criterion(masks_probs_flat, true_masks_flat)
             epoch_loss += loss.item()
-
+            print('Epoch: ',epoch)
             print('{0:.4f} --- loss: {1:.6f}'.format(i * batch_size / N_train, loss.item()))
 
             optimizer.zero_grad()
@@ -93,6 +94,7 @@ def train_net(net,
             optimizer.step()
 
         print('Epoch finished ! Loss: {}'.format(epoch_loss / i))
+        
 
         if 1:
             val_dice = eval_net(net, val, gpu)
@@ -107,9 +109,9 @@ def train_net(net,
 
 def get_args():
     parser = OptionParser()
-    parser.add_option('-e', '--epochs', dest='epochs', default=5, type='int',
+    parser.add_option('-e', '--epochs', dest='epochs', default=30, type='int',
                       help='number of epochs')
-    parser.add_option('-b', '--batch-size', dest='batchsize', default=10,
+    parser.add_option('-b', '--batch-size', dest='batchsize', default=5,
                       type='int', help='batch size')
     parser.add_option('-l', '--learning-rate', dest='lr', default=0.1,
                       type='float', help='learning rate')
@@ -124,9 +126,7 @@ def get_args():
     return options
 
 if __name__ == '__main__':
-    gpu = 0
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
-    cuda = torch.cuda.is_available()
+
     args = get_args()
 
     net = UNet(n_channels=3, n_classes=1)
@@ -137,6 +137,7 @@ if __name__ == '__main__':
 
     if args.gpu:
         net.to(device)
+
         # cudnn.benchmark = True # faster convolutions, but more memory
 
     try:
