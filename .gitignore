@@ -32,7 +32,9 @@ LabHOG.zip
 skin-cancer-mnist-ham10000/
 celeba-dataset/
 ISIC2018_Task1-2_Training_Input/
-
+checkpoints/
+checkpoints_lr0.001/
+checkpoints_lr0.01/
 13-FCN/data/
 13-FCN/logs/
 13-FCN/fcn.berkeleyvision.org

@@ -12,14 +12,14 @@ from eval import eval_net
 from unet import UNet
 from utils import get_ids, split_ids, split_train_val, get_imgs_and_masks, batch
 from sklearn.model_selection import train_test_split
-from torchsummary import summary
+
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def train_net(net,
-              epochs=5,
-              batch_size=1,
-              lr=0.1,
+              epochs=10,
+              batch_size=10,
+              lr=0.001,
               val_percent=0.2,
               save_cp=True,
               gpu=True,
@@ -109,11 +109,11 @@ def train_net(net,
 
 def get_args():
     parser = OptionParser()
-    parser.add_option('-e', '--epochs', dest='epochs', default=30, type='int',
+    parser.add_option('-e', '--epochs', dest='epochs', default=10, type='int',
                       help='number of epochs')
     parser.add_option('-b', '--batch-size', dest='batchsize', default=10,
                       type='int', help='batch size')
-    parser.add_option('-l', '--learning-rate', dest='lr', default=0.1,
+    parser.add_option('-l', '--learning-rate', dest='lr', default=0.001,
                       type='float', help='learning rate')
     parser.add_option('-g', '--gpu', action='store_true', dest='gpu',
                       default=True, help='use cuda')

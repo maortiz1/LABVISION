@@ -25,3 +25,4 @@ def eval_net(net, dataset, gpu=False):
 
         tot += dice_coeff(mask_pred, true_mask).item()
     return tot / (i + 1)
+    
