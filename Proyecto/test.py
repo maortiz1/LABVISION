@@ -155,7 +155,7 @@ model = Model(inputs=img_input, outputs=pred)
 from sklearn.model_selection import train_test_split  
   
 model.compile(optimizer= Adam(lr = 0.003), loss= [jaccard_distance], metrics=[iou])
-model.load_weights("check_unet_membrane.hdf5")
+model.load_weights("check_unet_membrane_e20_lr001.hdf5")
 
 #import tensorflow as tf
 #import keras.losses
@@ -202,8 +202,8 @@ class DataLoader():
      self.demo2 = np.array(Image.open(self.test_x[500]).resize((256,192)))
      self.demoG2 = np.array(Image.open(self.test_y[500]).resize((256,192)))
      
-     #self.test_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_x])
-     #self.test_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_y])
+     self.test_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_x])
+     self.test_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_y])
      #self.val_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.val_x])
      #self.val_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.val_y])
 
@@ -211,11 +211,11 @@ class DataLoader():
 rootG='ISIC2018_Task1_Training_GroundTruth'
 rootI='ISIC2018_Task1-2_Training_Input'
 data = DataLoader(rootG,rootI)
-
+accuracy = model.evaluate(x=data.test_x,y=data.test_y,batch_size=50)
 
 #predictions_valid = model.predict(data.test_x, batch_size=16, verbose=1)
 #accuracy = model.evaluate(x=data.test_x,y=data.test_y,batch_size=16)
-#print("Accuracy: ",accuracy[1])
+print("Accuracy: ",accuracy[1])
 
 #index = 45
 predict_input = data.demo
@@ -291,3 +291,4 @@ plt.figure()
 plt.imshow(ground_truth)
 plt.title('Ground Turth')
 plt.show()
+
