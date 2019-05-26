@@ -44,4 +44,10 @@ checkpoints_lr0.01/
 14-GANs/runs
 14-GANs/torch_data
 checkpointCPClaass400.pth
-
+check_unet_membrane.hdf5
+check_unet_membrane_e_10_lr_01.hdf5
+check_unet_membrane_e_10_lr_0_01.hdf5
+model_e_10_lr_01.h5
+model_e_10_lr_0_01.h5
+model_lr0.01_10epochs.h5
+model_lr0.1_10epochs.h5
