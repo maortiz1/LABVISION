@@ -93,18 +93,18 @@ class DataLoader():
      print('Number of train images: ',len(self.train_x))
      print('Number of test images: ',len(self.test_x))
      print('Number of validation images: ', len(self.val_x))
-     self.train_x=np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_x])
-     self.train_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_y])
-     self.test_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_x])
-     self.test_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_y])
-     self.val_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.val_x])
-     self.val_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.val_y])
+     self.train_x=np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.train_x])
+     self.train_y = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.train_y])
+     self.test_x = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32) for fname in self.test_x])
+     self.test_y = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.test_y])
+     self.val_x = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.val_x])
+     self.val_y = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.val_y])
 
      
 rootG='ISIC2018_Task1_Training_GroundTruth'
 rootI='ISIC2018_Task1-2_Training_Input'
 data = DataLoader(rootG,rootI)
-def unet(input_size = (192,256,3  )):
+def unet(input_size = (192,256,3)):
       img_input = Input(shape= (192, 256, 3))
       x = Conv2D(16, (3, 3), padding='same', name='conv1')(img_input)
       x = BatchNormalization(name='bn1')(x)
@@ -181,7 +181,7 @@ def unet(input_size = (192,256,3  )):
       model = Model(inputs=img_input, outputs=pred)
 
   
-      model.compile(optimizer= Adam(lr = 0.003), loss= [jaccard_distance], metrics=[iou])
+      model.compile(optimizer= Adam(lr = 0.1), loss= [jaccard_distance], metrics=[iou])
       
       model.summary()
   
@@ -195,9 +195,9 @@ from keras import backend as K
 print(K.tensorflow_backend._get_available_gpus())
 
 u_net = unet()
-model_checkpoint = ModelCheckpoint('check_unet_membrane.hdf5', monitor='loss',verbose=1, save_best_only=True)
+model_checkpoint = ModelCheckpoint('check_unet_membrane_e_20_lr_01.hdf5', monitor='loss',verbose=1, save_best_only=True)
 
-hist = u_net.fit(data.train_x,data.train_y,epochs=1000,batch_size=20,validation_data=(data.val_x,data.val_y),verbose=1,callbacks=[model_checkpoint])
+hist = u_net.fit(data.train_x,data.train_y,epochs=20,batch_size=50,validation_data=(data.val_x,data.val_y),verbose=1,callbacks=[model_checkpoint])
 
 u_net.save("model.h5")
 
