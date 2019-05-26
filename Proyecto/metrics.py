@@ -11,8 +11,12 @@ from dice_loss import dice_coeff
 from keras import backend as K
 import torch
 import torch.nn.functional as F
-
+import sklearn.metrics as skm
+import numpy as np
 from dice_loss import dice_coeff
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+import matplotlib.pyplot as plt
+
 
 #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def test(net, dataset, gpu=True):
@@ -25,26 +29,42 @@ def test(net, dataset, gpu=True):
 
         img = torch.from_numpy(img).unsqueeze(0)
         true_mask = torch.from_numpy(true_mask).unsqueeze(0)
-
+        
+       
         if gpu:
-            img = img.cuda()
-            true_mask = true_mask.cuda()
+            img = img.to(device)
+            true_mask = true_mask.to(device)
 
         mask_pred = net(img)[0]
-        mask_pred = (mask_pred > 0.5).float()
+        print(mask_pred)
+        mask_pred = (mask_pred > 0.5)
+        
 
-        tot += jaccard_distance(true_mask,mask_pred).item()
+#        jac= jaccard_distance(true_mask,mask_pred)
+        mask_pred=mask_pred.cpu().numpy()[:,:,:].squeeze()
+        print(mask_pred.squeeze().shape)
+        plt.imshow(mask_pred)
+        plt.show()
+        print(mask_pred)
+        true_mask=true_mask.data.cpu().numpy().squeeze()/255
+        print(true_mask)
+        plt.imshow(true_mask)
+        plt.show()
+        jac = iou(true_mask,mask_pred).mean()
+
+        print(i,':',jac)
+        tot += jac
     return tot / (i + 1)
     
 def jaccard_distance(y_true, y_pred, smooth=100):
-    intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
-    sum_ = K.sum(K.square(y_true), axis = -1) + K.sum(K.square(y_pred), axis=-1)
+    intersection = np.sum(np.abs(y_true * y_pred), axis=-1)
+    sum_ = np.sum(np.square(y_true), axis = -1) + np.sum(np.square(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac)
     
 def iou(y_true, y_pred, smooth = 100):
-    intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
-    sum_ = K.sum(K.square(y_true), axis = -1) + K.sum(K.square(y_pred), axis=-1)
+    intersection = np.sum(np.abs(y_true * y_pred), axis=-1)
+    sum_ = np.sum(np.square(y_true), axis = -1) + np.sum(np.square(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return jac
     
@@ -62,6 +82,6 @@ if __name__ == '__main__':
     val = get_imgs_and_masks(iddataset['val'], dir_img, dir_mask, 0.5)
 
 
-    net = UNet(3, 1).cuda()
-    net.load_state_dict(torch.load('checkpoints_lr0.01/CP10_lr0.01.pth'))
+    net = UNet(3, 1).to(device)
+    net.load_state_dict(torch.load('checkpoints/CPlr00119.pth'))
     test(net, val, gpu = True)
