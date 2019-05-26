@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 from dice_loss import dice_coeff
 
-
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 def eval_net(net, dataset, gpu=False):
     """Evaluation without the densecrf with the dice coefficient"""
     net.eval()
@@ -17,8 +17,8 @@ def eval_net(net, dataset, gpu=False):
         true_mask = torch.from_numpy(true_mask).unsqueeze(0)
 
         if gpu:
-            img = img.cuda()
-            true_mask = true_mask.cuda()
+            img = img.to(device)
+            true_mask = true_mask.to(device)
 
         mask_pred = net(img)[0]
         mask_pred = (mask_pred > 0.5).float()

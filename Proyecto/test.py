@@ -155,7 +155,7 @@ model = Model(inputs=img_input, outputs=pred)
 from sklearn.model_selection import train_test_split  
   
 model.compile(optimizer= Adam(lr = 0.003), loss= [jaccard_distance], metrics=[iou])
-model.load_weights("model.h5")
+model.load_weights("check_unet_membrane.hdf5")
 
 #import tensorflow as tf
 #import keras.losses
@@ -195,8 +195,8 @@ class DataLoader():
      print('Number of validation images: ', len(self.val_x))
      #self.train_x=np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_x])
      #self.train_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_y])
-     self.demo = np.array(Image.open(self.test_x[100]).resize((256,192)))
-     self.demoG = np.array(Image.open(self.test_y[100]).resize((256,192)))
+     self.demo = np.array(Image.open(self.test_x[150]).resize((256,192)))
+     self.demoG = np.array(Image.open(self.test_y[150]).resize((256,192)))
      self.demo1 = np.array(Image.open(self.test_x[400]).resize((256,192)))
      self.demoG1 = np.array(Image.open(self.test_y[400]).resize((256,192)))
      self.demo2 = np.array(Image.open(self.test_x[500]).resize((256,192)))
