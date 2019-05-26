@@ -12,7 +12,7 @@ from utils import resize_and_crop, normalize, split_img_into_squares, hwc_to_chw
 from utils import plot_img_and_mask
 
 from torchvision import transforms
-
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 def predict_img(net,
                 full_img,
                 scale_factor=0.5,
@@ -36,8 +36,8 @@ def predict_img(net,
     X_right = torch.from_numpy(right_square).unsqueeze(0)
     
     if use_gpu:
-        X_left = X_left.cuda()
-        X_right = X_right.cuda()
+        X_left = X_left.to(device)
+        X_right = X_right.to(device)
 
     with torch.no_grad():
         output_left = net(X_left)
@@ -71,7 +71,7 @@ def predict_img(net,
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', '-m', default='MODEL.pth',
+    parser.add_argument('--model', '-m', default='checkpoints/CPlr00120.pth',
                         metavar='FILE',
                         help="Specify the file in which is stored the model"
                              " (default : 'MODEL.pth')")
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     if not args.cpu:
         print("Using CUDA version of the net, prepare your GPU !")
-        net.cuda()
+        net.to(device)
         net.load_state_dict(torch.load(args.model))
     else:
         net.cpu()
