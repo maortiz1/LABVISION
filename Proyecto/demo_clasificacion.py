@@ -252,13 +252,10 @@ import torchvision.transforms as trf
 composed = trf.Compose([trf.RandomHorizontalFlip(), trf.RandomVerticalFlip(), trf.CenterCrop(256), trf.RandomCrop(224),  trf.ToTensor(),
                         trf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
               
-print(x_test.size)
-print(x_test.size[0])                  
-print(x_test.size[1])
-print(x_test.size[2])
-print(x_test.size[3])                   
-#demo = x_test[50]
-test_set = Dataset(x_test, transform=composed)
+           
+ipdb.settrace()               
+demo = x_test[1][11]
+test_set = Dataset(demo, transform=composed)
 #test_generator = data.DataLoader(test_set, **params)
 test_generator = data.SequentialSampler(test_set)
 
