@@ -4,6 +4,8 @@ Ignore/
 *.odt
 07-BSDS/BSR/BSDS500/
 *.tgz
+*.h5
+*.hdf5
 *solution*
 solution/
 _data/
@@ -41,3 +43,5 @@ checkpoints_lr0.01/
 14-GANs/dataset
 14-GANs/runs
 14-GANs/torch_data
+checkpointCPClaass400.pth
+

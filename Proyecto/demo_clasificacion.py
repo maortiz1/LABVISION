@@ -102,6 +102,15 @@ if not(os.path.exists('skin-cancer-mnist-ham10000/HAM10000_images_part_2')):
    zip2.extractall('skin-cancer-mnist-ham10000/HAM10000_images_part_2')
    zip2.close()
 
+
+URL='https://www.dropbox.com/s/ssvyom3yjwt4sam/checkpointCPClaass400.pth?dl=1'
+print('It will be proceed to download the trained model')
+#checking if databse is already downloaded
+if not(os.path.exists('checkpointCPClaass400.pth')):
+    urllib.request.urlretrieve(URL, "checkpointCPClaass400.pth") 
+    print('The trained model had been download')
+
+
 #os.chdir(..)
 # Reading and preparation of the data
 base_skin_dir = "skin-cancer-mnist-ham10000/" # Mari esto es lo unico que no quedo eficiente porque no supe como poner para que quedara el path completo jaja no me funciono 
