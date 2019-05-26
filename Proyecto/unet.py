@@ -48,6 +48,7 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     return (1 - jac)
 
 def iou(y_true, y_pred, smooth = 100):
+    y_pred = y_pred
     intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
     sum_ = K.sum(K.square(y_true), axis = -1) + K.sum(K.square(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
@@ -181,8 +182,7 @@ def unet(input_size = (192,256,3)):
       model = Model(inputs=img_input, outputs=pred)
 
   
-      model.compile(optimizer= Adam(lr = 0.01), loss= [jaccard_distance], metrics=[iou])
-      
+      model.compile(optimizer= Adam(lr = 0.0001), loss='logcosh', metrics=[iou])      
       model.summary()
   
   
@@ -195,7 +195,7 @@ from keras import backend as K
 print(K.tensorflow_backend._get_available_gpus())
 
 u_net = unet()
-model_checkpoint = ModelCheckpoint('check_unet_membrane_e_20_lr_001.hdf5', monitor='loss',verbose=1, save_best_only=True)
+model_checkpoint = ModelCheckpoint('check_unet_membrane_e_20_lr_00001_logcosh.hdf5', monitor='loss',verbose=1, save_best_only=True)
 
 hist = u_net.fit(data.train_x,data.train_y,epochs=20,batch_size=50,validation_data=(data.val_x,data.val_y),verbose=1,callbacks=[model_checkpoint])
 
@@ -203,4 +203,5 @@ u_net.save("model.h5")
 
 accuracy = u_net.evaluate(x=data.test_x,y=data.test_y,batch_size=16)
    
+
 
