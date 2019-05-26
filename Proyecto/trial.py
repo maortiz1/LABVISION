@@ -71,7 +71,7 @@ def plot_confusion_matrix(cm, classes,
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.show()
+   # plt.show()
     plt.savefig('confusionmatrix_prueba.png', dpi=300)
 
 
@@ -269,7 +269,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 # Train
 
-max_epochs = 20
+max_epochs = 400
 trainings_error = []
 validation_error = []
 for epoch in range(max_epochs):
@@ -314,11 +314,11 @@ for epoch in range(max_epochs):
 #plt.plot(trainings_error, label = 'training error')
 #plt.plot(validation_error, label = 'validation error')
 #plt.legend()
-#plt.show()
+#plt.savefig('train_error.png', dpi=300)
 
 
 model.eval()
-test_set = Dataset(x_test, transform=composed)
+test_set = Dataset(x_val, transform=composed)
 #test_generator = data.DataLoader(test_set, **params)
 test_generator = data.SequentialSampler(test_set)
 

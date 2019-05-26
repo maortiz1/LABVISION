@@ -275,7 +275,7 @@ plt.show()
 
 plt.figure()
 plt.imshow(ground_truth)
-plt.title('Ground Turth')
+plt.title('Ground Truth')
 plt.show()
 
 
