@@ -36,20 +36,15 @@ def test(net, dataset, gpu=True):
             true_mask = true_mask.to(device)
 
         mask_pred = net(img)[0]
-        print(mask_pred)
-        mask_pred = (mask_pred > 0.5)
+
+        mask_pred = (mask_pred > 0.5).float()
         
 
 #        jac= jaccard_distance(true_mask,mask_pred)
         mask_pred=mask_pred.cpu().numpy()[:,:,:].squeeze()
-        print(mask_pred.squeeze().shape)
-        plt.imshow(mask_pred)
-        plt.show()
-        print(mask_pred)
+
+
         true_mask=true_mask.data.cpu().numpy().squeeze()/255
-        print(true_mask)
-        plt.imshow(true_mask)
-        plt.show()
         jac = iou(true_mask,mask_pred).mean()
 
         print(i,':',jac)
@@ -83,5 +78,5 @@ if __name__ == '__main__':
 
 
     net = UNet(3, 1).to(device)
-    net.load_state_dict(torch.load('checkpoints/CPlr00119.pth'))
+    net.load_state_dict(torch.load('checkpoints/CP14.pth'))
     test(net, val, gpu = True)
