@@ -186,6 +186,7 @@ print(collections.Counter(y_test))
 print(countertest)
 
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = 0.1, random_state = 0,stratify=y_train)
+
 countertest=((collections.Counter(y_train).values()))
 print(collections.Counter(y_train))
 print(countertest)
@@ -195,6 +196,7 @@ print(countertest)
 
 x_train = x_train.reset_index()
 x_val = x_val.reset_index()
+
 x_test = x_test.reset_index()
 
 
@@ -253,23 +255,36 @@ composed = trf.Compose([trf.RandomHorizontalFlip(), trf.RandomVerticalFlip(), tr
                         trf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
               
            
-ipdb.settrace()               
-demo = x_test[1][11]
-test_set = Dataset(demo, transform=composed)
+#ipdb.settrace()      
+print(x_test.shape)         
+
+test_set = Dataset(x_test, transform=composed)
+spl = [10]*200
+spl[-1]=13
+demo_set=  data.random_split(test_set,spl)
+print(type(demo_set))
 #test_generator = data.DataLoader(test_set, **params)
-test_generator = data.SequentialSampler(test_set)
+test_generator = data.SequentialSampler(test_set[1])
 
 result_array = []
 gt_array = []
+print(len(test_generator))
 for i in test_generator:
     data_sample, y = test_set.__getitem__(i)
+    print(type(data_sample.data.numpy().squeeze()))
+    print(data_sample.data.numpy().squeeze().shape)
     data_gpu = data_sample.unsqueeze(0).to(device)
     output = model(data_gpu)
     result = torch.argmax(output)
     result_array.append(result.item())
     gt_array.append(y.item())
+    plt.imshow(data_sample.numpy().squeeze().astype(np.float32))
+    plt.title('R:',result,' True:',y)
+    
     
 correct_results = np.array(result_array)==np.array(gt_array)
 print(correct_results)
 print(result_array)
 print(gt_array)
+plt.imshow(demo)
+plt.show()
