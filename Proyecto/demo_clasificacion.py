@@ -1,4 +1,4 @@
-# Evaluacion debe reproducir el resultado de test usando todo el test set
+#Demo debe evaluar una imagen y clasificarla con el mejor modelo
 #Modules to use
 import ipdb
 import numpy as np
@@ -31,7 +31,7 @@ import seaborn as sns
 from torch.utils import data
 import torch
 from PIL import Image
-
+import torchvision
 import pdb
 
 torch.manual_seed(42)
@@ -272,19 +272,28 @@ print(len(test_generator))
 for i in test_generator:
     data_sample, y = test_set.__getitem__(i)
     print(type(data_sample.data.numpy().squeeze()))
+    print(data_sample.permute(2,1,0).data.numpy().squeeze().shape)
     print(data_sample.data.numpy().squeeze().shape)
     data_gpu = data_sample.unsqueeze(0).to(device)
     output = model(data_gpu)
     result = torch.argmax(output)
     result_array.append(result.item())
     gt_array.append(y.item())
-    plt.imshow(data_sample.numpy().squeeze().astype(np.float32))
-    plt.title('R:',result,' True:',y)
-    
+    data_sample -= data_sample.min()
+    data_sample /= data_sample.max()
+    plt.imshow(torchvision.utils.make_grid(data_sample).permute(1, 2, 0))
+    plt.title('Diagnosis: %d'%(result)+ ' Ground Truth: %d' %y)
+    plt.show()
+
+  #  plt.imshow(data_sample.permute(2,1,0).data.numpy().squeeze().astype(np.float32))
+    #plt.title('Diagnosis:',result,'Ground truth:',y)
+   # plt.title('Diagnosis:',result)
     
 correct_results = np.array(result_array)==np.array(gt_array)
-print(correct_results)
-print(result_array)
-print(gt_array)
-plt.imshow(demo)
-plt.show()
+#print(correct_results)
+#print(result_array)
+#print(gt_array)
+#print(demo_set)
+#ipdb.settrace()   
+#plt.imshow(demo)
+#plt.show()

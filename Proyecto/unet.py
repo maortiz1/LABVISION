@@ -182,7 +182,7 @@ def unet(input_size = (192,256,3)):
       model = Model(inputs=img_input, outputs=pred)
 
   
-      model.compile(optimizer= Adam(lr = 0.0001), loss='logcosh', metrics=[iou])      
+      model.compile(optimizer= Adam(lr = 0.001), loss=losses.mean_squared_error, metrics=[iou])      
       model.summary()
   
   
@@ -195,7 +195,7 @@ from keras import backend as K
 print(K.tensorflow_backend._get_available_gpus())
 
 u_net = unet()
-model_checkpoint = ModelCheckpoint('check_unet_membrane_e_20_lr_00001_logcosh.hdf5', monitor='loss',verbose=1, save_best_only=True)
+model_checkpoint = ModelCheckpoint('check_unet_membrane_e_20_lr_0_001_mse.hdf5', monitor='loss',verbose=1, save_best_only=True)
 
 hist = u_net.fit(data.train_x,data.train_y,epochs=20,batch_size=50,validation_data=(data.val_x,data.val_y),verbose=1,callbacks=[model_checkpoint])
 
