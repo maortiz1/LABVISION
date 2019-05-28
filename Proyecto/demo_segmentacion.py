@@ -178,14 +178,21 @@ pred = Reshape((192,256))(x)
 model = Model(inputs=img_input, outputs=pred)
   
   
+
+model.compile(optimizer= Adam(lr = 0.01), loss=[jaccard_distance], metrics=[iou])
 from sklearn.model_selection import train_test_split
   
-model.compile(optimizer= Adam(lr = 0.01), loss=[jaccard_distance], metrics=[iou])
-fi="models/check_unet_membrane_e_20_lr_001.hdf5"
+import urllib
+URL='https://www.dropbox.com/s/qqivaqr8mg8p1kh/check_unet_membrane_e_20_lr_00001_logcosh.hdf5?dl=1'
+print('It will be proceed to download the trained model')
+#checking if databse is already downloaded
+if not(os.path.exists('check_unet_membrane_e_20_lr_00001_logcosh.hdf5')):
+    urllib.request.urlretrieve(URL, "check_unet_membrane_e_20_lr_00001_logcosh.hdf5") 
+    print('The trained model had been download')
+
+fi="check_unet_membrane_e_20_lr_00001_logcosh.hdf5"
 model.load_weights(fi)
 print('model load from: ',fi)
-
-
 
 class DataLoader():
    def __init__(self,rootG,rootI):

@@ -1,7 +1,7 @@
 from PIL import Image
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2"
 
 import tensorflow as tf
 import keras
@@ -181,8 +181,8 @@ def unet(input_size = (192,256,3)):
       
       model = Model(inputs=img_input, outputs=pred)
 
-  
-      model.compile(optimizer= Adam(lr = 0.01), loss=[jaccard_distance], metrics=[iou])      
+            model.compile(optimizer= Adam(lr = 0.0001), loss='logcosh', metrics='logcosh')
+      
       model.summary()
   
   
@@ -195,9 +195,9 @@ from keras import backend as K
 print(K.tensorflow_backend._get_available_gpus())
 
 u_net = unet()
-model_checkpoint = ModelCheckpoint('check_unet_membrane_e_50_lr_0_01_jc_bt_100.hdf5', monitor='loss',verbose=1, save_best_only=True)
+model_checkpoint = ModelCheckpoint('check_unet_membrane_e_20_lr_00001_logcosh.hdf5', monitor='loss',verbose=1, save_best_only=True)
 
-hist = u_net.fit(data.train_x,data.train_y,epochs=50,batch_size=100,validation_data=(data.val_x,data.val_y),verbose=1,callbacks=[model_checkpoint])
+hist = u_net.fit(data.train_x,data.train_y,epochs=20,batch_size=50,validation_data=(data.val_x,data.val_y),verbose=1,callbacks=[model_checkpoint])
 
 u_net.save("model.h5")
 

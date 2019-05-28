@@ -46,48 +46,7 @@ def numericalSort(value):
     parts[1::2] = map(int, parts[1::2])
     return parts
 
-# Initializing all the images into 4d arrays.
 
-filelist_trainx = sorted(glob.glob('trainx/*.jpg'), key=numericalSort)
-#filelist_trainx.sort()
-X_train = np.array([np.array(Image.open(fname)) for fname in filelist_trainx])
-
-filelist_trainy = sorted(glob.glob('trainy/*.jpg'), key=numericalSort)
-#filelist_trainy.sort()
-Y_train = np.array([np.array(Image.open(fname)) for fname in filelist_trainy])
-
-filelist_testx = sorted(glob.glob('testx/*.jpg'), key=numericalSort)
-#filelist_testx.sort()
-X_test = np.array([np.array(Image.open(fname)) for fname in filelist_testx])
-
-filelist_testy = sorted(glob.glob('testy/*.jpg'), key=numericalSort)
-#filelist_testy.sort()
-Y_test = np.array([np.array(Image.open(fname)) for fname in filelist_testy])
-
-filelist_valx = sorted(glob.glob('validationx/*.jpg'), key=numericalSort)
-#filelist_valx.sort()
-X_val = np.array([np.array(Image.open(fname)) for fname in filelist_valx])
-
-filelist_valy = sorted(glob.glob('validationy/*.jpg'), key=numericalSort)
-#filelist_valy.sort()
-Y_val = np.array([np.array(Image.open(fname)) for fname in filelist_valy])
-
-def UnPooling2x2ZeroFilled(x):
-    
-    out = tf.concat([x, tf.zeros_like(x)], 3)
-    out = tf.concat([out, tf.zeros_like(out)], 2)
-
-    sh = x.get_shape().as_list()
-    if None not in sh[1:]:
-        out_size = [-1, sh[1] * 2, sh[2] * 2, sh[3]]
-        return tf.reshape(out, out_size)
-    else:
-        shv = tf.shape(x)
-        ret = tf.reshape(out, tf.stack([-1, shv[1] * 2, shv[2] * 2, sh[3]]))
-        return ret
-        
-(x_train, y_train), (x_test, y_test), (x_val, y_val) = (X_train, Y_train), (X_test, Y_test), (X_val, Y_val)
-# Convolution Layers (BatchNorm after non-linear activation)
   
 img_input = Input(shape= (192, 256, 3))
 x = Conv2D(16, (3, 3), padding='same', name='conv1')(img_input)
@@ -163,11 +122,18 @@ pred = Reshape((192,256))(x)
 
 model = Model(inputs=img_input, outputs=pred)
   
-  
-from sklearn.model_selection import train_test_split
-  
+    
 model.compile(optimizer= Adam(lr = 0.01), loss=[jaccard_distance], metrics=[iou])
-fi="models/check_unet_membrane_e_20_lr_001.hdf5"
+from sklearn.model_selection import train_test_split
+import urllib 
+URL='https://www.dropbox.com/s/qqivaqr8mg8p1kh/check_unet_membrane_e_20_lr_00001_logcosh.hdf5?dl=1'
+print('It will be proceed to download the trained model')
+#checking if databse is already downloaded
+if not(os.path.exists('check_unet_membrane_e_20_lr_00001_logcosh.hdf5')):
+    urllib.request.urlretrieve(URL, "check_unet_membrane_e_20_lr_00001_logcosh.hdf5") 
+    print('The trained model had been download')
+
+fi="check_unet_membrane_e_20_lr_00001_logcosh.hdf5"
 model.load_weights(fi)
 print('model load from: ',fi)
 
@@ -243,5 +209,5 @@ for i in ls:
 
 plt.plot(ls,alj,color='green',linewidth=2)
 m = max(alj)
-plt.title(('Jaccard vs Threshold: Best TH: %f')%(m))
+plt.title(('Jaccard vs Threshold: Best Jac: %f')%(m))
 plt.show()
