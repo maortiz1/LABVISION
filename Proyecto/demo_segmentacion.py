@@ -15,6 +15,20 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 import numpy as np
+def imshow(img, seg, ground_truth, title='Image'):
+    import matplotlib.pyplot as plt
+
+    plt.subplot(121)
+    plt.imshow(ground_truth)
+    plt.title('Ground Truth')
+    plt.axis('off')
+    plt.subplot(122)
+    plt.imshow(img, cmap=plt.get_cmap('gray'))
+    plt.imshow(seg, cmap=plt.get_cmap('prism'), alpha=0.5)
+
+    plt.title(title)
+    plt.axis('off')
+    plt.show()
 
 def metricJaccard(groundtruth,segmentation):
     ac=np.zeros(groundtruth.shape)
@@ -167,20 +181,11 @@ model = Model(inputs=img_input, outputs=pred)
 from sklearn.model_selection import train_test_split
   
 model.compile(optimizer= Adam(lr = 0.01), loss=[jaccard_distance], metrics=[iou])
-fi="check_unet_membrane_e_20_lr_01.hdf5"
+fi="models/check_unet_membrane_e_20_lr_001.hdf5"
 model.load_weights(fi)
 print('model load from: ',fi)
 
-#import tensorflow as tf
-#import keras.losses
-#keras.losses.custom_loss = jaccard_distance
-#from tensorflow.python.keras.utils import CustomObjectScope
-#tf.lite.TFLiteConverter.allow_custom_ops=True
-#with CustomObjectScope({'jaccard_distance':jaccard_distance,'iou':iou}):
-#     tfile = tf.contrib.lite.TFLiteConverter.from_keras_model_file('check_unet_membrane.hdf5').convert()
-#     with open('model.tflite', 'wb') as f:
-#       f.write(tfile)
-  
+
 
 class DataLoader():
    def __init__(self,rootG,rootI):
@@ -216,10 +221,15 @@ class DataLoader():
      self.demo2 = np.array(Image.open(self.test_x[-1]).resize((256,192)),dtype=np.float32)/255
      self.demoG2 = np.array(Image.open(self.test_y[-1]).resize((256,192)),dtype=np.float32)/255
      
-     self.test_x = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.test_x])
-     self.test_y = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.test_y])
+     #self.test_x = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.test_x])
+     #self.test_y = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.test_y])
      #self.test_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_x])
      #self.test_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_y])
+     indx=np.random.randint(0,len(self.test_x),size=6)
+     print(indx)
+     
+     self.demo_x =np.array([np.array(Image.open(self.test_x[i]).resize((256,192)),dtype=np.float32)/255 for i in indx])
+     self.demo_y =np.array([np.array(Image.open(self.test_y[i]).resize((256,192)),dtype=np.float32)/255 for i in indx])
 
      
 rootG='ISIC2018_Task1_Training_GroundTruth'
@@ -244,9 +254,6 @@ def test(net, test_x,test_y,th=0.8):
         
         mask_pred =(mask_pred > th)*1
 
-#        jac= jaccard_distance(true_mask,mask_pred)
-
-        #jac = skm.jaccard_score(np.rint((true_mask[::])),np.rint(mask_pred[::]))
         jac=metricJaccard(true_mask,mask_pred)
       #  print(i,': jac: ',jac)
 
@@ -255,79 +262,16 @@ def test(net, test_x,test_y,th=0.8):
 
 th=0.5
 
-#print('jaccard:',test(model,data.test_x,data.test_y,th),'with th:',th)
-#index = 45
-predict_input = data.demo
-ground_truth = data.demoG
-print('loading data')
-predictions =model.predict(predict_input.reshape(1,192,256,3), batch_size=1)
-prediction = (predictions.reshape(192, 256)>th)*1
-
-#index = 45
-print('plot')
-plt.figure()
-plt.imshow(predict_input)
-plt.title('Original')
-plt.show()
-
-plt.figure()
-plt.imshow(prediction)
-plt.title('Predicted %f'%(metricJaccard(ground_truth,prediction)))
-plt.show()
 
 
+for i,b in zip(data.demo_x,data.demo_y):
+   predict_input = i
+   ground_truth = b
+   predictions =model.predict(predict_input.reshape(1,192,256,3), batch_size=1)
+   prediction = (predictions.reshape(192, 256)>th)*1
+   
 
-plt.figure()
-plt.imshow(ground_truth)
-plt.title('Ground Truth')
-plt.show()
+   imshow(predict_input,prediction, ground_truth , title='Predicted %3f.2 %%'%(metricJaccard(ground_truth,prediction)*100))
+ 
+      
 
-
-predict_input = data.demo1
-ground_truth = data.demoG1
-print('loading data')
-predictions =model.predict(predict_input.reshape(1,192,256,3), batch_size=1)
-prediction = (predictions.reshape(192, 256)>th)*1
-print(prediction)
-#index = 45
-print('plot')
-plt.figure()
-plt.imshow(predict_input)
-plt.title('Original')
-plt.show()
-
-plt.figure()
-plt.imshow(prediction)
-plt.title('Predicted %f'%(metricJaccard(ground_truth,prediction)))
-plt.show()
-
-plt.figure()
-plt.imshow(ground_truth)
-plt.title('Ground Truth')
-plt.show()
-
-
-predict_input = data.demo2
-ground_truth = data.demoG2
-print('loading data')
-predictions =model.predict(predict_input.reshape(1,192,256,3), batch_size=1)
-prediction = (predictions.reshape(192, 256)>th)*1
-
-print(prediction)
-#index = 45
-print('plot')
-plt.figure()
-plt.imshow(predict_input)
-plt.title('Original')
-plt.show()
-
-
-plt.figure()
-plt.imshow(prediction)
-plt.title('Predicted %f'%(metricJaccard(ground_truth,prediction)))
-plt.show()
-
-plt.figure()
-plt.imshow(ground_truth)
-plt.title('Ground Truth')
-plt.show()

@@ -167,25 +167,14 @@ model = Model(inputs=img_input, outputs=pred)
 from sklearn.model_selection import train_test_split
   
 model.compile(optimizer= Adam(lr = 0.01), loss=[jaccard_distance], metrics=[iou])
-fi="check_unet_membrane_e_20_lr_01.hdf5"
+fi="models/check_unet_membrane_e_20_lr_001.hdf5"
 model.load_weights(fi)
 print('model load from: ',fi)
 
-#import tensorflow as tf
-#import keras.losses
-#keras.losses.custom_loss = jaccard_distance
-#from tensorflow.python.keras.utils import CustomObjectScope
-#tf.lite.TFLiteConverter.allow_custom_ops=True
-#with CustomObjectScope({'jaccard_distance':jaccard_distance,'iou':iou}):
-#     tfile = tf.contrib.lite.TFLiteConverter.from_keras_model_file('check_unet_membrane.hdf5').convert()
-#     with open('model.tflite', 'wb') as f:
-#       f.write(tfile)
-  
 
 class DataLoader():
    def __init__(self,rootG,rootI):
-     #self.batch_size=batch_size
-     #self.image_size=image_size
+
      self.rootG=rootG
      self.rootI=rootI
 
@@ -207,33 +196,19 @@ class DataLoader():
      print('Number of train images: ',len(self.train_x))
      print('Number of test images: ',len(self.test_x))
      print('Number of validation images: ', len(self.val_x))
-     #self.train_x=np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_x])
-     #self.train_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.train_y])
-     self.demo = np.array(Image.open(self.test_x[506]).resize((256,192)),dtype=np.float32)/255
-     self.demoG = np.array(Image.open(self.test_y[506]).resize((256,192)),dtype=np.float32)/255
-     self.demo1 = np.array(Image.open(self.test_x[512]).resize((256,192)),dtype=np.float32)/255
-     self.demoG1 = np.array(Image.open(self.test_y[512]).resize((256,192)),dtype=np.float32)/255
-     self.demo2 = np.array(Image.open(self.test_x[-1]).resize((256,192)),dtype=np.float32)/255
-     self.demoG2 = np.array(Image.open(self.test_y[-1]).resize((256,192)),dtype=np.float32)/255
-     
+
      self.test_x = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.test_x])
      self.test_y = np.array([np.array(Image.open(fname).resize((256,192)),dtype=np.float32)/255 for fname in self.test_y])
-     #self.test_x = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_x])
-     #self.test_y = np.array([np.array(Image.open(fname).resize((256,192))) for fname in self.test_y])
+
 
      
 rootG='ISIC2018_Task1_Training_GroundTruth'
 rootI='ISIC2018_Task1-2_Training_Input'
 data = DataLoader(rootG,rootI)
-#accuracy = model.evaluate(x=data.test_x,y=data.test_y,batch_size=50)
 
-#predictions_valid = model.predict(data.test_x, batch_size=16, verbose=1)
-#accuracy = model.evaluate(x=data.test_x,y=data.test_y,batch_size=16)
-#print(accuracy)
-#print("Accuracy: ",accuracy[1])
 import sklearn.metrics as skm
 
-def test(net, test_x,test_y,th=0.8):
+def test(net, test_x,test_y,th=0.8,pt=False):
 
     tot = 0
     for i, b in enumerate(zip(test_x,test_y)):
@@ -248,14 +223,25 @@ def test(net, test_x,test_y,th=0.8):
 
         #jac = skm.jaccard_score(np.rint((true_mask[::])),np.rint(mask_pred[::]))
         jac=metricJaccard(true_mask,mask_pred)
-        print(i,': jac: ',jac)
+        if(pt):
+           print(i,': jac: ',jac)
 
         tot += jac
     return tot / (i + 1)
 
 th=0.5
 
-print('jaccard:',test(model,data.test_x,data.test_y,th),'with th:',th)
+print('jaccard:',test(model,data.test_x,data.test_y,th,True),'with th:',th)
 #index = 45
 
+ls = np.linspace(0,1.0,20)
+alj=[]
+for i in ls:
 
+    alj.append(test(model,data.test_x,data.test_y,i,False))
+    print(i,': ', alj[-1])
+
+plt.plot(ls,alj,color='green',linewidth=2)
+m = max(alj)
+plt.title(('Jaccard vs Threshold: Best TH: %f')%(m))
+plt.show()
